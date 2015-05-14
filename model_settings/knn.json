@@ -1,0 +1,10 @@
+{
+	"sorting_threshold": 45,
+	"use_distance_weights": true,
+	"leave_one_out_reps": 0,
+	"leave_one_out_threshold": 0.1,
+	"distance_to_unknown": 0.5
+	
+	"filters": ["normalize"],
+	"k": 2
+}

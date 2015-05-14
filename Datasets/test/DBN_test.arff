@@ -1,0 +1,10 @@
+% A simple time dependent dataset
+
+@RELATION DBN_test
+
+@ATTRIBUTE in1	Continuous
+@ATTRIBUTE in2	Continuous
+
+@DATA
+0.3,-0.1
+

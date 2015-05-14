@@ -1,0 +1,9 @@
+{
+	"filters": ["normalize", "mean_mode_unknown_filler"],
+	
+	"distance_to_unknown": 0.5,
+	"k": 7,
+	"theta": 0.5,
+	
+	"ic_settings_file": "model_settings/ic_SMO.json"
+}

@@ -1,0 +1,11 @@
+% A simple non time dependent dataset
+
+@RELATION simple_nominal
+
+@ATTRIBUTE x1	{a,b,c}
+@ATTRIBUTE class1	{a,b,c}
+@ATTRIBUTE class2	{a,b,c}
+
+@DATA
+a,c,b
+

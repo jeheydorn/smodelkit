@@ -1,0 +1,16 @@
+{
+	"filters": ["reorder_outputs"],
+	"useAllPreviousPredictions": true,
+	"useLabelsAsInputWhileTraining": true,
+	"passOutputWeightsUnfiltered": false, 
+	
+	"beam_width": 20,
+	"aggregation_operator": "*",
+	
+	"useWrapper": false,
+	"wrapperValidationPercent": 0.2,
+	"wrapperFeatureSelectionReps": 1,
+	
+	"submodelName": "weka",
+	"submodelSettingsFile": "model_settings/weka_LMT.json"
+}

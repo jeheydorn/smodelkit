@@ -1,0 +1,45 @@
+{
+	"subModels": 
+	[
+		{
+			"name": "neuralnet",
+			"settingsFile": "neuralnet.json"
+		},
+		{
+			"name": "neuralnet",
+			"settingsFile": "neuralnet.json"
+		},
+		{
+			"name": "neuralnet",
+			"settingsFile": "neuralnet.json"
+		},
+		{
+			"name": "neuralnet",
+			"settingsFile": "neuralnet.json"
+		},
+		{
+			"name": "neuralnet",
+			"settingsFile": "neuralnet.json"
+		},
+		{
+			"name": "neuralnet",
+			"settingsFile": "neuralnet.json"
+		},
+		{
+			"name": "neuralnet",
+			"settingsFile": "neuralnet.json"
+		},
+		{
+			"name": "neuralnet",
+			"settingsFile": "neuralnet.json"
+		},
+		{
+			"name": "neuralnet",
+			"settingsFile": "neuralnet.json"
+		},
+		{
+			"name": "neuralnet",
+			"settingsFile": "neuralnet.json"
+		}
+	]
+}

@@ -1,0 +1,11 @@
+
+@RELATION oversample
+
+@ATTRIBUTE x1	{blue,red,green}
+@ATTRIBUTE class2	continuous
+
+@DATA
+blue,0.0
+red,0.0
+green,0.0
+blue,1.0

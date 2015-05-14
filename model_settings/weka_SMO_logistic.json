@@ -1,0 +1,6 @@
+{
+	"classifierName": "weka.classifiers.functions.SMO",
+	"options": "-M -W $RANDOM -K 'weka.classifiers.functions.supportVector.PolyKernel -E 1'",
+	
+	"normalizePredictedWeights": false
+}

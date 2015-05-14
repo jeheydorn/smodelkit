@@ -1,0 +1,6 @@
+{
+	"classifierName": "weka.classifiers.functions.MultilayerPerceptron",
+	"options": "-L 0.1 -M 0.0 -V 20 -E 10 -S 43 -H 46",
+	
+	"normalizePredictedWeights": false
+}

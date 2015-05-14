@@ -1,0 +1,11 @@
+@RELATION 'synthetic: -c -4 '
+
+@ATTRIBUTE x1	continuous
+@ATTRIBUTE x2	continuous
+@ATTRIBUTE x3	continuous
+@ATTRIBUTE class1 {e, f}
+@ATTRIBUTE class2 {e, f, g, h}
+@ATTRIBUTE class3 {e, f, g, h, i, j, k, l}
+@ATTRIBUTE class4 {e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t}
+
+@DATA

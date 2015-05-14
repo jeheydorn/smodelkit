@@ -1,0 +1,14 @@
+@RELATION iris
+
+@ATTRIBUTE a1	Continuous
+@ATTRIBUTE a2 	Continuous
+@ATTRIBUTE a3 	Continuous
+@ATTRIBUTE a4	{type0, type1, type2, type3, type4, type5}
+@ATTRIBUTE a5	Continuous
+@ATTRIBUTE class 	{label0,label1,label2}
+
+@DATA
+?,3.5,1.4,type5,0.2,label0
+7.0,3.2,4.7,type0,1.4,label2
+7.3,2.9,?,type0,1.8,label0
+8.2,3.3,?,?,?,label1

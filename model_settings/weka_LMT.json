@@ -1,0 +1,6 @@
+{
+	"classifierName": "weka.classifiers.trees.LMT",
+	"options": " -I -1 -M 15 -W 0.0",
+	
+	"normalizePredictedWeights": true
+}

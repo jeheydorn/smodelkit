@@ -1,0 +1,11 @@
+% A simple non time dependent dataset
+
+@RELATION simple
+
+@ATTRIBUTE in	Continuous
+@ATTRIBUTE class	{0,1}
+
+@DATA
+1,0
+4,1
+

@@ -1,0 +1,49 @@
+{
+	"submodels" : 
+	[
+		{
+			"name": "rankedcc",
+			"settingsFile": "model_settings/rankedcc_wove_SMO.json"
+		}		
+		{
+			"name": "rankedcc",
+			"settingsFile": "model_settings/rankedcc_wove_SMO.json"
+		}		
+		{
+			"name": "rankedcc",
+			"settingsFile": "model_settings/rankedcc_wove_SMO.json"
+		}		
+		{
+			"name": "rankedcc",
+			"settingsFile": "model_settings/rankedcc_wove_SMO.json"
+		}		
+		{
+			"name": "rankedcc",
+			"settingsFile": "model_settings/rankedcc_wove_SMO.json"
+		}		
+		{
+			"name": "rankedcc",
+			"settingsFile": "model_settings/rankedcc_wove_SMO.json"
+		}		
+		{
+			"name": "rankedcc",
+			"settingsFile": "model_settings/rankedcc_wove_SMO.json"
+		}		
+		{
+			"name": "rankedcc",
+			"settingsFile": "model_settings/rankedcc_wove_SMO.json"
+		}		
+		{
+			"name": "rankedcc",
+			"settingsFile": "model_settings/rankedcc_wove_SMO.json"
+		}		
+		{
+			"name": "rankedcc",
+			"settingsFile": "model_settings/rankedcc_wove_SMO.json"
+		}		
+	],
+	
+	"doBagging": false
+	"useModelWeights": false,
+	"numPredictionsWhenSettingModelWeights": 100
+}

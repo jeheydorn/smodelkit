@@ -1,0 +1,6 @@
+{
+	"submodelName": "rankedcc",
+	"submodelSettingsFile": "model_settings/rankedcc_mwe.json",
+	"size": 10,
+	"doBagging": true
+}

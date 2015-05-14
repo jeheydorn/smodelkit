@@ -1,0 +1,4 @@
+{
+	"submodelName": "neuralnet",
+	"submodelSettingsFile": "model_settings/neuralnet_hmonn.json"
+}

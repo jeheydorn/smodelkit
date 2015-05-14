@@ -1,0 +1,4 @@
+{
+	"submodelName": "weka",
+	"submodelSettingsFile": "model_settings/weka_SMO.json",
+}

@@ -1,0 +1,330 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- WARNING: Eclipse auto-generated file.
+              Any modifications will be overwritten.
+              To include a user specific buildfile here, simply create one in the same
+              directory with the processing instruction <?eclipse.ant.import?>
+              as the first entry and export the buildfile again. --><project basedir="." default="build" name="SMODeLKit">
+    <property environment="env"/>
+    <property name="Workbench.location" value="../Workbench"/>
+    <property name="meka.location" value="../meka"/>
+    <property name="junit.output.dir" value="junit"/>
+    <property name="debuglevel" value="source,lines,vars"/>
+    <property name="target" value="1.8"/>
+    <property name="source" value="1.8"/>
+    <path id="SMODeLKit.classpath">
+        <pathelement location="bin"/>
+        <pathelement location="libraries/commons-io-2.4.jar"/>
+        <pathelement location="libraries/commons-math3-3.2.jar"/>
+        <pathelement location="libraries/jcommander.jar"/>
+        <pathelement location="libraries/json-simple-1.1.1.jar"/>
+        <pathelement location="libraries/opencsv-2.3.jar"/>
+        <pathelement location="libraries/junit.jar"/>
+        <pathelement location="libraries/org.hamcrest.core_1.3.0.v201303031735.jar"/>
+        <pathelement location="../../weka-3-7-11/weka.jar"/>
+    </path>
+    <target name="init">
+        <mkdir dir="bin"/>
+        <copy includeemptydirs="false" todir="bin">
+            <fileset dir="src">
+                <exclude name="**/*.launch"/>
+                <exclude name="**/*.java"/>
+                <exclude name="excludedFromBuild/"/>
+            </fileset>
+        </copy>
+    </target>
+    <target name="clean">
+        <delete dir="bin"/>
+    </target>
+    <target depends="clean" name="cleanall"/>
+    <target depends="build-subprojects,build-project" name="build"/>
+    <target name="build-subprojects"/>
+    <target depends="init" name="build-project">
+        <echo message="${ant.project.name}: ${ant.file}"/>
+        <javac debug="true" debuglevel="${debuglevel}" destdir="bin" includeantruntime="false" source="${source}" target="${target}">
+            <src path="src"/>
+            <exclude name="excludedFromBuild/"/>
+            <classpath refid="SMODeLKit.classpath"/>
+        </javac>
+    </target>
+    <target description="Build all projects which reference this project. Useful to propagate changes." name="build-refprojects">
+        <ant antfile="build.xml" dir="${Workbench.location}" inheritAll="false" target="clean"/>
+        <ant antfile="build.xml" dir="${Workbench.location}" inheritAll="false" target="build">
+            <propertyset>
+                <propertyref name="build.compiler"/>
+            </propertyset>
+        </ant>
+        <ant antfile="build.xml" dir="${meka.location}" inheritAll="false" target="clean"/>
+        <ant antfile="build.xml" dir="${meka.location}" inheritAll="false" target="build">
+            <propertyset>
+                <propertyref name="build.compiler"/>
+            </propertyset>
+        </ant>
+    </target>
+    <target description="copy Eclipse compiler jars to ant lib directory" name="init-eclipse-compiler">
+        <copy todir="${ant.library.dir}">
+            <fileset dir="${ECLIPSE_HOME}/plugins" includes="org.eclipse.jdt.core_*.jar"/>
+        </copy>
+        <unzip dest="${ant.library.dir}">
+            <patternset includes="jdtCompilerAdapter.jar"/>
+            <fileset dir="${ECLIPSE_HOME}/plugins" includes="org.eclipse.jdt.core_*.jar"/>
+        </unzip>
+    </target>
+    <target description="compile project with Eclipse compiler" name="build-eclipse-compiler">
+        <property name="build.compiler" value="org.eclipse.jdt.core.JDTCompilerAdapter"/>
+        <antcall target="build"/>
+    </target>
+    <target name="IndependentClassifiersTest">
+        <mkdir dir="${junit.output.dir}"/>
+        <junit fork="yes" printsummary="withOutAndErr">
+            <formatter type="xml"/>
+            <test name="smodelkit.test.IndependentClassifiersTest" todir="${junit.output.dir}"/>
+            <classpath refid="SMODeLKit.classpath"/>
+        </junit>
+    </target>
+    <target name="EvaluatorPluginTest.loadEvaluatorWithArgsTest">
+        <mkdir dir="${junit.output.dir}"/>
+        <junit fork="yes" printsummary="withOutAndErr">
+            <formatter type="xml"/>
+            <test name="smodelkit.test.EvaluatorPluginTest" todir="${junit.output.dir}"/>
+            <classpath refid="SMODeLKit.classpath"/>
+        </junit>
+    </target>
+    <target name="AccuracyOfGroupTest.test">
+        <mkdir dir="${junit.output.dir}"/>
+        <junit fork="yes" printsummary="withOutAndErr">
+            <formatter type="xml"/>
+            <test name="smodelkit.test.AccuracyOfGroupTest" todir="${junit.output.dir}"/>
+            <classpath refid="SMODeLKit.classpath"/>
+        </junit>
+    </target>
+    <target name="VectorTest.addAllTest">
+        <mkdir dir="${junit.output.dir}"/>
+        <junit fork="yes" printsummary="withOutAndErr">
+            <formatter type="xml"/>
+            <test name="smodelkit.test.VectorTest" todir="${junit.output.dir}"/>
+            <classpath refid="SMODeLKit.classpath"/>
+        </junit>
+    </target>
+    <target name="VectorTest.assertVectorEqualsTest4">
+        <mkdir dir="${junit.output.dir}"/>
+        <junit fork="yes" printsummary="withOutAndErr">
+            <formatter type="xml"/>
+            <test name="smodelkit.test.VectorTest" todir="${junit.output.dir}"/>
+            <classpath refid="SMODeLKit.classpath"/>
+        </junit>
+    </target>
+    <target name="MLSystemsManagerTest.staticTest">
+        <mkdir dir="${junit.output.dir}"/>
+        <junit fork="yes" printsummary="withOutAndErr">
+            <formatter type="xml"/>
+            <test name="smodelkit.test.MLSystemsManagerTest" todir="${junit.output.dir}"/>
+            <classpath refid="SMODeLKit.classpath"/>
+        </junit>
+    </target>
+    <target name="VectorTest.subVectorNegativeTest1">
+        <mkdir dir="${junit.output.dir}"/>
+        <junit fork="yes" printsummary="withOutAndErr">
+            <formatter type="xml"/>
+            <test name="smodelkit.test.VectorTest" todir="${junit.output.dir}"/>
+            <classpath refid="SMODeLKit.classpath"/>
+        </junit>
+    </target>
+    <target name="VectorTest">
+        <mkdir dir="${junit.output.dir}"/>
+        <junit fork="yes" printsummary="withOutAndErr">
+            <formatter type="xml"/>
+            <test name="smodelkit.test.VectorTest" todir="${junit.output.dir}"/>
+            <classpath refid="SMODeLKit.classpath"/>
+        </junit>
+    </target>
+    <target name="VectorTest.assertVectorEqualsTest3">
+        <mkdir dir="${junit.output.dir}"/>
+        <junit fork="yes" printsummary="withOutAndErr">
+            <formatter type="xml"/>
+            <test name="smodelkit.test.VectorTest" todir="${junit.output.dir}"/>
+            <classpath refid="SMODeLKit.classpath"/>
+        </junit>
+    </target>
+    <target name="PairwiseCouplingTest">
+        <mkdir dir="${junit.output.dir}"/>
+        <junit fork="yes" printsummary="withOutAndErr">
+            <formatter type="xml"/>
+            <test name="smodelkit.test.PairwiseCouplingTest" todir="${junit.output.dir}"/>
+            <classpath refid="SMODeLKit.classpath"/>
+        </junit>
+    </target>
+    <target name="SupervisedLearnerTest">
+        <mkdir dir="${junit.output.dir}"/>
+        <junit fork="yes" printsummary="withOutAndErr">
+            <formatter type="xml"/>
+            <test name="smodelkit.test.SupervisedLearnerTest" todir="${junit.output.dir}"/>
+            <classpath refid="SMODeLKit.classpath"/>
+        </junit>
+    </target>
+    <target name="MLSystemsManager">
+        <java classname="smodelkit.MLSystemsManager" failonerror="true" fork="yes">
+            <arg line="-L neuralnet model_settings/neuralnet_test.json -A Datasets/mdc/synthetic/continuous_2out_4class.arff -E cross 5 -M top-n 1 2 3"/>
+            <classpath refid="SMODeLKit.classpath"/>
+        </java>
+    </target>
+    <target name="VectorTest.assertVectorEqualsTest2">
+        <mkdir dir="${junit.output.dir}"/>
+        <junit fork="yes" printsummary="withOutAndErr">
+            <formatter type="xml"/>
+            <test name="smodelkit.test.VectorTest" todir="${junit.output.dir}"/>
+            <classpath refid="SMODeLKit.classpath"/>
+        </junit>
+    </target>
+    <target name="EvaluatorPluginTest.loadEvaluatorWithMutlipleArgsTest">
+        <mkdir dir="${junit.output.dir}"/>
+        <junit fork="yes" printsummary="withOutAndErr">
+            <formatter type="xml"/>
+            <test name="smodelkit.test.EvaluatorPluginTest" todir="${junit.output.dir}"/>
+            <classpath refid="SMODeLKit.classpath"/>
+        </junit>
+    </target>
+    <target name="AccuracyOfGroupTest">
+        <mkdir dir="${junit.output.dir}"/>
+        <junit fork="yes" printsummary="withOutAndErr">
+            <formatter type="xml"/>
+            <test name="smodelkit.test.AccuracyOfGroupTest" todir="${junit.output.dir}"/>
+            <classpath refid="SMODeLKit.classpath"/>
+        </junit>
+    </target>
+    <target name="EvaluatorPluginTest">
+        <mkdir dir="${junit.output.dir}"/>
+        <junit fork="yes" printsummary="withOutAndErr">
+            <formatter type="xml"/>
+            <test name="smodelkit.test.EvaluatorPluginTest" todir="${junit.output.dir}"/>
+            <classpath refid="SMODeLKit.classpath"/>
+        </junit>
+    </target>
+    <target name="MatrixTest.instanceWeightNegativeTest">
+        <mkdir dir="${junit.output.dir}"/>
+        <junit fork="yes" printsummary="withOutAndErr">
+            <formatter type="xml"/>
+            <test name="smodelkit.test.MatrixTest" todir="${junit.output.dir}"/>
+            <classpath refid="SMODeLKit.classpath"/>
+        </junit>
+    </target>
+    <target name="WekaWrapperTest">
+        <mkdir dir="${junit.output.dir}"/>
+        <junit fork="yes" printsummary="withOutAndErr">
+            <formatter type="xml"/>
+            <test name="smodelkit.test.WekaWrapperTest" todir="${junit.output.dir}"/>
+            <classpath refid="SMODeLKit.classpath"/>
+        </junit>
+    </target>
+    <target name="VectorTest.removeTest">
+        <mkdir dir="${junit.output.dir}"/>
+        <junit fork="yes" printsummary="withOutAndErr">
+            <formatter type="xml"/>
+            <test name="smodelkit.test.VectorTest" todir="${junit.output.dir}"/>
+            <classpath refid="SMODeLKit.classpath"/>
+        </junit>
+    </target>
+    <target name="TopNHammingTest.test">
+        <mkdir dir="${junit.output.dir}"/>
+        <junit fork="yes" printsummary="withOutAndErr">
+            <formatter type="xml"/>
+            <test name="smodelkit.test.TopNHammingTest" todir="${junit.output.dir}"/>
+            <classpath refid="SMODeLKit.classpath"/>
+        </junit>
+    </target>
+    <target name="VectorTest.subVectorTest">
+        <mkdir dir="${junit.output.dir}"/>
+        <junit fork="yes" printsummary="withOutAndErr">
+            <formatter type="xml"/>
+            <test name="smodelkit.test.VectorTest" todir="${junit.output.dir}"/>
+            <classpath refid="SMODeLKit.classpath"/>
+        </junit>
+    </target>
+    <target name="InstanceWeightTest.neuralNetTest">
+        <mkdir dir="${junit.output.dir}"/>
+        <junit fork="yes" printsummary="withOutAndErr">
+            <formatter type="xml"/>
+            <test name="smodelkit.test.InstanceWeightTest" todir="${junit.output.dir}"/>
+            <classpath refid="SMODeLKit.classpath"/>
+        </junit>
+    </target>
+    <target name="InstanceWeightTest">
+        <mkdir dir="${junit.output.dir}"/>
+        <junit fork="yes" printsummary="withOutAndErr">
+            <formatter type="xml"/>
+            <test name="smodelkit.test.InstanceWeightTest" todir="${junit.output.dir}"/>
+            <classpath refid="SMODeLKit.classpath"/>
+        </junit>
+    </target>
+    <target name="EvaluatorPluginTest.loadEvaluatorTest">
+        <mkdir dir="${junit.output.dir}"/>
+        <junit fork="yes" printsummary="withOutAndErr">
+            <formatter type="xml"/>
+            <test name="smodelkit.test.EvaluatorPluginTest" todir="${junit.output.dir}"/>
+            <classpath refid="SMODeLKit.classpath"/>
+        </junit>
+    </target>
+    <target name="EvaluatorPluginTest.multipleEvaluatorTest">
+        <mkdir dir="${junit.output.dir}"/>
+        <junit fork="yes" printsummary="withOutAndErr">
+            <formatter type="xml"/>
+            <test name="smodelkit.test.EvaluatorPluginTest" todir="${junit.output.dir}"/>
+            <classpath refid="SMODeLKit.classpath"/>
+        </junit>
+    </target>
+    <target name="VectorTest.assertVectorEqualsTest">
+        <mkdir dir="${junit.output.dir}"/>
+        <junit fork="yes" printsummary="withOutAndErr">
+            <formatter type="xml"/>
+            <test name="smodelkit.test.VectorTest" todir="${junit.output.dir}"/>
+            <classpath refid="SMODeLKit.classpath"/>
+        </junit>
+    </target>
+    <target name="smodelkit.test">
+        <mkdir dir="${junit.output.dir}"/>
+        <junit fork="yes" printsummary="withOutAndErr">
+            <formatter type="xml"/>
+            <test name="smodelkit.test.AccuracyOfGroupTest" todir="${junit.output.dir}"/>
+            <test name="smodelkit.test.CombinationIteratorTest" todir="${junit.output.dir}"/>
+            <test name="smodelkit.test.DiscreteDistributionTest" todir="${junit.output.dir}"/>
+            <test name="smodelkit.test.EvaluatorPluginTest" todir="${junit.output.dir}"/>
+            <test name="smodelkit.test.FeatureWrapperTest" todir="${junit.output.dir}"/>
+            <test name="smodelkit.test.FilterTest" todir="${junit.output.dir}"/>
+            <test name="smodelkit.test.HelperTest" todir="${junit.output.dir}"/>
+            <test name="smodelkit.test.IndependentClassifiersTest" todir="${junit.output.dir}"/>
+            <test name="smodelkit.test.InstanceWeightTest" todir="${junit.output.dir}"/>
+            <test name="smodelkit.test.MLSystemsManagerTest" todir="${junit.output.dir}"/>
+            <test name="smodelkit.test.MatrixTest" todir="${junit.output.dir}"/>
+            <test name="smodelkit.test.MaxWeightEnsembleTest" todir="${junit.output.dir}"/>
+            <test name="smodelkit.test.MeanModeUnknownFillerTest" todir="${junit.output.dir}"/>
+            <test name="smodelkit.test.NominalToCategoricalTest" todir="${junit.output.dir}"/>
+            <test name="smodelkit.test.NormalizeTest" todir="${junit.output.dir}"/>
+            <test name="smodelkit.test.PermutationIteratorTest" todir="${junit.output.dir}"/>
+            <test name="smodelkit.test.QuoteParserTest" todir="${junit.output.dir}"/>
+            <test name="smodelkit.test.RankedCCTest" todir="${junit.output.dir}"/>
+            <test name="smodelkit.test.ReorderOutputsTest" todir="${junit.output.dir}"/>
+            <test name="smodelkit.test.SampleTest" todir="${junit.output.dir}"/>
+            <test name="smodelkit.test.SequenceIteratorTest" todir="${junit.output.dir}"/>
+            <test name="smodelkit.test.SupervisedLearnerTest" todir="${junit.output.dir}"/>
+            <test name="smodelkit.test.TopNHammingTest" todir="${junit.output.dir}"/>
+            <test name="smodelkit.test.Tuple2IteratorTest" todir="${junit.output.dir}"/>
+            <test name="smodelkit.test.VectorTest" todir="${junit.output.dir}"/>
+            <classpath refid="SMODeLKit.classpath"/>
+        </junit>
+    </target>
+    <target name="ReorderOutputsTest">
+        <mkdir dir="${junit.output.dir}"/>
+        <junit fork="yes" printsummary="withOutAndErr">
+            <formatter type="xml"/>
+            <test name="smodelkit.test.ReorderOutputsTest" todir="${junit.output.dir}"/>
+            <classpath refid="SMODeLKit.classpath"/>
+        </junit>
+    </target>
+    <target name="junitreport">
+        <junitreport todir="${junit.output.dir}">
+            <fileset dir="${junit.output.dir}">
+                <include name="TEST-*.xml"/>
+            </fileset>
+            <report format="frames" todir="${junit.output.dir}"/>
+        </junitreport>
+    </target>
+</project>

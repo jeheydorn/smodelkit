@@ -1,0 +1,13 @@
+% A simple non time dependent dataset
+
+@RELATION simple_nominal
+
+@ATTRIBUTE x1	{blue,red,green}
+@ATTRIBUTE x2	real
+@ATTRIBUTE class1	{pig,sheep}
+@ATTRIBUTE class2	{tasty,in-between,not-tasty}
+
+@DATA
+blue,8.88,pig,tasty
+green,999.1,sheep,not-tasty
+

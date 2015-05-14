@@ -1,0 +1,46 @@
+% If the model uses the weights, it should guess 'b' instead of 'a'.
+
+@RELATION 'weighted_instances -c -2'
+
+@ATTRIBUTE x1	{red,green}
+@ATTRIBUTE x2	numeric
+@ATTRIBUTE class1	{a, b}
+@ATTRIBUTE class2	{a, b}
+
+@DATA
+red, 0.7, a, a, {0.5}
+red, 0.7, a, a, {0.5}
+red, 0.7, b, b, {2.0}
+red, 0.7, a, a, {0.5}
+red, 0.7, a, a, {0.5}
+red, 0.7, b, b, {2.0}
+red, 0.7, a, a, {0.5}
+red, 0.7, a, a, {0.5}
+red, 0.7, b, b, {2.0}
+red, 0.7, a, a, {0.5}
+red, 0.7, a, a, {0.5}
+red, 0.7, b, b, {2.0}
+red, 0.7, a, a, {0.5}
+red, 0.7, a, a, {0.5}
+red, 0.7, b, b, {2.0}
+red, 0.7, a, a, {0.5}
+red, 0.7, a, a, {0.5}
+red, 0.7, b, b, {2.0}
+red, 0.7, a, a, {0.5}
+red, 0.7, a, a, {0.5}
+red, 0.7, b, b, {2.0}
+red, 0.7, a, a, {0.5}
+red, 0.7, a, a, {0.5}
+red, 0.7, b, b, {2.0}
+red, 0.7, a, a, {0.5}
+red, 0.7, a, a, {0.5}
+red, 0.7, b, b, {2.0}
+red, 0.7, a, a, {0.5}
+red, 0.7, a, a, {0.5}
+red, 0.7, b, b, {2.0}
+red, 0.7, a, a, {0.5}
+red, 0.7, a, a, {0.5}
+red, 0.7, b, b, {2.0}
+red, 0.7, a, a, {0.5}
+red, 0.7, a, a, {0.5}
+red, 0.7, b, b, {2.0}

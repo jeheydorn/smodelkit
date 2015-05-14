@@ -1,0 +1,12 @@
+% A simple non time dependent dataset
+
+@RELATION simple_nominal
+
+@ATTRIBUTE x1	real
+@ATTRIBUTE x2	real
+@ATTRIBUTE class1	{low,med,high}
+
+@DATA
+0.4,0.9,med
+
+

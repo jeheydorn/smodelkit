@@ -1,0 +1,18 @@
+% A simple time dependent dataset
+
+@RELATION simple
+
+@ATTRIBUTE in	Continuous
+@ATTRIBUTE class	Continuous
+
+@DATA
+1,0
+4,1
+8,4
+2,8
+6,2
+3,6
+9,3
+5,9
+7,5
+

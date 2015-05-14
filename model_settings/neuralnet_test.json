@@ -1,0 +1,20 @@
+{
+	"filters": ["smodelkit.filter.Normalize", "smodelkit.filter.NominalToCategorical"],
+	"hiddenLayerMultiples": [2],
+	"hiddenLayerSizes": null,
+	"includeLabelsInHiddenLayerMultiples": false,
+	"validationSetPercent": 0.2,
+	"learningRate": 0.1,
+	"momentum": 0.0,
+
+	"reverseFilterWhilePredicting": false,
+	"increasContrastOfHiddenLayerInputs": false,
+	"weightDecayRate": 0.0,
+	"normalizePredictions": false,
+		
+	"maxEpochs" : null,
+	"maxEpochsWithoutImprovement": 10,
+	"improvementThreshold": 0.00001,
+	"epochSize": null,
+	"minEpochSize": 2000
+}
