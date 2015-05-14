@@ -3,7 +3,7 @@
               Any modifications will be overwritten.
               To include a user specific buildfile here, simply create one in the same
               directory with the processing instruction <?eclipse.ant.import?>
-              as the first entry and export the buildfile again. --><project basedir="." default="build" name="SMODeLKit">
+              as the first entry and export the buildfile again. --><project basedir="." default="build" name="smodelkit">
     <property environment="env"/>
     <property name="Workbench.location" value="../Workbench"/>
     <property name="meka.location" value="../meka"/>
@@ -11,7 +11,7 @@
     <property name="debuglevel" value="source,lines,vars"/>
     <property name="target" value="1.8"/>
     <property name="source" value="1.8"/>
-    <path id="SMODeLKit.classpath">
+    <path id="smodelkit.classpath">
         <pathelement location="bin"/>
         <pathelement location="libraries/commons-io-2.4.jar"/>
         <pathelement location="libraries/commons-math3-3.2.jar"/>
@@ -43,7 +43,7 @@
         <javac debug="true" debuglevel="${debuglevel}" destdir="bin" includeantruntime="false" source="${source}" target="${target}">
             <src path="src"/>
             <exclude name="excludedFromBuild/"/>
-            <classpath refid="SMODeLKit.classpath"/>
+            <classpath refid="smodelkit.classpath"/>
         </javac>
     </target>
     <target description="Build all projects which reference this project. Useful to propagate changes." name="build-refprojects">
@@ -78,7 +78,7 @@
         <junit fork="yes" printsummary="withOutAndErr">
             <formatter type="xml"/>
             <test name="smodelkit.test.IndependentClassifiersTest" todir="${junit.output.dir}"/>
-            <classpath refid="SMODeLKit.classpath"/>
+            <classpath refid="smodelkit.classpath"/>
         </junit>
     </target>
     <target name="EvaluatorPluginTest.loadEvaluatorWithArgsTest">
@@ -86,7 +86,7 @@
         <junit fork="yes" printsummary="withOutAndErr">
             <formatter type="xml"/>
             <test name="smodelkit.test.EvaluatorPluginTest" todir="${junit.output.dir}"/>
-            <classpath refid="SMODeLKit.classpath"/>
+            <classpath refid="smodelkit.classpath"/>
         </junit>
     </target>
     <target name="AccuracyOfGroupTest.test">
@@ -94,7 +94,7 @@
         <junit fork="yes" printsummary="withOutAndErr">
             <formatter type="xml"/>
             <test name="smodelkit.test.AccuracyOfGroupTest" todir="${junit.output.dir}"/>
-            <classpath refid="SMODeLKit.classpath"/>
+            <classpath refid="smodelkit.classpath"/>
         </junit>
     </target>
     <target name="VectorTest.addAllTest">
@@ -102,7 +102,7 @@
         <junit fork="yes" printsummary="withOutAndErr">
             <formatter type="xml"/>
             <test name="smodelkit.test.VectorTest" todir="${junit.output.dir}"/>
-            <classpath refid="SMODeLKit.classpath"/>
+            <classpath refid="smodelkit.classpath"/>
         </junit>
     </target>
     <target name="VectorTest.assertVectorEqualsTest4">
@@ -110,7 +110,7 @@
         <junit fork="yes" printsummary="withOutAndErr">
             <formatter type="xml"/>
             <test name="smodelkit.test.VectorTest" todir="${junit.output.dir}"/>
-            <classpath refid="SMODeLKit.classpath"/>
+            <classpath refid="smodelkit.classpath"/>
         </junit>
     </target>
     <target name="MLSystemsManagerTest.staticTest">
@@ -118,7 +118,7 @@
         <junit fork="yes" printsummary="withOutAndErr">
             <formatter type="xml"/>
             <test name="smodelkit.test.MLSystemsManagerTest" todir="${junit.output.dir}"/>
-            <classpath refid="SMODeLKit.classpath"/>
+            <classpath refid="smodelkit.classpath"/>
         </junit>
     </target>
     <target name="VectorTest.subVectorNegativeTest1">
@@ -126,7 +126,7 @@
         <junit fork="yes" printsummary="withOutAndErr">
             <formatter type="xml"/>
             <test name="smodelkit.test.VectorTest" todir="${junit.output.dir}"/>
-            <classpath refid="SMODeLKit.classpath"/>
+            <classpath refid="smodelkit.classpath"/>
         </junit>
     </target>
     <target name="VectorTest">
@@ -134,7 +134,7 @@
         <junit fork="yes" printsummary="withOutAndErr">
             <formatter type="xml"/>
             <test name="smodelkit.test.VectorTest" todir="${junit.output.dir}"/>
-            <classpath refid="SMODeLKit.classpath"/>
+            <classpath refid="smodelkit.classpath"/>
         </junit>
     </target>
     <target name="VectorTest.assertVectorEqualsTest3">
@@ -142,7 +142,7 @@
         <junit fork="yes" printsummary="withOutAndErr">
             <formatter type="xml"/>
             <test name="smodelkit.test.VectorTest" todir="${junit.output.dir}"/>
-            <classpath refid="SMODeLKit.classpath"/>
+            <classpath refid="smodelkit.classpath"/>
         </junit>
     </target>
     <target name="PairwiseCouplingTest">
@@ -150,7 +150,7 @@
         <junit fork="yes" printsummary="withOutAndErr">
             <formatter type="xml"/>
             <test name="smodelkit.test.PairwiseCouplingTest" todir="${junit.output.dir}"/>
-            <classpath refid="SMODeLKit.classpath"/>
+            <classpath refid="smodelkit.classpath"/>
         </junit>
     </target>
     <target name="SupervisedLearnerTest">
@@ -158,13 +158,13 @@
         <junit fork="yes" printsummary="withOutAndErr">
             <formatter type="xml"/>
             <test name="smodelkit.test.SupervisedLearnerTest" todir="${junit.output.dir}"/>
-            <classpath refid="SMODeLKit.classpath"/>
+            <classpath refid="smodelkit.classpath"/>
         </junit>
     </target>
     <target name="MLSystemsManager">
         <java classname="smodelkit.MLSystemsManager" failonerror="true" fork="yes">
             <arg line="-L neuralnet model_settings/neuralnet_test.json -A Datasets/mdc/synthetic/continuous_2out_4class.arff -E cross 5 -M top-n 1 2 3"/>
-            <classpath refid="SMODeLKit.classpath"/>
+            <classpath refid="smodelkit.classpath"/>
         </java>
     </target>
     <target name="VectorTest.assertVectorEqualsTest2">
@@ -172,7 +172,7 @@
         <junit fork="yes" printsummary="withOutAndErr">
             <formatter type="xml"/>
             <test name="smodelkit.test.VectorTest" todir="${junit.output.dir}"/>
-            <classpath refid="SMODeLKit.classpath"/>
+            <classpath refid="smodelkit.classpath"/>
         </junit>
     </target>
     <target name="EvaluatorPluginTest.loadEvaluatorWithMutlipleArgsTest">
@@ -180,7 +180,7 @@
         <junit fork="yes" printsummary="withOutAndErr">
             <formatter type="xml"/>
             <test name="smodelkit.test.EvaluatorPluginTest" todir="${junit.output.dir}"/>
-            <classpath refid="SMODeLKit.classpath"/>
+            <classpath refid="smodelkit.classpath"/>
         </junit>
     </target>
     <target name="AccuracyOfGroupTest">
@@ -188,7 +188,7 @@
         <junit fork="yes" printsummary="withOutAndErr">
             <formatter type="xml"/>
             <test name="smodelkit.test.AccuracyOfGroupTest" todir="${junit.output.dir}"/>
-            <classpath refid="SMODeLKit.classpath"/>
+            <classpath refid="smodelkit.classpath"/>
         </junit>
     </target>
     <target name="EvaluatorPluginTest">
@@ -196,7 +196,7 @@
         <junit fork="yes" printsummary="withOutAndErr">
             <formatter type="xml"/>
             <test name="smodelkit.test.EvaluatorPluginTest" todir="${junit.output.dir}"/>
-            <classpath refid="SMODeLKit.classpath"/>
+            <classpath refid="smodelkit.classpath"/>
         </junit>
     </target>
     <target name="MatrixTest.instanceWeightNegativeTest">
@@ -204,7 +204,7 @@
         <junit fork="yes" printsummary="withOutAndErr">
             <formatter type="xml"/>
             <test name="smodelkit.test.MatrixTest" todir="${junit.output.dir}"/>
-            <classpath refid="SMODeLKit.classpath"/>
+            <classpath refid="smodelkit.classpath"/>
         </junit>
     </target>
     <target name="WekaWrapperTest">
@@ -212,7 +212,7 @@
         <junit fork="yes" printsummary="withOutAndErr">
             <formatter type="xml"/>
             <test name="smodelkit.test.WekaWrapperTest" todir="${junit.output.dir}"/>
-            <classpath refid="SMODeLKit.classpath"/>
+            <classpath refid="smodelkit.classpath"/>
         </junit>
     </target>
     <target name="VectorTest.removeTest">
@@ -220,7 +220,7 @@
         <junit fork="yes" printsummary="withOutAndErr">
             <formatter type="xml"/>
             <test name="smodelkit.test.VectorTest" todir="${junit.output.dir}"/>
-            <classpath refid="SMODeLKit.classpath"/>
+            <classpath refid="smodelkit.classpath"/>
         </junit>
     </target>
     <target name="TopNHammingTest.test">
@@ -228,7 +228,7 @@
         <junit fork="yes" printsummary="withOutAndErr">
             <formatter type="xml"/>
             <test name="smodelkit.test.TopNHammingTest" todir="${junit.output.dir}"/>
-            <classpath refid="SMODeLKit.classpath"/>
+            <classpath refid="smodelkit.classpath"/>
         </junit>
     </target>
     <target name="VectorTest.subVectorTest">
@@ -236,7 +236,7 @@
         <junit fork="yes" printsummary="withOutAndErr">
             <formatter type="xml"/>
             <test name="smodelkit.test.VectorTest" todir="${junit.output.dir}"/>
-            <classpath refid="SMODeLKit.classpath"/>
+            <classpath refid="smodelkit.classpath"/>
         </junit>
     </target>
     <target name="InstanceWeightTest.neuralNetTest">
@@ -244,7 +244,7 @@
         <junit fork="yes" printsummary="withOutAndErr">
             <formatter type="xml"/>
             <test name="smodelkit.test.InstanceWeightTest" todir="${junit.output.dir}"/>
-            <classpath refid="SMODeLKit.classpath"/>
+            <classpath refid="smodelkit.classpath"/>
         </junit>
     </target>
     <target name="InstanceWeightTest">
@@ -252,7 +252,7 @@
         <junit fork="yes" printsummary="withOutAndErr">
             <formatter type="xml"/>
             <test name="smodelkit.test.InstanceWeightTest" todir="${junit.output.dir}"/>
-            <classpath refid="SMODeLKit.classpath"/>
+            <classpath refid="smodelkit.classpath"/>
         </junit>
     </target>
     <target name="EvaluatorPluginTest.loadEvaluatorTest">
@@ -260,7 +260,7 @@
         <junit fork="yes" printsummary="withOutAndErr">
             <formatter type="xml"/>
             <test name="smodelkit.test.EvaluatorPluginTest" todir="${junit.output.dir}"/>
-            <classpath refid="SMODeLKit.classpath"/>
+            <classpath refid="smodelkit.classpath"/>
         </junit>
     </target>
     <target name="EvaluatorPluginTest.multipleEvaluatorTest">
@@ -268,7 +268,7 @@
         <junit fork="yes" printsummary="withOutAndErr">
             <formatter type="xml"/>
             <test name="smodelkit.test.EvaluatorPluginTest" todir="${junit.output.dir}"/>
-            <classpath refid="SMODeLKit.classpath"/>
+            <classpath refid="smodelkit.classpath"/>
         </junit>
     </target>
     <target name="VectorTest.assertVectorEqualsTest">
@@ -276,7 +276,7 @@
         <junit fork="yes" printsummary="withOutAndErr">
             <formatter type="xml"/>
             <test name="smodelkit.test.VectorTest" todir="${junit.output.dir}"/>
-            <classpath refid="SMODeLKit.classpath"/>
+            <classpath refid="smodelkit.classpath"/>
         </junit>
     </target>
     <target name="smodelkit.test">
@@ -308,7 +308,7 @@
             <test name="smodelkit.test.TopNHammingTest" todir="${junit.output.dir}"/>
             <test name="smodelkit.test.Tuple2IteratorTest" todir="${junit.output.dir}"/>
             <test name="smodelkit.test.VectorTest" todir="${junit.output.dir}"/>
-            <classpath refid="SMODeLKit.classpath"/>
+            <classpath refid="smodelkit.classpath"/>
         </junit>
     </target>
     <target name="ReorderOutputsTest">
@@ -316,7 +316,7 @@
         <junit fork="yes" printsummary="withOutAndErr">
             <formatter type="xml"/>
             <test name="smodelkit.test.ReorderOutputsTest" todir="${junit.output.dir}"/>
-            <classpath refid="SMODeLKit.classpath"/>
+            <classpath refid="smodelkit.classpath"/>
         </junit>
     </target>
     <target name="junitreport">
