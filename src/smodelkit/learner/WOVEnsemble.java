@@ -111,6 +111,13 @@ public class WOVEnsemble extends SupervisedLearner
 		for (int i : new Range(submodels.size()))
 		{
 			SupervisedLearner model = submodels.get(i);
+			
+			if (doChainOrderExperiment)
+			{	
+				// Reconfigure the ReorderOutputs filter of the model.
+				model.getFilter().findFilter(ReorderOutputs.class).setOutputColumnOrder(outputOrders.get(i));
+			}
+
 			if (doBagging)
 			{
 				// Old way.
@@ -125,6 +132,7 @@ public class WOVEnsemble extends SupervisedLearner
 			{
 				model.train(inputs, labels);
 			}
+			
 			if (useModelWeights)
 			{	
 				double weightSum = 0;
@@ -149,11 +157,6 @@ public class WOVEnsemble extends SupervisedLearner
 				modelWeights.add(1.0);
 			}
 			
-			if (doChainOrderExperiment)
-			{	
-				// Reconfigure the ReorderOutputs filter of the model.
-				model.getFilter().findFilter(ReorderOutputs.class).setOutputColumnOrder(outputOrders.get(i));
-			}
 		}
 		
 		// Normalize the model weights to make them more intuitive.
@@ -178,12 +181,12 @@ public class WOVEnsemble extends SupervisedLearner
 				result.add(perm);
 		}
 		
-		Collection<List<Integer>> remainder = Sample.samplePermutationsWithoutReplacement(rand, submodels.size() - result.size(), 
-				labels.cols()); // TODO
+		Collection<List<Integer>> remainder = Sample.samplePermutationsWithoutReplacementWithForwardAndBackwardOrders(rand,
+				submodels.size() - result.size(), labels.cols());
 				
 		result.addAll(remainder);
 		
-		// TODO Add the backward version of each permutation if it hasn't been already added. Make sure the result is still equal to submodels.size() in size.
+		assert result.size() == submodels.size();
 		
 		return result;
 	}

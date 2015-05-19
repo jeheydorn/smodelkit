@@ -47,5 +47,5 @@
 	"useModelWeights": false,
 	"numPredictionsWhenSettingModelWeights": 100,
 	
-	"doChainOrderExperiment": true
+	"doChainOrderExperiment": false
 }

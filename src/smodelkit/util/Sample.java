@@ -216,6 +216,28 @@ public class Sample
 	   return perm;
 	}
 	
+	public static Collection<List<Integer>> samplePermutationsWithoutReplacementWithForwardAndBackwardOrders(Random rand, 
+			int sampleSize, int N)
+	{
+		Set<List<Integer>> result = new TreeSet<>(new IntegerListComparator());
+		while(result.size() < sampleSize)
+		{
+			List<Integer> permList = new Range(N).toList();
+			Collections.shuffle(permList, rand);
+			result.add(permList);
+			
+			if (result.size() < sampleSize)
+			{
+				List<Integer> backwards = new ArrayList<>(permList);
+				Collections.reverse(backwards);
+				result.add(backwards);
+			}
+			
+		}
+		return result;
+
+	}
+	
 	public static void testPrivateMethods()
 	{	
 		int n = 20;

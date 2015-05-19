@@ -2,24 +2,17 @@
 
 @RELATION 'simple_nominal: -c -2'
 
-@ATTRIBUTE x1	{a,b}
+@ATTRIBUTE x1	{x,y}
 @ATTRIBUTE class1	{a,b}
 @ATTRIBUTE class2	{a,b}
 
 @DATA
-a, a, a
-a, a, a
-b, b, a
-a, a, a
-a, a, a
-b, b, a
-a, a, a
-a, a, a
-b, b, a
-a, a, a
-a, a, a
-b, b, a
-a, a, a
-a, a, a
-b, b, a
-b, a, b
+x, a, b
+x, a, b
+x, a, b
+x, a, b
+x, a, b
+x, a, b
+x, a, b
+x, a, b
+
