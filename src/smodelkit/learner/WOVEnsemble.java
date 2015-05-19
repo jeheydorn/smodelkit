@@ -1,21 +1,27 @@
 package smodelkit.learner;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
+import org.apache.commons.math3.util.ArithmeticUtils;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 import smodelkit.MLSystemsManager;
 import smodelkit.Matrix;
-import smodelkit.Sample;
 import smodelkit.Vector;
+import smodelkit.filter.ReorderOutputs;
 import smodelkit.util.Helper;
 import smodelkit.util.Logger;
+import smodelkit.util.PermutationIterator;
 import smodelkit.util.Range;
+import smodelkit.util.Sample;
+import smodelkit.util.SequenceIterator;
 import smodelkit.util.Tuple2;
 import smodelkit.util.Tuple2Iterator;
 
@@ -34,6 +40,7 @@ public class WOVEnsemble extends SupervisedLearner
 	boolean doBagging;
 	private boolean useModelWeights;
 	private int numPredictionsWhenSettingModelWeights;
+	private boolean doChainOrderExperiment;
 
 	/**
 	 * Creates an ensemble of MDC classifiers.
@@ -50,13 +57,15 @@ public class WOVEnsemble extends SupervisedLearner
 	 * to pay less attention to those weaker members. 
 	 * @param numPredictionsWhenSettingModelWeights If useModelWeights is true, then this determines how many
 	 * predicted output vectors to consider when calculating the weight of each sub-model.
+	 * @param doChainOrderExperiment Use experimental chair order.
 	 */
 	public void configure(List<Tuple2<String, JSONObject>> submodelNamesAndSettings, boolean doBagging, 
-			boolean useModelWeights, int numPredictionsWhenSettingModelWeights)
+			boolean useModelWeights, int numPredictionsWhenSettingModelWeights, boolean doChainOrderExperiment)
 	{
 		this.doBagging = doBagging;
 		this.useModelWeights = useModelWeights;
 		this.numPredictionsWhenSettingModelWeights = numPredictionsWhenSettingModelWeights;
+		this.doChainOrderExperiment = doChainOrderExperiment;
 		
 		submodels = new ArrayList<>();
 		for (Tuple2<String, JSONObject> tuple : submodelNamesAndSettings)
@@ -87,16 +96,21 @@ public class WOVEnsemble extends SupervisedLearner
 		boolean doBagging = (boolean)settings.get("doBagging");
 		boolean useModelWeights = (boolean)settings.get("useModelWeights");
 		int numPredictionsWhenSettingModelWeights = (int)(long)settings.get("numPredictionsWhenSettingModelWeights");
+		boolean doChainOrderExperiment = (boolean) settings.get("doChainOrderExperiment");
 		
 		configure(subModelSettings, doBagging, useModelWeights, 
-				numPredictionsWhenSettingModelWeights);
+				numPredictionsWhenSettingModelWeights, doChainOrderExperiment);
 	}
 
 	@Override
 	protected void innerTrain(Matrix inputs, Matrix labels)
 	{		
-		for (SupervisedLearner model : submodels)
+		List<List<Integer>> outputOrders = doChainOrderExperiment ? generateOutputOrdersForEachSubmodel(labels)
+				: null;
+		
+		for (int i : new Range(submodels.size()))
 		{
+			SupervisedLearner model = submodels.get(i);
 			if (doBagging)
 			{
 				// Old way.
@@ -134,6 +148,12 @@ public class WOVEnsemble extends SupervisedLearner
 			{
 				modelWeights.add(1.0);
 			}
+			
+			if (doChainOrderExperiment)
+			{	
+				// Reconfigure the ReorderOutputs filter of the model.
+				model.getFilter().findFilter(ReorderOutputs.class).setOutputColumnOrder(outputOrders.get(i));
+			}
 		}
 		
 		// Normalize the model weights to make them more intuitive.
@@ -142,6 +162,30 @@ public class WOVEnsemble extends SupervisedLearner
 		modelWeights = Helper.toDoubleList(normalized);
 		
 		Logger.println("modelWeights: " + Helper.formatDoubleList(modelWeights));
+	}
+	
+	private List<List<Integer>> generateOutputOrdersForEachSubmodel(Matrix labels)
+	{		
+		List<List<Integer>> result = new ArrayList<>();
+		
+		long totalPerms = ArithmeticUtils.factorial(labels.cols());
+		
+		// If there are more submodels than possible permutations of the outputs, add copies of all possible
+		// permutations until I cannot add another copy of them without having more vectors than submodels.
+		while(submodels.size() - result.size() > totalPerms)
+		{
+			for (List<Integer> perm : new PermutationIterator<Integer>(new Range(labels.cols()).toList()))
+				result.add(perm);
+		}
+		
+		Collection<List<Integer>> remainder = Sample.samplePermutationsWithoutReplacement(rand, submodels.size() - result.size(), 
+				labels.cols()); // TODO
+				
+		result.addAll(remainder);
+		
+		// TODO Add the backward version of each permutation if it hasn't been already added. Make sure the result is still equal to submodels.size() in size.
+		
+		return result;
 	}
 
 	@Override
@@ -178,7 +222,7 @@ public class WOVEnsemble extends SupervisedLearner
 			List<Vector> scoreList = model.predictScoredList(input, Integer.MAX_VALUE);
 			for (Vector v : scoreList)
 			{
-				Double score = scores.get(v.getWeight());
+				Double score = scores.get(v);
 				if (score == null)
 				{
 					score = 0.0;

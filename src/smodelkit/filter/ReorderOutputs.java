@@ -23,7 +23,11 @@ public class ReorderOutputs extends Filter
 	@Override
 	public void initializeInternal(Matrix inputs, Matrix labels)
 	{
-		if (randomOrder)
+		if (outputColumnOrder != null)
+		{
+			// The column order was already set by setOutputColumnOrder.
+		}
+		else if (randomOrder)
 		{
 			outputColumnOrder = new ArrayList<>();
 
@@ -60,6 +64,15 @@ public class ReorderOutputs extends Filter
 			
 		}
 	}
+	
+	/**
+	 * Changes the configuration to the column order specified.
+	 * @param order
+	 */
+	public void setOutputColumnOrder(List<Integer> order)
+	{
+		this.outputColumnOrder = order;
+	}
 
 	@Override
 	protected Vector filterInputInternal(Vector before)
@@ -73,7 +86,7 @@ public class ReorderOutputs extends Filter
 		double[] result = new double[before.size()];
 		for (int c = 0; c < before.size(); c++)
 		{			
-			result[c] =  before.get(outputColumnOrder.indexOf(c));
+			result[c] = before.get(outputColumnOrder.indexOf(c));
 		}
 		return new Vector(result, before.getWeight());
 	}
@@ -152,7 +165,6 @@ public class ReorderOutputs extends Filter
 		}
 		else
 		{
-			// The order is specified by the arguments following the filter name.		
 			this.outputColumnNames = Arrays.asList(args);
 			this.randomOrder = false;
 		}

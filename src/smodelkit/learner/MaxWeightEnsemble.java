@@ -11,7 +11,6 @@ import org.json.simple.JSONObject;
 
 import smodelkit.MLSystemsManager;
 import smodelkit.Matrix;
-import smodelkit.Sample;
 import smodelkit.Vector;
 /**
  * An ensemble of MDC classifiers which selects each output as the one which the base models
@@ -21,6 +20,7 @@ import smodelkit.Vector;
  *  with Super-Classes", section 5.
  */
 import smodelkit.util.Range;
+import smodelkit.util.Sample;
 
 /**
  * An implementation of the ensemble technique used by Read et al. in their paper

@@ -15,7 +15,7 @@ public class SequenceIterator implements Iterable<List<Integer>>, Iterator<List<
 	/**
 	 * Stores the number of sequences that have been returned so far.
 	 */
-	private int n;
+	private long n;
 	private List<Integer> domainSizes;
 	
 	/**
@@ -39,19 +39,32 @@ public class SequenceIterator implements Iterable<List<Integer>>, Iterator<List<
 	@Override
 	public boolean hasNext()
 	{
+		
+		return n < calcNumPossibleUniqueSequences(domainSizes);
+	}
+	
+	private static long calcNumPossibleUniqueSequences(List<Integer> domainSizes)
+	{
 		int product = 1;
 		for (int i : new Range(domainSizes.size()))
 		{
 			product *= domainSizes.get(i);
-		}
-		return n < product;
+		}		
+		return product;
 	}
 
 	@Override
 	public List<Integer> next()
 	{
+		List<Integer> result = calcNthSequence(domainSizes, n);
+		n++;
+		return result;
+	}
+	
+	private static List<Integer> calcNthSequence(List<Integer> domainSizes, long n)
+	{
 		List<Integer> result = new ArrayList<>(domainSizes.size());
-		int remainder = n;
+		long remainder = n;
 		for (int i : new Range(domainSizes.size()))
 		{
 			int product = 1;
@@ -60,13 +73,11 @@ public class SequenceIterator implements Iterable<List<Integer>>, Iterator<List<
 				product *= domainSizes.get(j);
 			}
 			
-			int value = remainder / product;
-			result.add(value);
+			long value = remainder / product;
+			result.add((int) value);
 			remainder -= value * product;
 			
 		}
-		
-		n++;
 		return result;
 	}
 
