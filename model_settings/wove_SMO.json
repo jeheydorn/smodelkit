@@ -45,5 +45,7 @@
 	
 	"doBagging": false
 	"useModelWeights": false,
-	"numPredictionsWhenSettingModelWeights": 100
+	"numPredictionsWhenSettingModelWeights": 100,
+	
+	"doChainOrderExperiment": false
 }
