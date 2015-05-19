@@ -192,7 +192,7 @@ public abstract class SupervisedLearner implements Serializable
 			{
 				unfiltered.add(filter.unfilterLabel(pred));
 			}
-			return predictions;
+			return unfiltered;
 			
 		}
 	}
