@@ -2,6 +2,7 @@ package smodelkit.learner;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -105,7 +106,7 @@ public class WOVEnsemble extends SupervisedLearner
 	@Override
 	protected void innerTrain(Matrix inputs, Matrix labels)
 	{		
-		List<List<Integer>> outputOrders = doChainOrderExperiment ? generateOutputOrdersForEachSubmodel(labels)
+		List<List<Integer>> outputOrders = doChainOrderExperiment ? generateExperimentalOutputOrdersForEachSubmodel(labels)
 				: null;
 		
 		for (int i : new Range(submodels.size()))
@@ -167,26 +168,33 @@ public class WOVEnsemble extends SupervisedLearner
 		Logger.println("modelWeights: " + Helper.formatDoubleList(modelWeights));
 	}
 	
-	private List<List<Integer>> generateOutputOrdersForEachSubmodel(Matrix labels)
+	private List<List<Integer>> generateExperimentalOutputOrdersForEachSubmodel(Matrix labels)
 	{		
 		List<List<Integer>> result = new ArrayList<>();
 		
-		long totalPerms = ArithmeticUtils.factorial(labels.cols());
-		
-		// If there are more submodels than possible permutations of the outputs, add copies of all possible
-		// permutations until I cannot add another copy of them without having more vectors than submodels.
-		while(submodels.size() - result.size() > totalPerms)
+		for (@SuppressWarnings("unused") int i : new Range(submodels.size()))
 		{
-			for (List<Integer> perm : new PermutationIterator<Integer>(new Range(labels.cols()).toList()))
-				result.add(perm);
+			List<Integer> order = new Range(labels.cols()).toList();
+			Collections.reverse(order);
+			result.add(order);
 		}
 		
-		Collection<List<Integer>> remainder = Sample.samplePermutationsWithoutReplacementWithForwardAndBackwardOrders(rand,
-				submodels.size() - result.size(), labels.cols());
-				
-		result.addAll(remainder);
-		
-		assert result.size() == submodels.size();
+//		long totalPerms = ArithmeticUtils.factorial(labels.cols());
+//		
+//		// If there are more submodels than possible permutations of the outputs, add copies of all possible
+//		// permutations until I cannot add another copy of them without having more vectors than submodels.
+//		while(submodels.size() - result.size() > totalPerms)
+//		{
+//			for (List<Integer> perm : new PermutationIterator<Integer>(new Range(labels.cols()).toList()))
+//				result.add(perm);
+//		}
+//		
+//		Collection<List<Integer>> remainder = Sample.samplePermutationsWithoutReplacementWithForwardAndBackwardOrders(rand,
+//				submodels.size() - result.size(), labels.cols());
+//				
+//		result.addAll(remainder);
+//		
+//		assert result.size() == submodels.size();
 		
 		return result;
 	}
