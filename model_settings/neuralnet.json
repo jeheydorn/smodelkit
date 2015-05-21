@@ -12,8 +12,8 @@
 	"weightDecayRate": 0.0,
 	"normalizePredictions": false,
 		
-	"maxEpochs" : 50000,
-	"maxEpochsWithoutImprovement": null,
+	"maxEpochs" : 500,
+	"maxEpochsWithoutImprovement": 10,
 	"improvementThreshold": 0.00000,
 	"epochSize": null,
 	"minEpochSize": null

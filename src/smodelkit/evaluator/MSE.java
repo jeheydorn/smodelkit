@@ -8,7 +8,7 @@ import smodelkit.Matrix;
 import smodelkit.Vector;
 
 /**
- * Evaluates a SupervisedLearner on a dataset. Finds mean sum squared error.
+ * Finds mean sum squared error.
  * @author joseph
  *
  */

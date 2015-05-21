@@ -10,11 +10,10 @@ import smodelkit.Matrix;
 import smodelkit.Vector;
 import smodelkit.evaluator.Evaluator;
 import smodelkit.evaluator.MSE;
+import smodelkit.evaluator.RelativeEntropy;
 import smodelkit.evaluator.TopN;
 import smodelkit.filter.NominalToCategorical;
-import smodelkit.learner.neuralnet.LinearErrorSigmoidNode;
-import smodelkit.learner.neuralnet.Node;
-import smodelkit.learner.neuralnet.SigmoidNode;
+import smodelkit.learner.neuralnet.*;
 import smodelkit.util.Helper;
 import smodelkit.util.Logger;
 import smodelkit.util.Range;
@@ -168,7 +167,7 @@ public class NeuralNet extends SupervisedLearner
 	
 	protected void setupTrainingEvaluator()
 	{
-		this.trainEvaluator = new MSE();
+		this.trainEvaluator = new RelativeEntropy(); // TODO make an option.
 	}
 
 	private void varifyArgs()
@@ -297,6 +296,8 @@ public class NeuralNet extends SupervisedLearner
 					Collections.singletonList(trainEvaluator))
 					.getScores(trainEvaluator.getClass()).get(0);
 			
+			Logger.println("evaluation: " + evaluation);
+			
 			// evaluation is root mean squared error, which decreases with improvement.
 			if( lastEvaluation - evaluation > improvementThreshold)
 			{
@@ -365,6 +366,8 @@ public class NeuralNet extends SupervisedLearner
 
 			// Calculate the output for every node
 			double[][] outputs = calcOutputs(inputs.row(instanceRow));
+			// TODO Make this an option.
+			//RelativeEntropy.softMaxInPlace(outputs[outputs.length - 1]); // TODO Figure out why this breaks everything.
 //			printVector("outputs: ", outputs[outputs.length - 1]);
 
 
@@ -532,13 +535,13 @@ public class NeuralNet extends SupervisedLearner
 	 */
 	void createNetwork(Matrix inputs, int numOutputs, int[] hiddenLayerSizes)
 	{
-		layers = new LinearErrorSigmoidNode[hiddenLayerSizes.length + 1][];
+		layers = new EntropySigmoidNode[hiddenLayerSizes.length + 1][];
 		
 		for(int i = 0; i < layers.length - 1; i++)
 		{
 			if (hiddenLayerSizes[i] == 0)
 				throw new IllegalArgumentException("A hidden layer cannot have 0 nodes.");
-			layers[i] = new LinearErrorSigmoidNode[maxHiddenLayerSize == null ?  hiddenLayerSizes[i] 
+			layers[i] = new EntropySigmoidNode[maxHiddenLayerSize == null ?  hiddenLayerSizes[i] 
 					: Math.min(maxHiddenLayerSize, hiddenLayerSizes[i])];
 			
 			// Each node has 1 input from every node in the layer closer
@@ -547,16 +550,16 @@ public class NeuralNet extends SupervisedLearner
 
 			for(int j = 0; j < layers[i].length; j++)
 			{
-				layers[i][j] = new LinearErrorSigmoidNode(rand, numInputs, momentum);
+				layers[i][j] = new EntropySigmoidNode(rand, numInputs, momentum);
 			}
 		}
 		
 		// Create the output layer. It has 1 node per output.
-		layers[layers.length -1] = new LinearErrorSigmoidNode[numOutputs];
+		layers[layers.length -1] = new EntropySigmoidNode[numOutputs];
 		for (int n = 0; n < layers[layers.length - 1].length; n++)
 		{
 			int numOutputLayerIntputs = layers.length > 1 ? layers[layers.length-2].length : inputs.cols();
-			layers[layers.length - 1][n] = new LinearErrorSigmoidNode(rand, numOutputLayerIntputs, momentum);
+			layers[layers.length - 1][n] = new EntropySigmoidNode(rand, numOutputLayerIntputs, momentum);
 		}
 	}
 	
