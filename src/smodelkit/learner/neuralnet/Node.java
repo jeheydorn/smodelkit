@@ -1,22 +1,22 @@
-package smodelkit.learner;
+package smodelkit.learner.neuralnet;
+
 import java.io.Serializable;
 import java.util.Random;
 
 import smodelkit.Vector;
-//import static java.lang.System.out;
 
-
-public class SigmoidNode implements Serializable
+/**
+ * A node an in aritifial neural network.
+ * @author joseph
+ *
+ */
+@SuppressWarnings("serial")
+public abstract class Node implements Serializable
 {
-	private static final long serialVersionUID = 1L;
-	private final double DEFAULT_WEIGHT = 0.0;
-	private boolean USE_RANDOM_WEIGHTS = true;
-	private double RANDOM_WEIGHT_STANDARD_DEVIATION = 0.1;
-	
 	private double[] weights;
 	protected double momentum;
 	
-	public SigmoidNode(Random r, int numInputs, double momentum)
+	public Node(Random r, int numInputs, double momentum)
 	{
 		this.momentum = momentum;
 		
@@ -24,26 +24,21 @@ public class SigmoidNode implements Serializable
 		weights = new double[numInputs + 1];
 
 		initializeWeights(r, weights);
+
 	}
 	
 	protected void initializeWeights(Random rand, double[] weights)
 	{
+		final double standardDeviation = 0.1;
 		for(int i = 0; i < weights.length; i++)
 		{
-			if (USE_RANDOM_WEIGHTS)
-			{
-				weights[i] = rand.nextGaussian()*RANDOM_WEIGHT_STANDARD_DEVIATION;
-				// Below is how weka's MultilayerPerceptron initializes weights.
-				//weights[i] = rand.nextDouble() * .1 - .05;
-			}
-			else
-			{
-				weights[i] = DEFAULT_WEIGHT;
-			}
+			weights[i] = rand.nextGaussian() * standardDeviation;
+			// Below is how weka's MultilayerPerceptron initializes weights.
+			//weights[i] = rand.nextDouble() * .1 - .05;
 		}
 	}
-
-	double calcNet(Vector inputs)
+	
+	protected double calcNet(Vector inputs)
 	{
 		double total = 0;
 		for(int i = 0; i < inputs.size(); i++)
@@ -55,26 +50,30 @@ public class SigmoidNode implements Serializable
 		return total;
 	}
 
-	double calcOutput(Vector inputs)
+	/**
+	 * The squashing function of a network node.
+	 */
+	public abstract double squash(double net);
+	
+	public double calcOutput(Vector inputs)
 	{
 		assert(inputs.size() == weights.length -1);
 
 		double net = calcNet(inputs);
-		return sig(net);
+		return squash(net);
 	}
 	
-	public static double sig(double net)
-	{
-		return 1/(1 + Math.exp(-net));
-	}
+	public abstract double calcOutputNodeError(double target, double output);
 	
-	double getWeight(int index)
+	public abstract double calcHiddenNodeError(double errorFromHigherLayer, double output);
+	
+	public double getWeight(int index)
 	{
 		assert(index != weights.length -1);
 		return weights[index];
 	}
 	
-	void updateWeights(Vector inputs, double error, double learningRate, double weightDecayRate)
+	public void updateWeights(Vector inputs, double error, double learningRate, double weightDecayRate)
 	{
 		addWeightChanges(inputs, error, learningRate, weightDecayRate, weights);
 	}
@@ -103,10 +102,11 @@ public class SigmoidNode implements Serializable
 	}
 
 
-	double[] getWeights() 
+	public double[] getWeights() 
 	{ 
 		return weights; 
 	}
 
 
 }
+

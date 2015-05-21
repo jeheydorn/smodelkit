@@ -8,13 +8,12 @@
 	"learningRate": 0.1,
 	"momentum": 0.0,
 
-	"reverseFilterWhilePredicting": false,
 	"increasContrastOfHiddenLayerInputs": false,
 	"weightDecayRate": 0.0,
 	"normalizePredictions": false,
 		
-	"maxEpochs" : 500,
-	"maxEpochsWithoutImprovement": 10,
+	"maxEpochs" : 50000,
+	"maxEpochsWithoutImprovement": null,
 	"improvementThreshold": 0.00000,
 	"epochSize": null,
 	"minEpochSize": null

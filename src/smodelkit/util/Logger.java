@@ -7,6 +7,7 @@ import java.util.Set;
 
 import smodelkit.MLSystemsManager;
 import smodelkit.MetadataPrinter;
+import smodelkit.learner.NeuralNet;
 
 /**
  * A simple console logger.
@@ -24,7 +25,7 @@ public class Logger
 		//loggingClassNames.add(KNN.class.getCanonicalName());
 		//loggingClassNames.add(MatrixModness.class.getCanonicalName());
 		//loggingClassNames.add(RankedCC.class.getCanonicalName());
-		//loggingClassNames.add(NeuralNet.class.getCanonicalName());
+		loggingClassNames.add(NeuralNet.class.getCanonicalName());
 		//loggingClassNames.add(NNHBS.class.getCanonicalName());
 		loggingClassNames.add(MLSystemsManager.class.getCanonicalName());
 		loggingClassNames.add(MetadataPrinter.class.getCanonicalName());

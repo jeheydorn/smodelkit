@@ -12,6 +12,9 @@ import smodelkit.evaluator.Evaluator;
 import smodelkit.evaluator.MSE;
 import smodelkit.evaluator.TopN;
 import smodelkit.filter.NominalToCategorical;
+import smodelkit.learner.neuralnet.LinearErrorSigmoidNode;
+import smodelkit.learner.neuralnet.Node;
+import smodelkit.learner.neuralnet.SigmoidNode;
 import smodelkit.util.Helper;
 import smodelkit.util.Logger;
 import smodelkit.util.Range;
@@ -28,8 +31,8 @@ public class NeuralNet extends SupervisedLearner
 	final boolean PRINT_EPOCH_TIMES = false;
 	final int EPOCH_PRINT_FREQUENCY = 1;
 	final boolean SAVE_ERROR_RATES = false; // If I want to use this, I need to re-implement it using Plotter.
-	// This is the layers of the network. The hidden and output layers. The last layer is the output layer.
-	protected SigmoidNode[][] layers;
+	// This is the layers of the network; the hidden and output layers. The last layer is the output layer.
+	protected Node[][] layers;
 	protected double momentum;
 	double improvementThreshold;
 	double validationSetPercent;
@@ -92,10 +95,7 @@ public class NeuralNet extends SupervisedLearner
 		if ((hiddenLayerSizes != null) == (hiddenLayerMultiples != null))
 			throw new IllegalArgumentException("NeuralNet needs exactly one of hiddenLayerSizes or " +
 					"hiddenLayerMultiples. The other must be set to null.");
-		
-		boolean reverseFilterWhilePredicting
-			= (boolean)(Boolean)settings.get("reverseFilterWhilePredicting");
-		
+				
 		boolean increasContrastOfHiddenLayerInputs = (boolean)(Boolean)settings.get("increasContrastOfHiddenLayerInputs");
 		Long epochSizeLong = (Long)settings.get("epochSize");
 		Integer epochSize = epochSizeLong != null ? epochSizeLong.intValue() : null;
@@ -107,7 +107,7 @@ public class NeuralNet extends SupervisedLearner
 		configure(learningRate, hiddenLayerSizes, hiddenLayerMultiples, maxHiddenLayerSize, 
 				momentum, validationSetPercent,
 				improvementThreshold, maxEpochs, maxEpochsWithoutImprovement, includLabelsInHiddenLayerMultiples,
-				reverseFilterWhilePredicting, increasContrastOfHiddenLayerInputs, epochSize, minEpochSize, 
+				increasContrastOfHiddenLayerInputs, epochSize, minEpochSize, 
 				weightDecayRate, normalizePredictions);
 
 	}
@@ -132,7 +132,6 @@ public class NeuralNet extends SupervisedLearner
 	 * @param epochSize  If not null, it will be used instead of the dataset size in the stopping criteria.
 	 * @param minEpochSize If not null, if the dataset size is less than this value, then epochSize will be 
 	 * set to this value. minEpochSize and epochSize cannot both be non-null.
-	 * @param reverseFilterWhilePredicting
 	 * @param increasContrastOfHiddenLayerInputs If true then the inputs to hidden layer nodes will have increased
 	 * contrast. This helps to speed up learner with 3 or more hidden layers.
 	 * @param epochSize The size of an epoch. If null, this will be the training set size.
@@ -143,7 +142,7 @@ public class NeuralNet extends SupervisedLearner
 			double[] hiddenLayerMultiples,
 			Integer maxHiddenLayerSize, double momentum, 
 			double validationSetPercent, double improvementThreshold, int maxEpochs, 
-			int maxEpochsWithoutImprovement, boolean includLabelsInHiddenLayerMultiples, boolean reverseFilterWhilePredicting,
+			int maxEpochsWithoutImprovement, boolean includLabelsInHiddenLayerMultiples,
 			boolean increasContrastOfHiddenLayerInputs, Integer epochSize, Integer minEpochSize,
 			double weightDecayRate, boolean normalizePredictions)
 	{
@@ -163,23 +162,13 @@ public class NeuralNet extends SupervisedLearner
 		this.minEpochSize = minEpochSize;
 		this.normalizePredictions = normalizePredictions;
 		
-		setupTrainingEvaluator(reverseFilterWhilePredicting);
+		setupTrainingEvaluator();
 		varifyArgs();
 	}
 	
-	protected void setupTrainingEvaluator(boolean reverseFilterWhilePredicting)
+	protected void setupTrainingEvaluator()
 	{
-		if (reverseFilterWhilePredicting)
-		{
-			if (!getFilter().includes(NominalToCategorical.class))
-				throw new IllegalArgumentException(
-						"When reverse_filter_while_predicting=true you must use the nom_to_categorical filter.");
-			this.trainEvaluator = new TopN(Arrays.asList(1));
-		}
-		else
-		{
-			this.trainEvaluator = new MSE();
-		}		
+		this.trainEvaluator = new MSE();
 	}
 
 	private void varifyArgs()
@@ -274,7 +263,7 @@ public class NeuralNet extends SupervisedLearner
 //		printWeights();
 
 		// A copy of the network layers from the time they did best on a validation set.
-		SigmoidNode[][] savedLayers = (SigmoidNode[][]) Helper.deepCopy(layers);
+		Node[][] savedLayers = (Node[][]) Helper.deepCopy(layers);
 
 		double evaluation = 0;
 		double lastEvaluation = 0;
@@ -308,29 +297,14 @@ public class NeuralNet extends SupervisedLearner
 					Collections.singletonList(trainEvaluator))
 					.getScores(trainEvaluator.getClass()).get(0);
 			
-			if (tLabels.isContinuous(0))
+			// evaluation is root mean squared error, which decreases with improvement.
+			if( lastEvaluation - evaluation > improvementThreshold)
 			{
-				// evaluation is root mean squared error, which decreases with improvement.
-				if( lastEvaluation - evaluation > improvementThreshold)
-				{
-					count = 0;
-					lastEvaluation = evaluation;
-					Logger.println(String.format("Error improved to: %.5f on epoch: %s", evaluation, totalCount));
+				count = 0;
+				lastEvaluation = evaluation;
+				Logger.println(String.format("Error improved to: %.5f on epoch: %s", evaluation, totalCount));
 
-					copyLayers(savedLayers, layers);
-				}
-			}
-			else
-			{
-				// evaluation is percent correct, which increases with improvement.
-				if( evaluation - lastEvaluation > improvementThreshold)
-				{
-					count = 0;
-					lastEvaluation = evaluation;
-					Logger.println("Accuracy improved to: " + evaluation + " on epoch: " + totalCount);
-	
-					savedLayers = (SigmoidNode[][]) Helper.deepCopy(layers);
-				}
+				copyWeights(savedLayers, layers);
 			}
 		}
 		while((evaluation < 1 || tLabels.isContinuous(0)) && count < maxEpochsWithoutImprovement && totalCount < maxEpochs);
@@ -363,7 +337,7 @@ public class NeuralNet extends SupervisedLearner
 		if (vInputs.rows() > 0 && savedLayers != null)
 		{
 			Logger.println("Restoring weights.");
-			copyLayers(layers, savedLayers);
+			copyWeights(layers, savedLayers);
 		}
 		
 		
@@ -373,7 +347,7 @@ public class NeuralNet extends SupervisedLearner
 	/**
 	 * Copies all weight values from source to dest.
 	 */
-	private void copyLayers(SigmoidNode[][] dest, SigmoidNode[][] source)
+	private void copyWeights(Node[][] dest, Node[][] source)
 	{
 		for (int i = 0; i < source.length; i++)
 			for (int j = 0; j < source[i].length; j++)
@@ -403,13 +377,13 @@ public class NeuralNet extends SupervisedLearner
 					if (i == layers.length - 1)
 					{
 						// output node
-						errors[i][j] = outputs[i][j] * (1 - outputs[i][j]) * (labels.row(instanceRow).get(j) - outputs[i][j]);
+						errors[i][j] = layers[i][j].calcOutputNodeError(labels.row(instanceRow).get(j), outputs[i][j]);
 					}
 					else
 					{
 						// hidden node
 						double errorFromHigherLayer = sumErrorFromHigherLayer(j, layers[i + 1], errors[i + 1]);
-						errors[i][j] = outputs[i][j] * (1 - outputs[i][j]) *  errorFromHigherLayer;
+						errors[i][j] = layers[i][j].calcHiddenNodeError(errorFromHigherLayer, outputs[i][j]);
 					}
 				}
 			}
@@ -524,6 +498,17 @@ public class NeuralNet extends SupervisedLearner
 		
 		return Collections.singletonList(weights);
 	}
+	
+	public double sumErrorFromHigherLayer(int weightIndex, Node[] higherLayer,
+			double[] higherLayerErrors)
+	{
+		double sum = 0;
+		for (int i = 0; i < higherLayerErrors.length; i++)
+		{
+			sum += higherLayer[i].getWeight(weightIndex) * higherLayerErrors[i];
+		}
+		return sum;
+	}
 
 	void printWeights()
 	{
@@ -541,30 +526,19 @@ public class NeuralNet extends SupervisedLearner
 
 	}
 	
-	public double sumErrorFromHigherLayer(int weightIndex, SigmoidNode[] higherLayer,
-			double[] higherLayerErrors)
-	{
-		double sum = 0;
-		for (int i = 0; i < higherLayerErrors.length; i++)
-		{
-			sum += higherLayer[i].getWeight(weightIndex) * higherLayerErrors[i];
-		}
-		return sum;
-	}
-	
 	/**
 	 * Fills "layers" with nodes.  
 	 * @param hiddenLayerSizes  Gives the size of each hidden layer in terms of number of nodes.
 	 */
 	void createNetwork(Matrix inputs, int numOutputs, int[] hiddenLayerSizes)
 	{
-		layers = new SigmoidNode[hiddenLayerSizes.length + 1][];
+		layers = new LinearErrorSigmoidNode[hiddenLayerSizes.length + 1][];
 		
 		for(int i = 0; i < layers.length - 1; i++)
 		{
 			if (hiddenLayerSizes[i] == 0)
 				throw new IllegalArgumentException("A hidden layer cannot have 0 nodes.");
-			layers[i] = new SigmoidNode[maxHiddenLayerSize == null ?  hiddenLayerSizes[i] 
+			layers[i] = new LinearErrorSigmoidNode[maxHiddenLayerSize == null ?  hiddenLayerSizes[i] 
 					: Math.min(maxHiddenLayerSize, hiddenLayerSizes[i])];
 			
 			// Each node has 1 input from every node in the layer closer
@@ -573,16 +547,16 @@ public class NeuralNet extends SupervisedLearner
 
 			for(int j = 0; j < layers[i].length; j++)
 			{
-				layers[i][j] = new SigmoidNode(rand, numInputs, momentum);
+				layers[i][j] = new LinearErrorSigmoidNode(rand, numInputs, momentum);
 			}
 		}
 		
 		// Create the output layer. It has 1 node per output.
-		layers[layers.length -1] = new SigmoidNode[numOutputs];
+		layers[layers.length -1] = new LinearErrorSigmoidNode[numOutputs];
 		for (int n = 0; n < layers[layers.length - 1].length; n++)
 		{
 			int numOutputLayerIntputs = layers.length > 1 ? layers[layers.length-2].length : inputs.cols();
-			layers[layers.length - 1][n] = new SigmoidNode(rand, numOutputLayerIntputs, momentum);
+			layers[layers.length - 1][n] = new LinearErrorSigmoidNode(rand, numOutputLayerIntputs, momentum);
 		}
 	}
 	

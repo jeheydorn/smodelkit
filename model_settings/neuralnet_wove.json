@@ -8,7 +8,6 @@
 	"learningRate": 0.1,
 	"momentum": 0.0,
 
-	"reverseFilterWhilePredicting": false,
 	"increasContrastOfHiddenLayerInputs": false,
 	"weightDecayRate": 0.0,
 	"normalizePredictions": true,
