@@ -9,7 +9,6 @@
 	"momentum": 0.0,
 
 	"increasContrastOfHiddenLayerInputs": false,
-	"weightDecayRate": 0.0,
 	"normalizePredictions": false,
 		
 	"maxEpochs" : 500,

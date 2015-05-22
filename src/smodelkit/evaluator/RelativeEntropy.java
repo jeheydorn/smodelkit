@@ -10,8 +10,8 @@ import smodelkit.Vector;
 /**
  * Find the average relative entropy of targets and predictions.
  * 
- *  This is based on equation 2.15 from "Accelerated Learning in Layered Neural Networks" 
- *  by Sara A. Solla, Esther Levin, and Michael Fleisher.
+ * This is based on "Cost Function" in 
+ * http://ufldl.stanford.edu/wiki/index.php/Softmax_Regression#Relationship_to_Logistic_Regression
  *  
  * @author joseph
  *
@@ -52,14 +52,15 @@ public class RelativeEntropy extends Evaluator
 	{
 		assert target.size() == prediction.size();
 		
-		//target = softmax(target);
 		prediction = softmax(prediction);
 		
 		double sum = 0;
 		for (int i = 0; i < target.size(); i++)
 		{
-			sum += target.get(i) * Math.log(target.get(i)/prediction.get(i)) + 
-					(1 - target.get(i)) * Math.log((1 - target.get(i))/(1 - prediction.get(i)));
+			if (target.get(i) != 0)
+			{
+				sum += target.get(i) * Math.log(prediction.get(i));
+			}
 		}
 		return sum;
 	}

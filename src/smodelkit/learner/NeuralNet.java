@@ -49,7 +49,6 @@ public class NeuralNet extends SupervisedLearner
 	boolean increasContrastOfHiddenLayerInputs;
 	Integer epochSize;
 	Integer minEpochSize;
-	double weightDecayRate;
 	private boolean normalizePredictions;
 	
 	
@@ -100,14 +99,13 @@ public class NeuralNet extends SupervisedLearner
 		Integer epochSize = epochSizeLong != null ? epochSizeLong.intValue() : null;
 		Long minEpochSizeLong = (Long)settings.get("minEpochSize");
 		Integer minEpochSize = minEpochSizeLong != null ? minEpochSizeLong.intValue() : null;
-		double weightDecayRate = (double)(Double)settings.get("weightDecayRate");
 		boolean normalizePredictions = (boolean)(Boolean)settings.get("normalizePredictions");
 		
 		configure(learningRate, hiddenLayerSizes, hiddenLayerMultiples, maxHiddenLayerSize, 
 				momentum, validationSetPercent,
 				improvementThreshold, maxEpochs, maxEpochsWithoutImprovement, includLabelsInHiddenLayerMultiples,
 				increasContrastOfHiddenLayerInputs, epochSize, minEpochSize, 
-				weightDecayRate, normalizePredictions);
+				normalizePredictions);
 
 	}
 		
@@ -143,7 +141,7 @@ public class NeuralNet extends SupervisedLearner
 			double validationSetPercent, double improvementThreshold, int maxEpochs, 
 			int maxEpochsWithoutImprovement, boolean includLabelsInHiddenLayerMultiples,
 			boolean increasContrastOfHiddenLayerInputs, Integer epochSize, Integer minEpochSize,
-			double weightDecayRate, boolean normalizePredictions)
+			boolean normalizePredictions)
 	{
 		this.learningRate = learningRate;
 		this.momentum = momentum;
@@ -157,7 +155,6 @@ public class NeuralNet extends SupervisedLearner
 		this.includLabelsInHiddenLayerMultiples = includLabelsInHiddenLayerMultiples;
 		this.increasContrastOfHiddenLayerInputs = increasContrastOfHiddenLayerInputs;
 		this.epochSize = epochSize;
-		this.weightDecayRate = weightDecayRate;
 		this.minEpochSize = minEpochSize;
 		this.normalizePredictions = normalizePredictions;
 		
@@ -398,11 +395,11 @@ public class NeuralNet extends SupervisedLearner
 				{
 					if (i == outputs.length - 1)
 					{
-						layers[i][j].updateWeights(input, errors[i][j], learningRate * instanceWeight, weightDecayRate);
+						layers[i][j].updateWeights(input, errors[i][j], learningRate * instanceWeight);
 					}
 					else
 					{
-						layers[i][j].updateWeights(input, errors[i][j], learningRate * instanceWeight, 0.0);
+						layers[i][j].updateWeights(input, errors[i][j], learningRate * instanceWeight);
 					}
 				}
 			}

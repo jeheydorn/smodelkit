@@ -1,9 +1,5 @@
 package smodelkit.learner.neuralnet;
-import java.io.Serializable;
 import java.util.Random;
-
-import smodelkit.Vector;
-//import static java.lang.System.out;
 
 
 public class SigmoidNode extends Node

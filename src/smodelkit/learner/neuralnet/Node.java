@@ -73,13 +73,13 @@ public abstract class Node implements Serializable
 		return weights[index];
 	}
 	
-	public void updateWeights(Vector inputs, double error, double learningRate, double weightDecayRate)
+	public void updateWeights(Vector inputs, double error, double learningRate)
 	{
-		addWeightChanges(inputs, error, learningRate, weightDecayRate, weights);
+		addWeightChanges(inputs, error, learningRate, weights);
 	}
 	
 	private double[] addWeightChanges(Vector inputs, double error, double learningRate,
-			double weightDecayRate, double[] outResult) 
+			double[] outResult) 
 	{
 		assert(inputs.size() == weights.length -1);
 
@@ -89,14 +89,12 @@ public abstract class Node implements Serializable
 
 		for (int i = 0; i < inputs.size(); i++)
 		{
-			double weightChange = learningRate * error * inputs.get(i) + momentum*weights[i] 
-					- learningRate * weightDecayRate * weights[i];
+			double weightChange = learningRate * error * inputs.get(i) + momentum*weights[i];
 			outResult[i] += weightChange;
 		}
 
 		// calculate bias weight change
-		double weightChange = learningRate * error + momentum*weights[weights.length -1] 
-				- learningRate * weightDecayRate * weights[weights.length -1];
+		double weightChange = learningRate * error + momentum*weights[weights.length -1];
 		outResult[outResult.length -1] += weightChange;
 		return outResult;
 	}
