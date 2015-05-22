@@ -366,8 +366,6 @@ public class NeuralNet extends SupervisedLearner
 
 			// Calculate the output for every node
 			double[][] outputs = calcOutputs(inputs.row(instanceRow));
-			// TODO Make this an option.
-			//RelativeEntropy.softMaxInPlace(outputs[outputs.length - 1]); // TODO Figure out why this breaks everything.
 //			printVector("outputs: ", outputs[outputs.length - 1]);
 
 

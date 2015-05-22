@@ -52,8 +52,8 @@ public class RelativeEntropy extends Evaluator
 	{
 		assert target.size() == prediction.size();
 		
-		target = softMax(target);
-		prediction = softMax(prediction);
+		//target = softmax(target);
+		prediction = softmax(prediction);
 		
 		double sum = 0;
 		for (int i = 0; i < target.size(); i++)
@@ -67,18 +67,18 @@ public class RelativeEntropy extends Evaluator
 	/**
 	 * Computes the softmax function.
 	 */
-	private Vector softMax(Vector v)
+	public static Vector softmax(Vector v)
 	{
 		double[] values = new double[v.size()];
 		for (int i = 0; i < v.size(); i++)
 		{
 			values[i] = v.get(i);
 		}
-		softMaxInPlace(values);
+		softmaxInPlace(values);
 		return new Vector(values, v.getWeight());
 	}
 	
-	public static void softMaxInPlace(double[] values)
+	public static void softmaxInPlace(double[] values)
 	{
 		double total = 0;
 		for (int i = 0; i < values.length; i++)
