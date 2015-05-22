@@ -53,14 +53,14 @@ public abstract class Node implements Serializable
 	/**
 	 * The squashing function of a network node.
 	 */
-	public abstract double squash(double net);
+	public abstract double activation(double net);
 	
 	public double calcOutput(Vector inputs)
 	{
 		assert(inputs.size() == weights.length -1);
 
 		double net = calcNet(inputs);
-		return squash(net);
+		return activation(net);
 	}
 	
 	public abstract double calcOutputNodeError(double target, double output);

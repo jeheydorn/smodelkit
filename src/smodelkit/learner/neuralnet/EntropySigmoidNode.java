@@ -18,7 +18,7 @@ public class EntropySigmoidNode extends Node
 	}
 		
 	@Override
-	public double squash(double net)
+	public double activation(double net)
 	{
 		return 1/(1 + Math.exp(-net));
 	}

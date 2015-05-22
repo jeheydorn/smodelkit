@@ -1,12 +1,14 @@
 package smodelkit.learner.neuralnet;
 import java.util.Random;
 
-
-public class SigmoidNode extends Node
+/**
+ * 
+ */
+public class SoftmaxNode extends Node
 {
 	private static final long serialVersionUID = 1L;
 	
-	public SigmoidNode(Random r, int numInputs, double momentum)
+	public SoftmaxNode(Random r, int numInputs, double momentum)
 	{
 		super(r, numInputs, momentum);
 	}
@@ -14,19 +16,19 @@ public class SigmoidNode extends Node
 	@Override
 	public double activation(double net)
 	{
-		return 1/(1 + Math.exp(-net));
+		return net;
 	}
 	
 	@Override
 	public double calcOutputNodeError(double target, double output)
 	{
-		return output * (1 - output) * (target - output);
+		return target - output;
 	}
 
 	@Override
 	public double calcHiddenNodeError(double errorFromHigherLayer, double output)
 	{
-		return output * (1 - output) *  errorFromHigherLayer;
+		throw new UnsupportedOperationException();
 	}
 
 }

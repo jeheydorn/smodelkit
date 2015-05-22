@@ -59,7 +59,7 @@ public class RelativeEntropy extends Evaluator
 		{
 			if (target.get(i) != 0)
 			{
-				sum += target.get(i) * Math.log(prediction.get(i));
+				sum += -target.get(i) * Math.log(prediction.get(i));
 			}
 		}
 		return sum;

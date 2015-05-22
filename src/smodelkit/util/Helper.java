@@ -500,7 +500,7 @@ public class Helper
 		for (double d : array)
 		{
 			if (d < 0)
-				throw new IllegalArgumentException("Elements cannot be negative.");
+				throw new IllegalArgumentException("Elements cannot be negative. value: " + d);
 			sum += d;
 		}
 		if (sum == 0)

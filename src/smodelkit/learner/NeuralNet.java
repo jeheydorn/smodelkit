@@ -50,6 +50,7 @@ public class NeuralNet extends SupervisedLearner
 	Integer epochSize;
 	Integer minEpochSize;
 	private boolean normalizePredictions;
+	private boolean softmaxLogistic;
 	
 	
 	public NeuralNet()
@@ -100,12 +101,13 @@ public class NeuralNet extends SupervisedLearner
 		Long minEpochSizeLong = (Long)settings.get("minEpochSize");
 		Integer minEpochSize = minEpochSizeLong != null ? minEpochSizeLong.intValue() : null;
 		boolean normalizePredictions = (boolean)(Boolean)settings.get("normalizePredictions");
+		String outputLayerNodeType = (String)settings.get("outputLayerNodeType");
 		
 		configure(learningRate, hiddenLayerSizes, hiddenLayerMultiples, maxHiddenLayerSize, 
 				momentum, validationSetPercent,
 				improvementThreshold, maxEpochs, maxEpochsWithoutImprovement, includLabelsInHiddenLayerMultiples,
 				increasContrastOfHiddenLayerInputs, epochSize, minEpochSize, 
-				normalizePredictions);
+				normalizePredictions, outputLayerNodeType);
 
 	}
 		
@@ -134,6 +136,9 @@ public class NeuralNet extends SupervisedLearner
 	 * @param epochSize The size of an epoch. If null, this will be the training set size.
 	 * @param normalizePredictions If true, then the weights assigned
 	 * to each output in innerGetOutputWeights will be normalized to sum to 1.
+	 * @param outputLayerNodeType The type of node in the output layer. Valid values are "sigmoidWithMSE" 
+	 * and "softmaxLogistic". This option also determines the type of error measured on the validation set
+	 * for the stopping criteria.
 	 */
 	public void configure(double learningRate, int[] hiddenLayerSizes, 
 			double[] hiddenLayerMultiples,
@@ -141,7 +146,7 @@ public class NeuralNet extends SupervisedLearner
 			double validationSetPercent, double improvementThreshold, int maxEpochs, 
 			int maxEpochsWithoutImprovement, boolean includLabelsInHiddenLayerMultiples,
 			boolean increasContrastOfHiddenLayerInputs, Integer epochSize, Integer minEpochSize,
-			boolean normalizePredictions)
+			boolean normalizePredictions, String outputLayerNodeType)
 	{
 		this.learningRate = learningRate;
 		this.momentum = momentum;
@@ -158,13 +163,30 @@ public class NeuralNet extends SupervisedLearner
 		this.minEpochSize = minEpochSize;
 		this.normalizePredictions = normalizePredictions;
 		
+		if (outputLayerNodeType.equals("sigmoidWithMSE"))
+		{
+			this.softmaxLogistic = false;
+		}
+		else if (outputLayerNodeType.equals("softmaxLogistic"))
+		{
+			this.softmaxLogistic = true;
+		}
+		else
+		{
+			throw new IllegalArgumentException("Unknown output layer node type: " + outputLayerNodeType);
+		}
+		
+		
 		setupTrainingEvaluator();
 		varifyArgs();
 	}
 	
 	protected void setupTrainingEvaluator()
 	{
-		this.trainEvaluator = new RelativeEntropy(); // TODO make an option.
+		if (softmaxLogistic)
+			trainEvaluator = new RelativeEntropy();
+		else
+			this.trainEvaluator = new MSE();
 	}
 
 	private void varifyArgs()
@@ -453,6 +475,8 @@ public class NeuralNet extends SupervisedLearner
 			
 			
 		}
+		if (softmaxLogistic)
+			RelativeEntropy.softmaxInPlace(outputs[outputs.length - 1]);
 		return outputs;
 	}
 
@@ -530,13 +554,13 @@ public class NeuralNet extends SupervisedLearner
 	 */
 	void createNetwork(Matrix inputs, int numOutputs, int[] hiddenLayerSizes)
 	{
-		layers = new EntropySigmoidNode[hiddenLayerSizes.length + 1][];
+		layers = new Node[hiddenLayerSizes.length + 1][];
 		
 		for(int i = 0; i < layers.length - 1; i++)
 		{
 			if (hiddenLayerSizes[i] == 0)
 				throw new IllegalArgumentException("A hidden layer cannot have 0 nodes.");
-			layers[i] = new EntropySigmoidNode[maxHiddenLayerSize == null ?  hiddenLayerSizes[i] 
+			layers[i] = new SigmoidNode[maxHiddenLayerSize == null ?  hiddenLayerSizes[i] 
 					: Math.min(maxHiddenLayerSize, hiddenLayerSizes[i])];
 			
 			// Each node has 1 input from every node in the layer closer
@@ -545,16 +569,19 @@ public class NeuralNet extends SupervisedLearner
 
 			for(int j = 0; j < layers[i].length; j++)
 			{
-				layers[i][j] = new EntropySigmoidNode(rand, numInputs, momentum);
+				layers[i][j] = new SigmoidNode(rand, numInputs, momentum);
 			}
 		}
 		
 		// Create the output layer. It has 1 node per output.
-		layers[layers.length -1] = new EntropySigmoidNode[numOutputs];
+		layers[layers.length -1] = new Node[numOutputs];
 		for (int n = 0; n < layers[layers.length - 1].length; n++)
 		{
 			int numOutputLayerIntputs = layers.length > 1 ? layers[layers.length-2].length : inputs.cols();
-			layers[layers.length - 1][n] = new EntropySigmoidNode(rand, numOutputLayerIntputs, momentum);
+			if (softmaxLogistic)
+				layers[layers.length - 1][n] = new SoftmaxNode(rand, numOutputLayerIntputs, momentum);
+			else
+				layers[layers.length - 1][n] = new SigmoidNode(rand, numOutputLayerIntputs, momentum);
 		}
 	}
 	
