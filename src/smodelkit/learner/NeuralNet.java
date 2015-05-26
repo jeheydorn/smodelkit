@@ -451,6 +451,7 @@ public class NeuralNet extends SupervisedLearner
 			
 			if (increasContrastOfHiddenLayerInputs)
 			{
+				// Don't increase the contrast of the output layer outputs.
 				if (i + 1 < layers[i].length)
 				{
 					double c = 1.0;
@@ -460,16 +461,11 @@ public class NeuralNet extends SupervisedLearner
 					double maxChange = Math.min(minVal, 1.0 - maxVal);
 					double scale = (2.0*maxChange*c + range)/ range;
 					double median = (maxVal + minVal) / 2.0;
-					
-					//System.out.println(Helper.printArray("before", outputs[i]));
-					
+										
 					for(int j = 0; j < layers[i].length; j++)
 					{
 						outputs[i][j] = (outputs[i][j] - median)*scale + median;
-//						if (outputs[i][j] < -0.0001 || outputs[i][j] > 1.0001)
-//							throw new RuntimeException("Output is out of range: " + outputs[i][j]);
 					}
-					//System.out.println(Helper.printArray("after", outputs[i]));
 				}
 			}
 			
