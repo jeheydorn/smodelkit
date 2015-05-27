@@ -22,7 +22,6 @@ public class SyntheticDataGenerator
 {	
 	public static void generateData() throws FileNotFoundException
 	{
-		out.println("Generating synthetic data with only nominal values.");
 		Random rand = new Random();
 		String resultsFilename = "Datasets/mdc/synthetic/continuous_4out_2-4-8-16classes.arff";
 		
