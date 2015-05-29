@@ -4,11 +4,11 @@ import java.util.Random;
 import smodelkit.util.Bounds;
 
 
-public class SigmoidNode extends Node
+public class SoftsignNode extends Node
 {
 	private static final long serialVersionUID = 1L;
 	
-	public SigmoidNode(Random r, int numInputs, double momentum)
+	public SoftsignNode(Random r, int numInputs, double momentum)
 	{
 		super(r, numInputs, momentum);
 	}
@@ -16,25 +16,25 @@ public class SigmoidNode extends Node
 	@Override
 	public double activation(double net)
 	{
-		return 1/(1 + Math.exp(-net));
+		return net / (1 + Math.abs(net));
 	}
 	
 	@Override
 	public double calcOutputNodeError(double target, double output)
 	{
-		return output * (1 - output) * (target - output);
+		return (target - output)/((Math.abs(output) + 1) * (Math.abs(output) + 1));
 	}
 
 	@Override
 	public double calcHiddenNodeError(double errorFromHigherLayer, double output)
 	{
-		return output * (1 - output) *  errorFromHigherLayer;
+		return errorFromHigherLayer / ((Math.abs(output) + 1) * (Math.abs(output) + 1));
 	}
-
+	
 	@Override
 	public Bounds getOutputRange()
 	{
-		return new Bounds(0, 1);
+		return new Bounds(-1, 1);
 	}
 
 }

@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.Random;
 
 import smodelkit.Vector;
+import smodelkit.util.Bounds;
 
 /**
  * A node an in aritifial neural network.
@@ -104,6 +105,8 @@ public abstract class Node implements Serializable
 	{ 
 		return weights; 
 	}
+	
+	public abstract Bounds getOutputRange();
 
 
 }

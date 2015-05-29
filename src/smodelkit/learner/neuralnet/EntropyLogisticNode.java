@@ -1,18 +1,21 @@
 package smodelkit.learner.neuralnet;
 import java.util.Random;
 
+import smodelkit.util.Bounds;
+
 /**
- * Uses sigmoid activations and relative entropy for error back-propagation.
+ * Uses sigmoid activations and relative entropy for error back-propagation. This node is for binary
+ * classification. For a generalization to multi-class classification, see SoftmaxNode.
  * 
  * See "Accelerated Learning in Layered Neural Networks" by Sara A. Solla, Esther Levin, and Michael Fleisher.
  * @author joseph
  *
  */
-public class EntropySigmoidNode extends Node
+public class EntropyLogisticNode extends Node
 {
 	private static final long serialVersionUID = 1L;
 	
-	public EntropySigmoidNode(Random r, int numInputs, double momentum)
+	public EntropyLogisticNode(Random r, int numInputs, double momentum)
 	{
 		super(r, numInputs, momentum);
 	}
@@ -35,6 +38,12 @@ public class EntropySigmoidNode extends Node
 	{
 		// equation 2.23 in "Accelerated Learning in Layered Neural Networks".
 		return output * (1 - output) *  errorFromHigherLayer;
+	}
+	
+	@Override
+	public Bounds getOutputRange()
+	{
+		return new Bounds(0, 1);
 	}
 
 }

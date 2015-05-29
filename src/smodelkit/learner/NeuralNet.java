@@ -1,5 +1,4 @@
 package smodelkit.learner;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -11,8 +10,6 @@ import smodelkit.Vector;
 import smodelkit.evaluator.Evaluator;
 import smodelkit.evaluator.MSE;
 import smodelkit.evaluator.RelativeEntropy;
-import smodelkit.evaluator.TopN;
-import smodelkit.filter.NominalToCategorical;
 import smodelkit.learner.neuralnet.*;
 import smodelkit.util.Helper;
 import smodelkit.util.Logger;
@@ -51,6 +48,7 @@ public class NeuralNet extends SupervisedLearner
 	Integer minEpochSize;
 	private boolean normalizePredictions;
 	private boolean softmaxLogistic;
+	private String hiddenLayerNodeType;
 	
 	
 	public NeuralNet()
@@ -102,12 +100,13 @@ public class NeuralNet extends SupervisedLearner
 		Integer minEpochSize = minEpochSizeLong != null ? minEpochSizeLong.intValue() : null;
 		boolean normalizePredictions = (boolean)(Boolean)settings.get("normalizePredictions");
 		String outputLayerNodeType = (String)settings.get("outputLayerNodeType");
+		String hiddenLayerNodeType = (String)settings.get("hiddenLayerNodeType");
 		
 		configure(learningRate, hiddenLayerSizes, hiddenLayerMultiples, maxHiddenLayerSize, 
 				momentum, validationSetPercent,
 				improvementThreshold, maxEpochs, maxEpochsWithoutImprovement, includLabelsInHiddenLayerMultiples,
 				increasContrastOfHiddenLayerInputs, epochSize, minEpochSize, 
-				normalizePredictions, outputLayerNodeType);
+				normalizePredictions, outputLayerNodeType, hiddenLayerNodeType);
 
 	}
 		
@@ -136,9 +135,10 @@ public class NeuralNet extends SupervisedLearner
 	 * @param epochSize The size of an epoch. If null, this will be the training set size.
 	 * @param normalizePredictions If true, then the weights assigned
 	 * to each output in innerGetOutputWeights will be normalized to sum to 1.
-	 * @param outputLayerNodeType The type of node in the output layer. Valid values are "sigmoidWithMSE" 
-	 * and "softmaxLogistic". This option also determines the type of error measured on the validation set
+	 * @param outputLayerNodeType The type of node in the output layer. Values are "sigmoidWithMSE" 
+	 * and "softmaxLogisticWithRelativeEntropy". This option also determines the type of error measured on the validation set
 	 * for the stopping criteria.
+	 * @param hiddenLayerNodeType The type of node to use in the hidden layers. Values are "sigmoid" and "softsign".
 	 */
 	public void configure(double learningRate, int[] hiddenLayerSizes, 
 			double[] hiddenLayerMultiples,
@@ -146,7 +146,7 @@ public class NeuralNet extends SupervisedLearner
 			double validationSetPercent, double improvementThreshold, int maxEpochs, 
 			int maxEpochsWithoutImprovement, boolean includLabelsInHiddenLayerMultiples,
 			boolean increasContrastOfHiddenLayerInputs, Integer epochSize, Integer minEpochSize,
-			boolean normalizePredictions, String outputLayerNodeType)
+			boolean normalizePredictions, String outputLayerNodeType, String hiddenLayerNodeType)
 	{
 		this.learningRate = learningRate;
 		this.momentum = momentum;
@@ -167,7 +167,7 @@ public class NeuralNet extends SupervisedLearner
 		{
 			this.softmaxLogistic = false;
 		}
-		else if (outputLayerNodeType.equals("softmaxLogistic"))
+		else if (outputLayerNodeType.equals("softmaxLogisticWithRelativeEntropy"))
 		{
 			this.softmaxLogistic = true;
 		}
@@ -176,6 +176,7 @@ public class NeuralNet extends SupervisedLearner
 			throw new IllegalArgumentException("Unknown output layer node type: " + outputLayerNodeType);
 		}
 		
+		this.hiddenLayerNodeType = hiddenLayerNodeType;
 		
 		setupTrainingEvaluator();
 		varifyArgs();
@@ -203,6 +204,9 @@ public class NeuralNet extends SupervisedLearner
 			throw new IllegalArgumentException("epochSize and minEpochSize cannot both be non-null.");
 		if (minEpochSize != null && minEpochSize < 1)
 			throw new IllegalArgumentException("minEpochSize must be at least 1 if given.");
+		
+		if (!hiddenLayerNodeType.equals("sigmoid") && !hiddenLayerNodeType.equals("softsign"))
+			throw new IllegalArgumentException("Unrecognized hidden layer node type: " + hiddenLayerNodeType);
 	}
 	
 	public void innerTrain(Matrix inputs, Matrix labels)
@@ -507,6 +511,13 @@ public class NeuralNet extends SupervisedLearner
 		}
 		else if (normalizePredictions)
 		{
+			if (!softmaxLogistic)
+			{
+				// Increase the lower bound of the weights to be 0. I need to do this because I cannot
+				// normalize an array with negative numbers.
+				for (int i = 0; i < weights.length; i++)
+					weights[i] -= layers[layers.length - 1][0].getOutputRange().lower;
+			}
 			Helper.normalize(weights);
 		}
 		
@@ -556,7 +567,7 @@ public class NeuralNet extends SupervisedLearner
 		{
 			if (hiddenLayerSizes[i] == 0)
 				throw new IllegalArgumentException("A hidden layer cannot have 0 nodes.");
-			layers[i] = new SigmoidNode[maxHiddenLayerSize == null ?  hiddenLayerSizes[i] 
+			layers[i] = new Node[maxHiddenLayerSize == null ?  hiddenLayerSizes[i] 
 					: Math.min(maxHiddenLayerSize, hiddenLayerSizes[i])];
 			
 			// Each node has 1 input from every node in the layer closer
@@ -565,7 +576,12 @@ public class NeuralNet extends SupervisedLearner
 
 			for(int j = 0; j < layers[i].length; j++)
 			{
-				layers[i][j] = new SigmoidNode(rand, numInputs, momentum);
+				if (hiddenLayerNodeType.equals("sigmoid"))
+					layers[i][j] = new SigmoidNode(rand, numInputs, momentum);
+				else if (hiddenLayerNodeType.equals("softsign"))
+					layers[i][j] = new SoftsignNode(rand, numInputs, momentum);
+				else
+					throw new IllegalArgumentException();
 			}
 		}
 		
