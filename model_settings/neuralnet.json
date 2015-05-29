@@ -2,14 +2,15 @@
 	"filters": ["normalize", "mean_mode_unknown_filler", "nom_to_categorical"],
 	"hiddenLayerMultiples": [2],
 	"hiddenLayerSizes": null,
-	"maxHiddenLayerSize": 100,
+	"maxHiddenLayerSize": null,
 	"includeLabelsInHiddenLayerMultiples": false,
 	"validationSetPercent": 0.2,
-	"learningRate": 0.1,
+	"learningRate": 0.01,
 	"momentum": 0.0,
 
+	"outputLayerNodeType": "sigmoidWithMSE",
+	"hiddenLayerNodeType": "sigmoid",
 	"increasContrastOfHiddenLayerInputs": false,
-	"outputLayerNodeType": "softmaxLogisticWithRelativeEntropy",
 	"normalizePredictions": false,
 		
 	"maxEpochs" : 500,

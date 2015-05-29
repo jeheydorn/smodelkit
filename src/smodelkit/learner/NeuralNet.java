@@ -318,9 +318,7 @@ public class NeuralNet extends SupervisedLearner
 			evaluation = Evaluator.runEvaluators(vInputs, vLabels, this, false, 
 					Collections.singletonList(trainEvaluator))
 					.getScores(trainEvaluator.getClass()).get(0);
-			
-			Logger.println("evaluation: " + evaluation);
-			
+						
 			// evaluation is root mean squared error, which decreases with improvement.
 			if( lastEvaluation - evaluation > improvementThreshold)
 			{
@@ -593,7 +591,7 @@ public class NeuralNet extends SupervisedLearner
 			if (softmaxLogistic)
 				layers[layers.length - 1][n] = new SoftmaxNode(rand, numOutputLayerIntputs, momentum);
 			else
-				layers[layers.length - 1][n] = new SigmoidNode(rand, numOutputLayerIntputs, momentum);
+				layers[layers.length - 1][n] = new SigmoidNode(rand, numOutputLayerIntputs, momentum); 
 		}
 	}
 	

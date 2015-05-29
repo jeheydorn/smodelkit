@@ -8,9 +8,9 @@
 	"learningRate": 0.1,
 	"momentum": 0.0,
 
-	"increasContrastOfHiddenLayerInputs": false,
 	"outputLayerNodeType": "sigmoidWithMSE",
 	"hiddenLayerNodeType": "sigmoid",
+	"increasContrastOfHiddenLayerInputs": false,
 	"normalizePredictions": true,
 		
 	"maxEpochs" : 500,

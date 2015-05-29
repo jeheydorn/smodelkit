@@ -8,6 +8,8 @@
 	"learningRate": 0.1,
 	"momentum": 0.0,
 
+	"outputLayerNodeType": "sigmoidWithMSE",
+	"hiddenLayerNodeType": "sigmoid",
 	"increasContrastOfHiddenLayerInputs": false,
 	"normalizePredictions": false,
 		

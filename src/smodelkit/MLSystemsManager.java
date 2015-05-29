@@ -326,7 +326,7 @@ public class MLSystemsManager
 			
 			Logger.println("Evaluations will be on a separate test set...");
 			Logger.println("Test set name: " + evalParameters.get(0));
-			Logger.println("Number of test inputs: " + testInputs.rows());
+			Logger.println("Number of test instances: " + testInputs.rows());
 			if (parser.deserializeFileName == null)
 			{
 				double startTime = System.currentTimeMillis();
