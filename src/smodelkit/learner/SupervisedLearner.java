@@ -246,6 +246,7 @@ public abstract class SupervisedLearner implements Serializable
 			// If NominalToCategorical or Normalize were used in filter, then I should not apply them
 			// to weights. But if ReorderOutputs was used, I must reverse the order of the weight
 			// vectors here.
+			// TODO Change this logic to not be conditional upon the filter type. The filter should choose what it does.
 			
 			Vector inputFiltered = filter.filterInput(input);
 			
