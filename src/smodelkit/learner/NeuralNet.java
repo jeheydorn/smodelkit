@@ -11,6 +11,7 @@ import smodelkit.evaluator.Evaluator;
 import smodelkit.evaluator.MSE;
 import smodelkit.evaluator.RelativeEntropy;
 import smodelkit.learner.neuralnet.*;
+import smodelkit.util.Bounds;
 import smodelkit.util.Helper;
 import smodelkit.util.Logger;
 import smodelkit.util.Range;
@@ -43,7 +44,7 @@ public class NeuralNet extends SupervisedLearner
 	 * inputs and labels.
 	 */
 	protected Evaluator trainEvaluator;
-	boolean increasContrastOfHiddenLayerInputs;
+	boolean increaseContrastOfHiddenLayerOutputs;
 	Integer epochSize;
 	Integer minEpochSize;
 	private boolean normalizePredictions;
@@ -93,7 +94,7 @@ public class NeuralNet extends SupervisedLearner
 			throw new IllegalArgumentException("NeuralNet needs exactly one of hiddenLayerSizes or " +
 					"hiddenLayerMultiples. The other must be set to null.");
 				
-		boolean increasContrastOfHiddenLayerInputs = (boolean)(Boolean)settings.get("increasContrastOfHiddenLayerInputs");
+		boolean increaseContrastOfHiddenLayerOutputs = (boolean)(Boolean)settings.get("increaseContrastOfHiddenLayerOutputs");
 		Long epochSizeLong = (Long)settings.get("epochSize");
 		Integer epochSize = epochSizeLong != null ? epochSizeLong.intValue() : null;
 		Long minEpochSizeLong = (Long)settings.get("minEpochSize");
@@ -105,7 +106,7 @@ public class NeuralNet extends SupervisedLearner
 		configure(learningRate, hiddenLayerSizes, hiddenLayerMultiples, maxHiddenLayerSize, 
 				momentum, validationSetPercent,
 				improvementThreshold, maxEpochs, maxEpochsWithoutImprovement, includLabelsInHiddenLayerMultiples,
-				increasContrastOfHiddenLayerInputs, epochSize, minEpochSize, 
+				increaseContrastOfHiddenLayerOutputs, epochSize, minEpochSize, 
 				normalizePredictions, outputLayerNodeType, hiddenLayerNodeType);
 
 	}
@@ -130,7 +131,7 @@ public class NeuralNet extends SupervisedLearner
 	 * @param epochSize  If not null, it will be used instead of the dataset size in the stopping criteria.
 	 * @param minEpochSize If not null, if the dataset size is less than this value, then epochSize will be 
 	 * set to this value. minEpochSize and epochSize cannot both be non-null.
-	 * @param increasContrastOfHiddenLayerInputs If true then the inputs to hidden layer nodes will have increased
+	 * @param increaseContrastOfHiddenLayerOutputs If true then the inputs to hidden layer nodes will have increased
 	 * contrast. This helps to speed up learner with 3 or more hidden layers.
 	 * @param epochSize The size of an epoch. If null, this will be the training set size.
 	 * @param normalizePredictions If true, then the weights assigned
@@ -145,7 +146,7 @@ public class NeuralNet extends SupervisedLearner
 			Integer maxHiddenLayerSize, double momentum, 
 			double validationSetPercent, double improvementThreshold, int maxEpochs, 
 			int maxEpochsWithoutImprovement, boolean includLabelsInHiddenLayerMultiples,
-			boolean increasContrastOfHiddenLayerInputs, Integer epochSize, Integer minEpochSize,
+			boolean increaseContrastOfHiddenLayerOutputs, Integer epochSize, Integer minEpochSize,
 			boolean normalizePredictions, String outputLayerNodeType, String hiddenLayerNodeType)
 	{
 		this.learningRate = learningRate;
@@ -158,7 +159,7 @@ public class NeuralNet extends SupervisedLearner
 		this.hiddenLayerMultiples = hiddenLayerMultiples;
 		this.maxHiddenLayerSize = maxHiddenLayerSize;
 		this.includLabelsInHiddenLayerMultiples = includLabelsInHiddenLayerMultiples;
-		this.increasContrastOfHiddenLayerInputs = increasContrastOfHiddenLayerInputs;
+		this.increaseContrastOfHiddenLayerOutputs = increaseContrastOfHiddenLayerOutputs;
 		this.epochSize = epochSize;
 		this.minEpochSize = minEpochSize;
 		this.normalizePredictions = normalizePredictions;
@@ -229,7 +230,7 @@ public class NeuralNet extends SupervisedLearner
 		Logger.println("learning rate: " + learningRate);
 		Logger.println("momentum: " + momentum);
 		Logger.println("validation set %: " + validationSetPercent);
-		Logger.println("increasContrastOfHiddenLayerInputs: " + increasContrastOfHiddenLayerInputs);
+		Logger.println("increasContrastOfHiddenLayerInputs: " + increaseContrastOfHiddenLayerOutputs);
 		
 		// I'm copying these so that I don't shuffle the original inputs and labels.
 		Matrix inputsTemp = new Matrix(inputs);
@@ -451,23 +452,40 @@ public class NeuralNet extends SupervisedLearner
 				outputs[i][j] = layers[i][j].calcOutput(inputs);
 			}
 			
-			if (increasContrastOfHiddenLayerInputs)
+			if (increaseContrastOfHiddenLayerOutputs)
 			{
 				// Don't increase the contrast of the output layer outputs.
+				Bounds nodeBounds = layers[0][0].getOutputRange();
 				if (i + 1 < layers[i].length)
 				{
-					double c = 1.0;
+//					double c = 1.0;
+//					double minVal = Helper.min(outputs[i]);
+//					double maxVal = Helper.max(outputs[i]);
+//					double range = maxVal - minVal;
+//					double maxChange = Math.min(minVal, 1.0 - maxVal);
+//					double scale = (2.0*maxChange*c + range)/ range;
+//					double median = (maxVal + minVal) / 2.0;
+//										
+//					for(int j = 0; j < layers[i].length; j++)
+//					{
+//						outputs[i][j] = (outputs[i][j] - median)*scale + median;
+//					}
+
 					double minVal = Helper.min(outputs[i]);
 					double maxVal = Helper.max(outputs[i]);
 					double range = maxVal - minVal;
-					double maxChange = Math.min(minVal, 1.0 - maxVal);
-					double scale = (2.0*maxChange*c + range)/ range;
+					double scale = (nodeBounds.getSpan())/ range;
 					double median = (maxVal + minVal) / 2.0;
 										
 					for(int j = 0; j < layers[i].length; j++)
 					{
 						outputs[i][j] = (outputs[i][j] - median)*scale + median;
 					}
+					
+//					System.out.println("min: " + Helper.min(outputs[i]));
+//					System.out.println("max: " + Helper.max(outputs[i]));
+					System.out.println("dif: " + (Helper.max(outputs[i]) - Helper.min(outputs[i])));
+
 				}
 			}
 			

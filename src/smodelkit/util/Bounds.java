@@ -19,4 +19,9 @@ public class Bounds implements Serializable
     	this.lower = lower;
     	this.upper = upper;
     }
+    
+    public double getSpan()
+    {
+    	return upper - lower;
+    }
 }
