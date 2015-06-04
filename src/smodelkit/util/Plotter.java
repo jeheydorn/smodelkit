@@ -53,6 +53,15 @@ public class Plotter
 			throw new IllegalArgumentException("All datums must be of the same dimensions to be plotted.");
 		plot.data.add(Arrays.copyOf(datum, datum.length));
 	}
+	
+	/**
+	 * A convenience method for calling addDatumForLinePlot(String, double[], String, String) with 
+	 * a 1-dimensional datum.
+	 */
+	public static void addDatumForLinePlot(String plotName, double datum, String xLabel, String yLabel)
+	{
+		addDatumForLinePlot(plotName, new double[]{datum}, xLabel, yLabel);
+	}
 
 	/**
 	 * If plotName doesn't exist, this creates a plot for it. The datum given is added to the list
@@ -78,7 +87,7 @@ public class Plotter
 		
 		plot.data.add(new double[] {datum});
 	}
-
+	
 	public static void generateAllPlots()
 	{
 		for (String plotName : plots.keySet())

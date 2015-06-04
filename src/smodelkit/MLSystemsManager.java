@@ -238,7 +238,7 @@ public class MLSystemsManager
 			Matrix labels = inputsAndLabels.getSecond();
 			labels = reorderLabelColumns(labels, parser.labelColumnOrder);
 			List<Evaluator> testEvaluators = 
-					getTestEvaluators(parser.evaluators, inputs, labels, null, null);
+					getTestEvaluators(parser.evaluators, labels);
 			
 			if (parser.printPercentUniqueTestLabels)
 			{
@@ -283,40 +283,60 @@ public class MLSystemsManager
 			}
 
 			SupervisedLearner learner = getLearner(rand, parser);
-			Matrix testData = new Matrix();
-			String filename = evalParameters.get(0);
-			if (filename.endsWith(".arff"))
-			{
-				testData.loadFromArffFile(evalParameters.get(0));				
-			}
-			else if (filename.endsWith(".data") || filename.endsWith(".test"))
-			{
-				String namesFilename = parser.dataset.get(0);
-				if (!namesFilename.endsWith(".names"))
-					throw new IllegalArgumentException("Cannot mix .name format and .arff format for training and" +
-							" test datasets.");
-				testData.loadFromNamesFormat(namesFilename, filename);
-			}
-			else
-			{
-				throw new IllegalArgumentException("Unknown dataset file type: " + filename);
-			}
-			deleteColumns(parser.ignoredColumns, testData);
-			testData = fillOrRemoveUnknownData(parser.unknownFiller, testData);
-			Pair<Matrix> pairTest = testData.splitInputsAndLabels();
-			Matrix testInputs = pairTest.getFirst();
-			Matrix testLabels = pairTest.getSecond();
-			testData = null;
-			testLabels = reorderLabelColumns(testLabels, parser.labelColumnOrder);
 			
 			Pair<Matrix> pair = data.splitInputsAndLabels();
 			Matrix inputs = pair.getFirst();
 			Matrix labels = pair.getSecond();
 			data = null;
+			pair = null;
 			labels = reorderLabelColumns(labels, parser.labelColumnOrder);
+						
+			if (parser.deserializeFileName == null)
+			{
+				double startTime = System.currentTimeMillis();
+				learner.train(inputs, labels);
+				double elapsedTime = System.currentTimeMillis() - startTime;
+				Logger.println("Time to train (in seconds): " + elapsedTime
+						/ 1000.0);
+				serializeLearner(learner);
+			}
 			
 			List<Evaluator> testEvaluators = 
-					getTestEvaluators(parser.evaluators, inputs, labels, testInputs, testLabels);
+					getTestEvaluators(parser.evaluators, labels);
+
+			double startTime = System.currentTimeMillis();
+			Evaluation trainEvaluation = parser.includeTrainingDataEvaluations ? 
+					Evaluator.runEvaluators(inputs, labels, learner, true, testEvaluators) : null;
+			inputs = null;
+			labels = null;
+				
+			Matrix testInputs, testLabels; 
+			{
+				Matrix testData = new Matrix();
+				String filename = evalParameters.get(0);
+				if (filename.endsWith(".arff"))
+				{
+					testData.loadFromArffFile(evalParameters.get(0));				
+				}
+				else if (filename.endsWith(".data") || filename.endsWith(".test"))
+				{
+					String namesFilename = parser.dataset.get(0);
+					if (!namesFilename.endsWith(".names"))
+						throw new IllegalArgumentException("Cannot mix .name format and .arff format for training and" +
+								" test datasets.");
+					testData.loadFromNamesFormat(namesFilename, filename);
+				}
+				else
+				{
+					throw new IllegalArgumentException("Unknown dataset file type: " + filename);
+				}
+				deleteColumns(parser.ignoredColumns, testData);
+				testData = fillOrRemoveUnknownData(parser.unknownFiller, testData);
+				Pair<Matrix> pairTest = testData.splitInputsAndLabels();
+				testInputs = pairTest.getFirst();
+				testLabels = pairTest.getSecond();
+				testLabels = reorderLabelColumns(testLabels, parser.labelColumnOrder);
+			}
 			
 			if (parser.printPercentUniqueTestLabels)
 			{
@@ -327,18 +347,7 @@ public class MLSystemsManager
 			Logger.println("Evaluations will be on a separate test set...");
 			Logger.println("Test set name: " + evalParameters.get(0));
 			Logger.println("Number of test instances: " + testInputs.rows());
-			if (parser.deserializeFileName == null)
-			{
-				double startTime = System.currentTimeMillis();
-				learner.train(inputs, labels);
-				double elapsedTime = System.currentTimeMillis() - startTime;
-				Logger.println("Time to train (in seconds): " + elapsedTime
-						/ 1000.0);
-				serializeLearner(learner);
-			}
-			double startTime = System.currentTimeMillis();
-			Evaluation trainEvaluation = parser.includeTrainingDataEvaluations ? 
-					Evaluator.runEvaluators(inputs, labels, learner, true, testEvaluators) : null;
+
 			Evaluation testEvaluation = Evaluator.runEvaluators(testInputs, testLabels, learner, true, testEvaluators);
 			Logger.println("Time to test (in seconds): " + (System.currentTimeMillis() - startTime)
 					/ 1000.0);
@@ -400,8 +409,7 @@ public class MLSystemsManager
 			}			
 			
 			List<Evaluator> testEvaluators = 
-					getTestEvaluators(parser.evaluators, trainInputs, trainLabels, testInputs, 
-							testLabels);
+					getTestEvaluators(parser.evaluators, trainLabels);
 
 			if (parser.deserializeFileName != null)
 				throw new IllegalArgumentException("It doesn't make much sense to serialize a model and reuse it on random" +
@@ -526,8 +534,7 @@ public class MLSystemsManager
 						// Create a new Random so that I don't access it across multiple threads at once.
 						final SupervisedLearner learner = getLearner(new Random(rand.nextLong()), parser);
 						
-						final List<Evaluator> testEvaluators = getTestEvaluators(parser.evaluators,
-							trainInputs, trainLabels, testInputs, testLabels);
+						final List<Evaluator> testEvaluators = getTestEvaluators(parser.evaluators, trainLabels);
 
 						Callable<Tuple3<Evaluation, Evaluation, Double>> callable = 
 								new Callable<Tuple3<Evaluation, Evaluation, Double>>()
@@ -963,14 +970,13 @@ public class MLSystemsManager
 	}
 	
 	@SuppressWarnings("unchecked")
-	List<Evaluator> getTestEvaluators(List<String> args, Matrix trainInputs,
-			Matrix trainLabels, Matrix testInputs, Matrix testLabels)
+	List<Evaluator> getTestEvaluators(List<String> args, Matrix labels)
 	{
 		List<Evaluator> result = new ArrayList<>();
 		if (args == null)
 		{
 			// No evaluator was specified. Return a default one.
-			if (trainLabels.isContinuous(0))
+			if (labels.isContinuous(0))
 				result.add(new MSE());
 			else
 			{

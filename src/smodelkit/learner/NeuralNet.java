@@ -26,9 +26,9 @@ import smodelkit.util.Range;
 public class NeuralNet extends SupervisedLearner
 {
 	private static final long serialVersionUID = 1L;
-	final boolean PRINT_EPOCH_TIMES = false;
+	final boolean PRINT_EPOCH_TIMES = true;
 	final int EPOCH_PRINT_FREQUENCY = 1;
-	final boolean SAVE_ERROR_RATES = false; // If I want to use this, I need to re-implement it using Plotter.
+	final boolean SAVE_ERROR_RATES = true;
 	// This is the layers of the network; the hidden and output layers. The last layer is the output layer.
 	protected Node[][] layers;
 	protected double momentum;
@@ -53,7 +53,7 @@ public class NeuralNet extends SupervisedLearner
 	private String hiddenLayerNodeType;
 	// TODO remove
 	int plotCount = 0;
-	int freq = 1000000000;
+	long freq = Long.MAX_VALUE;
 	
 	
 	public NeuralNet()
@@ -296,6 +296,7 @@ public class NeuralNet extends SupervisedLearner
 
 		// A copy of the network layers from the time they did best on a validation set.
 		Node[][] savedLayers = (Node[][]) Helper.deepCopy(layers);
+		int epochOfSavedWeights = 0;
 
 		double evaluation = 0;
 		double lastEvaluation = 0;
@@ -330,15 +331,24 @@ public class NeuralNet extends SupervisedLearner
 				evaluation = Evaluator.runEvaluators(vInputs, vLabels, this, false, 
 						Collections.singletonList(trainEvaluator))
 						.getScores(trainEvaluator.getClass()).get(0);
+				
+				if (SAVE_ERROR_RATES)
+				{
+					Plotter.addDatumForLinePlot(trainEvaluator.getClass().getSimpleName(),
+							evaluation, "Epoch", trainEvaluator.getClass().getSimpleName());
+				}
 							
-				// evaluation is root mean squared error, which decreases with improvement.
-				if( lastEvaluation - evaluation > improvementThreshold)
+				double improvement = trainEvaluator.higherScoresAreBetter() ? 
+						evaluation - lastEvaluation : lastEvaluation - evaluation;
+				
+				if(improvement > improvementThreshold)
 				{
 					count = 0;
 					lastEvaluation = evaluation;
 					Logger.println(String.format("Error improved to: %.5f on epoch: %s", evaluation, totalCount));
 	
 					copyWeights(savedLayers, layers);
+					epochOfSavedWeights = totalCount;
 				}
 			}
 		}
@@ -371,7 +381,7 @@ public class NeuralNet extends SupervisedLearner
 		
 		if (vInputs.rows() > 0 && savedLayers != null)
 		{
-			Logger.println("Restoring weights.");
+			Logger.println("Restoring weights to those from epoch " + epochOfSavedWeights);
 			copyWeights(layers, savedLayers);
 		}
 		
@@ -422,9 +432,6 @@ public class NeuralNet extends SupervisedLearner
 						errors[i][j] = layers[i][j].calcHiddenNodeError(errorFromHigherLayer, outputs[i][j]);
 					}
 				}
-				// TODO Remove
-//				if (i < layers.length - 1)
-//					scaleToMinimumWidth(errors[i], 0.0001);
 				if (plotCount % freq == 0)
 				{
 					Plotter.addDatumForLinePlot("layer_" + i + "_error", errors[i], "prediction", "error");
@@ -477,9 +484,9 @@ public class NeuralNet extends SupervisedLearner
 			if (increaseContrastOfHiddenLayerOutputs)
 			{
 				// Don't increase the contrast of the output layer outputs.
-				if (i + 1 < layers[i].length)
+				if (i + 1 < layers.length)
 				{
-					Bounds nodeBounds = layers[0][0].getOutputRange();
+					Bounds nodeBounds = layers[i][0].getOutputRange();
 					increaseContrast(outputs[i], nodeBounds);
 				}
 			}
@@ -634,7 +641,7 @@ public class NeuralNet extends SupervisedLearner
 			for(int j = 0; j < layers[i].length; j++)
 			{
 				if (hiddenLayerNodeType.equals("sigmoid"))
-					layers[i][j] = new SigmoidNode(rand, numInputs, momentum);
+					layers[i][j] = new SigmoidNode(rand, numInputs, momentum); // TODO Change back to SigmoidNode.
 				else if (hiddenLayerNodeType.equals("softsign"))
 					layers[i][j] = new SoftsignNode(rand, numInputs, momentum);
 				else

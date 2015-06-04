@@ -1,7 +1,7 @@
 Datasets/mdc/lrm_*
 Datasets/xinchuan
 Datasets/mcc/mnist_*
-Datasets/
+Datasets/mcc/CIFAR-10*
 *.csv
 uci_run.jar
 manager.jar
