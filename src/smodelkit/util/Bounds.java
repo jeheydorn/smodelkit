@@ -26,4 +26,9 @@ public class Bounds implements Serializable
     	return (Double.isFinite(lower) ? "(" : "[") + lower + ", " + upper + 
     			(Double.isFinite(upper) ? ")" : "]");
     }
+    
+    public double getSpan()
+    {
+    	return upper - lower;
+    }
 }

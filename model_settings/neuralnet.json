@@ -10,7 +10,7 @@
 
 	"outputLayerNodeType": "sigmoidWithMSE",
 	"hiddenLayerNodeType": "sigmoid",
-	"increasContrastOfHiddenLayerInputs": true,
+	"increaseContrastOfHiddenLayerOutputs": true,
 	"normalizePredictions": false,
 		
 	"maxEpochs" : 100,
