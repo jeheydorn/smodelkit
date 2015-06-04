@@ -4,17 +4,17 @@
 	"hiddenLayerSizes": [1000, 1000, 1000, 1000, 1000],
 	"maxHiddenLayerSize": null,
 	"includeLabelsInHiddenLayerMultiples": false,
-	"validationSetPercent": 0.0,
+	"validationSetPercent": 0.2,
 	"learningRate": 0.01,
 	"momentum": 0.0,
 
 	"outputLayerNodeType": "softmaxWithRelativeEntropy",
-	"hiddenLayerNodeType": "softsign",
+	"hiddenLayerNodeType": "sigmoid",
 	"increaseContrastOfHiddenLayerOutputs": false,
 	"normalizePredictions": false,
 		
 	"maxEpochs" : 50,
-	"maxEpochsWithoutImprovement": null,
+	"maxEpochsWithoutImprovement": 50,
 	"improvementThreshold": 0.00000,
 	"epochSize": 100000,
 	"minEpochSize": null

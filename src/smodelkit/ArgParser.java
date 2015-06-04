@@ -37,10 +37,7 @@ class ArgParser
 			"columns wil be removed by index starting at zero. Index -1 is the last column." +
 			"If column names are given, the columns with those names will be removed.", variableArity = true)
 	List<String> ignoredColumns;
-		
-	@Parameter(names = {"-O", "--output_file"}, description = "Output file used when models store results such as data for charts.")
-	String outputFileName;
-	
+			
 	@Parameter(names = {"-U", "--labels_count"}, description = "The number of columns from the right side of the dataset to use" +
 			" as labels. This is not necessary when -C is used.")
 	Integer numLabelColumns = null;

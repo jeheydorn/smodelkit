@@ -25,6 +25,7 @@ import java.util.concurrent.Future;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.apache.commons.io.FilenameUtils;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
@@ -68,7 +69,7 @@ import smodelkit.util.Tuple3;
  */
 public class MLSystemsManager
 {		
-	public static String outputFileName;
+	private static String learnerSettingsFileName;
 	
 	/**
 	 * If data is not null, it will be used as the data. If static evaluation is used, data will be
@@ -107,11 +108,7 @@ public class MLSystemsManager
 		
 		if (parser.maxThreads != null)
 			ThreadCounter.setMaxThreads(parser.maxThreads);
-		
-		outputFileName = parser.outputFileName;
-		if (outputFileName == null)
-			outputFileName = "";
-		
+				
 		Random rand = null;
 		if (parser.seedStr == null || parser.seedStr.equals(""))
 		{
@@ -804,6 +801,7 @@ public class MLSystemsManager
 		{
 			String learnerName = parser.learner.get(0);
 			String configFileName = parser.learner.get(1);
+			learnerSettingsFileName = configFileName;
 			JSONObject settings = parseModelSettingsFile(configFileName);
 			return createLearner(rand, learnerName, settings);
 		}
@@ -1193,6 +1191,6 @@ public class MLSystemsManager
 		Logger.addLoggingClassName(MLSystemsManager.class);
 		MLSystemsManager ml = new MLSystemsManager();
 		ml.run(args, null);
-		Plotter.generateAllPlots();
+		Plotter.generateAllPlots(FilenameUtils.getBaseName(learnerSettingsFileName) + "_");
 	}
 }

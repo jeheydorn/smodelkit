@@ -1,7 +1,7 @@
 {
 	"filters": ["normalize", "mean_mode_unknown_filler", "nom_to_categorical"],
 	"hiddenLayerMultiples": null,
-	"hiddenLayerSizes": [10, 10, 10, 10, 10],
+	"hiddenLayerSizes": [1000, 1000, 1000, 1000, 1000],
 	"maxHiddenLayerSize": null,
 	"includeLabelsInHiddenLayerMultiples": false,
 	"validationSetPercent": 0.2,
@@ -9,12 +9,12 @@
 	"momentum": 0.0,
 
 	"outputLayerNodeType": "softmaxWithRelativeEntropy",
-	"hiddenLayerNodeType": "sigmoid",
-	"increaseContrastOfHiddenLayerOutputs": true,
+	"hiddenLayerNodeType": "softsign",
+	"increaseContrastOfHiddenLayerOutputs": false,
 	"normalizePredictions": false,
 		
-	"maxEpochs" : 5,
-	"maxEpochsWithoutImprovement": null,
+	"maxEpochs" : 50,
+	"maxEpochsWithoutImprovement": 50,
 	"improvementThreshold": 0.00000,
 	"epochSize": 100000,
 	"minEpochSize": null

@@ -87,15 +87,22 @@ public class Plotter
 		
 		plot.data.add(new double[] {datum});
 	}
-	
+
 	public static void generateAllPlots()
 	{
+		generateAllPlots("");
+	}
+	
+	public static void generateAllPlots(String filePrefix)
+	{
+		if (filePrefix == null)
+			filePrefix = "";
 		for (String plotName : plots.keySet())
 		{
 			Logger.println("Creating plot " + plotName);
 			Plot plot = plots.get(plotName);
 			
-			String filename = plotName + ".csv";
+			String filename = filePrefix + plotName + ".csv";
 			try (PrintWriter p = new PrintWriter(filename))
 			{
 				p.println(plot.xLabel + "," + plot.yLabel);
