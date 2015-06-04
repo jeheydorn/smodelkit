@@ -19,4 +19,11 @@ public class Bounds implements Serializable
     	this.lower = lower;
     	this.upper = upper;
     }
+    
+    @Override
+    public String toString()
+    {
+    	return (Double.isFinite(lower) ? "(" : "[") + lower + ", " + upper + 
+    			(Double.isFinite(upper) ? ")" : "]");
+    }
 }

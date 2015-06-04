@@ -11,8 +11,10 @@ import smodelkit.evaluator.Evaluator;
 import smodelkit.evaluator.MSE;
 import smodelkit.evaluator.RelativeEntropy;
 import smodelkit.learner.neuralnet.*;
+import smodelkit.util.Bounds;
 import smodelkit.util.Helper;
 import smodelkit.util.Logger;
+import smodelkit.util.Plotter;
 import smodelkit.util.Range;
 
 
@@ -47,8 +49,11 @@ public class NeuralNet extends SupervisedLearner
 	Integer epochSize;
 	Integer minEpochSize;
 	private boolean normalizePredictions;
-	private boolean softmaxLogistic;
+	private boolean softmax;
 	private String hiddenLayerNodeType;
+	// TODO remove
+	int plotCount = 0;
+	int freq = 1000000000;
 	
 	
 	public NeuralNet()
@@ -136,7 +141,7 @@ public class NeuralNet extends SupervisedLearner
 	 * @param normalizePredictions If true, then the weights assigned
 	 * to each output in innerGetOutputWeights will be normalized to sum to 1.
 	 * @param outputLayerNodeType The type of node in the output layer. Values are "sigmoidWithMSE" 
-	 * and "softmaxLogisticWithRelativeEntropy". This option also determines the type of error measured on the validation set
+	 * and "softmaxWithRelativeEntropy". This option also determines the type of error measured on the validation set
 	 * for the stopping criteria.
 	 * @param hiddenLayerNodeType The type of node to use in the hidden layers. Values are "sigmoid" and "softsign".
 	 */
@@ -165,11 +170,11 @@ public class NeuralNet extends SupervisedLearner
 		
 		if (outputLayerNodeType.equals("sigmoidWithMSE"))
 		{
-			this.softmaxLogistic = false;
+			this.softmax = false;
 		}
-		else if (outputLayerNodeType.equals("softmaxLogisticWithRelativeEntropy"))
+		else if (outputLayerNodeType.equals("softmaxWithRelativeEntropy"))
 		{
-			this.softmaxLogistic = true;
+			this.softmax = true;
 		}
 		else
 		{
@@ -184,7 +189,7 @@ public class NeuralNet extends SupervisedLearner
 	
 	protected void setupTrainingEvaluator()
 	{
-		if (softmaxLogistic)
+		if (softmax)
 			trainEvaluator = new RelativeEntropy();
 		else
 			this.trainEvaluator = new MSE();
@@ -245,11 +250,16 @@ public class NeuralNet extends SupervisedLearner
 		Matrix vInputs = sets[2];
 		Matrix vLabels = sets[3];
 		
-		if (vInputs.rows() == 0 && tInputs.rows() > 0)
+		if (vInputs.rows() == 0 && validationSetPercent > 0)
 		{
 			// This means that the dataset so small that the validation set is empty. Validate on the training data.
 			vInputs = tInputs;
 			vLabels = tLabels;
+		}
+		else if(vInputs.rows() == 0 && maxEpochsWithoutImprovement != Integer.MAX_VALUE)
+		{
+			throw new IllegalArgumentException("If maxEpochsWithoutImprovement is not null, "
+					+ "validationSetPercent cannot be 0.");
 		}
 		
 		inputsTemp = null;
@@ -315,18 +325,21 @@ public class NeuralNet extends SupervisedLearner
 				timeBefore = timeAfter;
 			}
 
-			evaluation = Evaluator.runEvaluators(vInputs, vLabels, this, false, 
-					Collections.singletonList(trainEvaluator))
-					.getScores(trainEvaluator.getClass()).get(0);
-						
-			// evaluation is root mean squared error, which decreases with improvement.
-			if( lastEvaluation - evaluation > improvementThreshold)
+			if (vInputs.rows() > 0)
 			{
-				count = 0;
-				lastEvaluation = evaluation;
-				Logger.println(String.format("Error improved to: %.5f on epoch: %s", evaluation, totalCount));
-
-				copyWeights(savedLayers, layers);
+				evaluation = Evaluator.runEvaluators(vInputs, vLabels, this, false, 
+						Collections.singletonList(trainEvaluator))
+						.getScores(trainEvaluator.getClass()).get(0);
+							
+				// evaluation is root mean squared error, which decreases with improvement.
+				if( lastEvaluation - evaluation > improvementThreshold)
+				{
+					count = 0;
+					lastEvaluation = evaluation;
+					Logger.println(String.format("Error improved to: %.5f on epoch: %s", evaluation, totalCount));
+	
+					copyWeights(savedLayers, layers);
+				}
 			}
 		}
 		while((evaluation < 1 || tLabels.isContinuous(0)) && count < maxEpochsWithoutImprovement && totalCount < maxEpochs);
@@ -380,7 +393,8 @@ public class NeuralNet extends SupervisedLearner
 	}
 
 	protected void doEpoch(Matrix inputs, Matrix labels, int nextIndex)
-	{		
+	{	
+		
 		for (int instanceRow : new Range(nextIndex, nextIndex + epochSize))
 		{
 			instanceRow %= inputs.rows();
@@ -407,6 +421,13 @@ public class NeuralNet extends SupervisedLearner
 						double errorFromHigherLayer = sumErrorFromHigherLayer(j, layers[i + 1], errors[i + 1]);
 						errors[i][j] = layers[i][j].calcHiddenNodeError(errorFromHigherLayer, outputs[i][j]);
 					}
+				}
+				// TODO Remove
+//				if (i < layers.length - 1)
+//					scaleToMinimumWidth(errors[i], 0.0001);
+				if (plotCount % freq == 0)
+				{
+					Plotter.addDatumForLinePlot("layer_" + i + "_error", errors[i], "prediction", "error");
 				}
 			}
 
@@ -442,6 +463,8 @@ public class NeuralNet extends SupervisedLearner
 
 	protected double[][] calcOutputs(Vector input)
 	{
+		plotCount++;
+
 		double[][] outputs = generateNetworkSizeArray();
 		for(int i = 0; i < layers.length; i++)
 		{
@@ -456,26 +479,62 @@ public class NeuralNet extends SupervisedLearner
 				// Don't increase the contrast of the output layer outputs.
 				if (i + 1 < layers[i].length)
 				{
-					double c = 1.0;
-					double minVal = Helper.min(outputs[i]);
-					double maxVal = Helper.max(outputs[i]);
-					double range = maxVal - minVal;
-					double maxChange = Math.min(minVal, 1.0 - maxVal);
-					double scale = (2.0*maxChange*c + range)/ range;
-					double median = (maxVal + minVal) / 2.0;
-										
-					for(int j = 0; j < layers[i].length; j++)
-					{
-						outputs[i][j] = (outputs[i][j] - median)*scale + median;
-					}
+					Bounds nodeBounds = layers[0][0].getOutputRange();
+					increaseContrast(outputs[i], nodeBounds);
 				}
+			}
+			if (plotCount % freq == 0)
+			{
+				Plotter.addDatumForLinePlot("layer_" + i, outputs[i], "prediction", "activation");
+				Plotter.addDatumForLinePlot("layer_" + i + "_weights", layers[i][0].getWeights(), "prediction", "weight");
 			}
 			
 			
+			
 		}
-		if (softmaxLogistic)
+		if (softmax)
 			RelativeEntropy.softmaxInPlace(outputs[outputs.length - 1]);
 		return outputs;
+	}
+	
+	private static void increaseContrast(double[] values, Bounds bounds)
+	{
+		double minVal = Helper.min(values);
+		double maxVal = Helper.max(values);
+		double range = maxVal - minVal;
+		double change = Math.min(minVal - bounds.lower, bounds.upper - maxVal);
+		double scale = (2.0*change + range)/ range;
+		if (Double.isInfinite(scale))
+			return;
+		double middle = (maxVal + minVal) / 2.0;//Helper.mean(outputs[i]);
+							
+		for(int j = 0; j < values.length; j++)
+		{
+			values[j] = (values[j] - middle)*scale + middle;
+		}	
+	}
+	
+	private static void scaleToMinimumWidth(double[] values, double width)
+	{
+		double minVal = Helper.min(values);
+		double maxVal = Helper.max(values);
+		double range = maxVal - minVal;
+		if (range >= width)
+			return;
+		double scale = width/range;
+		if (Double.isInfinite(scale))
+			return;
+
+		for(int j = 0; j < values.length; j++)
+		{
+			values[j] = values[j]*scale;
+		}	
+		
+		minVal = Helper.min(values);
+		maxVal = Helper.max(values);
+		range = maxVal - minVal;
+		assert Math.abs(range - width) < 0.00001;
+
 	}
 
 	public Vector innerPredict(Vector input)
@@ -509,7 +568,7 @@ public class NeuralNet extends SupervisedLearner
 		}
 		else if (normalizePredictions)
 		{
-			if (!softmaxLogistic)
+			if (!softmax)
 			{
 				// Increase the lower bound of the weights to be 0. I need to do this because I cannot
 				// normalize an array with negative numbers.
@@ -588,7 +647,7 @@ public class NeuralNet extends SupervisedLearner
 		for (int n = 0; n < layers[layers.length - 1].length; n++)
 		{
 			int numOutputLayerIntputs = layers.length > 1 ? layers[layers.length-2].length : inputs.cols();
-			if (softmaxLogistic)
+			if (softmax)
 				layers[layers.length - 1][n] = new SoftmaxNode(rand, numOutputLayerIntputs, momentum);
 			else
 				layers[layers.length - 1][n] = new SigmoidNode(rand, numOutputLayerIntputs, momentum); 

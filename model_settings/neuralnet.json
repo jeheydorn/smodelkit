@@ -1,7 +1,7 @@
 {
 	"filters": ["normalize", "mean_mode_unknown_filler", "nom_to_categorical"],
-	"hiddenLayerMultiples": [2],
-	"hiddenLayerSizes": null,
+	"hiddenLayerMultiples": null,
+	"hiddenLayerSizes": [10, 10, 10, 10, 10],
 	"maxHiddenLayerSize": null,
 	"includeLabelsInHiddenLayerMultiples": false,
 	"validationSetPercent": 0.2,
@@ -10,11 +10,11 @@
 
 	"outputLayerNodeType": "sigmoidWithMSE",
 	"hiddenLayerNodeType": "sigmoid",
-	"increasContrastOfHiddenLayerInputs": false,
+	"increasContrastOfHiddenLayerInputs": true,
 	"normalizePredictions": false,
 		
-	"maxEpochs" : 500,
-	"maxEpochsWithoutImprovement": 10,
+	"maxEpochs" : 100,
+	"maxEpochsWithoutImprovement": null,
 	"improvementThreshold": 0.00000,
 	"epochSize": null,
 	"minEpochSize": null

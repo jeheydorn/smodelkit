@@ -386,7 +386,7 @@ public abstract class SupervisedLearner implements Serializable
 	{
 		Matrix[] result = new Matrix[4];
 		
-		if (validationSetPercent == 0 || validationSetPercent == 1)
+		if (validationSetPercent == 1)
 		{
 			// Validate using training set.
 			result[0] = inputs;

@@ -1,7 +1,7 @@
 package smodelkit.util;
 
 /**
- * A tuple of 2 items that that implement comparable.
+ * A tuple of 2 items that implement comparable.
 
  * @param <F>
  * @param <S>
