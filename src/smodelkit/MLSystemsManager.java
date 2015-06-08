@@ -68,9 +68,7 @@ import smodelkit.util.Tuple3;
  * For training and evaluating learners.
  */
 public class MLSystemsManager
-{		
-	private static String learnerSettingsFileName;
-	
+{			
 	/**
 	 * If data is not null, it will be used as the data. If static evaluation is used, data will be
 	 * the training set. Unknown filling and column removal are still applied.
@@ -801,7 +799,7 @@ public class MLSystemsManager
 		{
 			String learnerName = parser.learner.get(0);
 			String configFileName = parser.learner.get(1);
-			learnerSettingsFileName = configFileName;
+			Plotter.setFilePrefix(FilenameUtils.getBaseName(configFileName) + "_");;
 			JSONObject settings = parseModelSettingsFile(configFileName);
 			return createLearner(rand, learnerName, settings);
 		}
@@ -1191,6 +1189,6 @@ public class MLSystemsManager
 		Logger.addLoggingClassName(MLSystemsManager.class);
 		MLSystemsManager ml = new MLSystemsManager();
 		ml.run(args, null);
-		Plotter.generateAllPlots(FilenameUtils.getBaseName(learnerSettingsFileName) + "_");
+		Plotter.generateAllPlots();
 	}
 }

@@ -53,7 +53,7 @@ public class NeuralNet extends SupervisedLearner
 	private String hiddenLayerNodeType;
 	// TODO remove
 	int plotCount = 0;
-	long freq = Long.MAX_VALUE;
+	long freq = 1;
 	
 	
 	public NeuralNet()
@@ -336,6 +336,8 @@ public class NeuralNet extends SupervisedLearner
 				{
 					Plotter.addDatumForLinePlot(trainEvaluator.getClass().getSimpleName(),
 							evaluation, "Epoch", trainEvaluator.getClass().getSimpleName());
+					
+					Plotter.generateAllPlots(); // TODO Remove.
 				}
 							
 				double improvement = trainEvaluator.higherScoresAreBetter() ? 
