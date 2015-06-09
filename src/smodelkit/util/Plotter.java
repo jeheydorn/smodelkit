@@ -17,6 +17,11 @@ import java.util.TreeMap;
 public class Plotter
 {
 	private static Map<String, Plot> plots;
+	private static String filePrefix;
+	public static void setFilePrefix(String value)
+	{
+		filePrefix = value;
+	}
 	private enum PlotType
 	{
 		line,
@@ -26,11 +31,11 @@ public class Plotter
 	static
 	{
 		plots = new TreeMap<>();
+		filePrefix = "";
 	}
 	
 	private Plotter()
 	{
-		
 	}
 		
 	/**
@@ -87,16 +92,9 @@ public class Plotter
 		
 		plot.data.add(new double[] {datum});
 	}
-
+	
 	public static void generateAllPlots()
 	{
-		generateAllPlots("");
-	}
-	
-	public static void generateAllPlots(String filePrefix)
-	{
-		if (filePrefix == null)
-			filePrefix = "";
 		for (String plotName : plots.keySet())
 		{
 			Logger.println("Creating plot " + plotName);
