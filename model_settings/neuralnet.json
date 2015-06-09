@@ -9,13 +9,13 @@
 	"momentum": 0.0,
 
 	"outputLayerNodeType": "softmaxWithRelativeEntropy",
-	"hiddenLayerNodeType": "sigmoid",
-	"increaseContrastOfHiddenLayerOutputs": true,
+	"hiddenLayerNodeType": "softsign",
+	"increaseContrastOfHiddenLayerOutputs": false,
 	"normalizePredictions": false,
 		
-	"maxEpochs" : 5,
+	"maxEpochs" : 1,
 	"maxEpochsWithoutImprovement": null,
 	"improvementThreshold": 0.00000,
-	"epochSize": 100000,
+	"epochSize": 100,
 	"minEpochSize": null
 }

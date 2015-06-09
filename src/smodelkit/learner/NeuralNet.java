@@ -26,7 +26,7 @@ import smodelkit.util.Range;
 public class NeuralNet extends SupervisedLearner
 {
 	private static final long serialVersionUID = 1L;
-	final boolean PRINT_EPOCH_TIMES = true;
+	final boolean PRINT_EPOCH_TIMES = false;
 	final int EPOCH_PRINT_FREQUENCY = 1;
 	final boolean SAVE_ERROR_RATES = true;
 	// This is the layers of the network; the hidden and output layers. The last layer is the output layer.
@@ -337,7 +337,7 @@ public class NeuralNet extends SupervisedLearner
 					Plotter.addDatumForLinePlot(trainEvaluator.getClass().getSimpleName(),
 							evaluation, "Epoch", trainEvaluator.getClass().getSimpleName());
 					
-					Plotter.generateAllPlots(); // TODO Remove.
+					//Plotter.generateAllPlots(); // TODO Remove.
 				}
 							
 				double improvement = trainEvaluator.higherScoresAreBetter() ? 
@@ -495,7 +495,7 @@ public class NeuralNet extends SupervisedLearner
 			if (plotCount % freq == 0)
 			{
 				Plotter.addDatumForLinePlot("layer_" + i, outputs[i], "prediction", "activation");
-				Plotter.addDatumForLinePlot("layer_" + i + "_weights", layers[i][0].getWeights(), "prediction", "weight");
+				//Plotter.addDatumForLinePlot("layer_" + i + "_weights", layers[i][0].getWeights(), "prediction", "weight");
 			}
 			
 			
@@ -605,21 +605,22 @@ public class NeuralNet extends SupervisedLearner
 		return sum;
 	}
 
-	void printWeights()
-	{
-		for(int i = 0; i < layers.length; i++)
-		{
-
-			Logger.println("Weights for layer " + i + ": ");
-			for(int j = 0; j < layers[i].length; j++)
-			{
-				double[] nodeWeights = layers[i][j].getWeights();
-				Logger.println(Helper.printArray("node " + j, nodeWeights));
-			}
-		}
-		Logger.println();
-
-	}
+	// TODO put back.
+//	void printWeights()
+//	{
+//		for(int i = 0; i < layers.length; i++)
+//		{
+//
+//			Logger.println("Weights for layer " + i + ": ");
+//			for(int j = 0; j < layers[i].length; j++)
+//			{
+//				double[] nodeWeights = layers[i][j].getWeights();
+//				Logger.println(Helper.printArray("node " + j, nodeWeights));
+//			}
+//		}
+//		Logger.println();
+//
+//	}
 	
 	/**
 	 * Fills "layers" with nodes.  

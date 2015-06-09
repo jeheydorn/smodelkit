@@ -97,7 +97,7 @@ public class Plotter
 	{
 		for (String plotName : plots.keySet())
 		{
-			Logger.println("Creating plot " + plotName);
+			Logger.println("Creating plot " + filePrefix + plotName);
 			Plot plot = plots.get(plotName);
 			
 			String filename = filePrefix + plotName + ".csv";
