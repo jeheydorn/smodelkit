@@ -25,7 +25,7 @@ if __name__ == "__main__":
 	pyplot.legend(legendNames, loc='upper right')
 	outFileName = "{0}.png".format(inFileNameWithoutExtension)
 	pyplot.savefig(outFileName)
-	pyplot.show()
+#	pyplot.show()
 
 
 
