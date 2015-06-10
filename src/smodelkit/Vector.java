@@ -112,10 +112,10 @@ public class Vector implements Serializable, Comparable<Vector>
 	}
 	
 	/**
-	 * Returns the internal values from this vector for using with Weka integration.
-	 * The caller must not modify these values.
+	 * Returns the internal values from this vector.
+	 * The caller MUST NOT modify these values.
 	 */
-	public double[] getValuesForWekaInstance()
+	public double[] getValues()
 	{
 		if (!isCompact())
 			throw new IllegalStateException();

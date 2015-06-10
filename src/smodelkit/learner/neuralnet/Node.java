@@ -3,6 +3,8 @@ package smodelkit.learner.neuralnet;
 import java.io.Serializable;
 import java.util.Random;
 
+import com.amd.aparapi.Kernel;
+
 import smodelkit.Vector;
 import smodelkit.util.Bounds;
 
@@ -107,6 +109,11 @@ public abstract class Node implements Serializable
 	}
 	
 	public abstract Bounds getOutputRange();
+	
+	public Kernel createHiddenLayerOutputKernel(double[] nodeInputs, double[] layerWeights, int numWeights, double[] layerOutputs)
+	{
+		throw new UnsupportedOperationException();
+	}
 
 
 }

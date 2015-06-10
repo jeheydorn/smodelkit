@@ -177,7 +177,7 @@ public class WekaWrapper extends SupervisedLearner
 		// I use the same format for instances as Weka, and Weka's DenseInstance class cannot mutate
 		// the underlying double array, so I don't need to copy it.
 
-		Instance instance = new DenseInstance(row.getWeight(), row.getValuesForWekaInstance());	
+		Instance instance = new DenseInstance(row.getWeight(), row.getValues());	
 		instance.setDataset(dataset);
 		return instance;
 	}

@@ -25,15 +25,19 @@ import smodelkit.util.Range;
  * @author joseph
  *
  */
-public class NeuralNet extends SupervisedLearner
+public class NeuralNetGPU extends SupervisedLearner
 {
 	private static final long serialVersionUID = 1L;
 	final boolean PRINT_EPOCH_TIMES = false;
 	final int EPOCH_PRINT_FREQUENCY = 1;
 	final boolean SAVE_ERROR_RATES = false;
-	// This is the layers of the network; the hidden and output layers. The last layer is the output layer.
-	protected Node[][] layers;
-	protected double momentum;
+	// This is the weights of each layer of the network; the hidden and output layers. The last layer is the output layer.
+	double[][] layers;
+	// The number of weights (including bias weights) in nodes in each layer.
+	int[] nodeWeightCountsPerLayer;
+	// The number of nodes per layer.
+	int[] nodeCountPerLayer;
+	
 	double improvementThreshold;
 	double validationSetPercent;
 	int maxEpochs;
@@ -53,12 +57,13 @@ public class NeuralNet extends SupervisedLearner
 	private boolean normalizePredictions;
 	private boolean softmax;
 	private String hiddenLayerNodeType;
+	SigmoidNodeKernelCreator kernelCreator;
 	// TODO remove
 	int plotCount = 0;
 	long freq = Long.MAX_VALUE;
 	
 	
-	public NeuralNet()
+	public NeuralNetGPU()
 	{
 		
 	}
@@ -78,7 +83,6 @@ public class NeuralNet extends SupervisedLearner
 		Integer maxHiddenLayerSize = maxHiddenLayerSizeLong != null ? maxHiddenLayerSizeLong.intValue() : null;
 		double validationSetPercent = (Double)settings.get("validationSetPercent");
 		double learningRate = (Double)settings.get("learningRate");
-		double momentum = (Double)settings.get("momentum");
 		double improvementThreshold = (Double)settings.get("improvementThreshold");
 		
 		checkNullableArgumentIsPresent(settings, "maxEpochs");
@@ -110,11 +114,10 @@ public class NeuralNet extends SupervisedLearner
 		String hiddenLayerNodeType = (String)settings.get("hiddenLayerNodeType");
 		
 		configure(learningRate, hiddenLayerSizes, hiddenLayerMultiples, maxHiddenLayerSize, 
-				momentum, validationSetPercent,
+				validationSetPercent,
 				improvementThreshold, maxEpochs, maxEpochsWithoutImprovement, includLabelsInHiddenLayerMultiples,
 				increaseContrastOfHiddenLayerOutputs, epochSize, minEpochSize, 
 				normalizePredictions, outputLayerNodeType, hiddenLayerNodeType);
-
 	}
 		
 	/**
@@ -149,14 +152,13 @@ public class NeuralNet extends SupervisedLearner
 	 */
 	public void configure(double learningRate, int[] hiddenLayerSizes, 
 			double[] hiddenLayerMultiples,
-			Integer maxHiddenLayerSize, double momentum, 
+			Integer maxHiddenLayerSize, 
 			double validationSetPercent, double improvementThreshold, int maxEpochs, 
 			int maxEpochsWithoutImprovement, boolean includLabelsInHiddenLayerMultiples,
 			boolean increaseContrastOfHiddenLayerOutputs, Integer epochSize, Integer minEpochSize,
 			boolean normalizePredictions, String outputLayerNodeType, String hiddenLayerNodeType)
 	{
 		this.learningRate = learningRate;
-		this.momentum = momentum;
 		this.validationSetPercent = validationSetPercent;
 		this.improvementThreshold = improvementThreshold;
 		this.maxEpochs = maxEpochs;
@@ -184,6 +186,8 @@ public class NeuralNet extends SupervisedLearner
 		}
 		
 		this.hiddenLayerNodeType = hiddenLayerNodeType;
+		
+		kernelCreator = new SigmoidNodeKernelCreator(); // TODO Make this a parameter.
 		
 		setupTrainingEvaluator();
 		varifyArgs();
@@ -217,10 +221,7 @@ public class NeuralNet extends SupervisedLearner
 	}
 	
 	public void innerTrain(Matrix inputs, Matrix labels)
-	{
-//		System.out.println(Helper.printMatrix("inputs in NeuralNet", inputs));
-//		System.out.println(Helper.printMatrix("labels in NeuralNet", labels));
-		
+	{		
 		if (labels.isContinuous(0) && labels.getNumCatagoricalCols().size() == 0)
 		{
 			// TODO Implement a linear unit for this case.
@@ -234,7 +235,6 @@ public class NeuralNet extends SupervisedLearner
 		Logger.println("improvementThreshold: " + improvementThreshold);
 		Logger.println("epochSize: " + epochSize);
 		Logger.println("learning rate: " + learningRate);
-		Logger.println("momentum: " + momentum);
 		Logger.println("validation set %: " + validationSetPercent);
 		Logger.println("increasContrastOfHiddenLayerInputs: " + increaseContrastOfHiddenLayerOutputs);
 		
@@ -283,7 +283,7 @@ public class NeuralNet extends SupervisedLearner
 
 		if (layers != null)
 		{
-			Logger.println("Network input count: " + (layers[0][0].getWeights().length - 1)); // -1 for bias weight.
+			Logger.println("Network input count: " + nodeWeightCountsPerLayer[0]); // -1 for bias weight.
 			Logger.print("Layer sizes (the output layer is last): ");
 			for (int i = 0; i < layers.length; i++)
 				Logger.print(layers[i].length + " ");
@@ -297,7 +297,7 @@ public class NeuralNet extends SupervisedLearner
 //		printWeights();
 
 		// A copy of the network layers from the time they did best on a validation set.
-		Node[][] savedLayers = (Node[][]) Helper.deepCopy(layers);
+		double[][] savedLayers = (double[][]) Helper.deepCopy(layers);
 		int epochOfSavedWeights = 0;
 
 		double evaluation = 0;
@@ -339,7 +339,6 @@ public class NeuralNet extends SupervisedLearner
 					Plotter.addDatumForLinePlot(trainEvaluator.getClass().getSimpleName(),
 							evaluation, "Epoch", trainEvaluator.getClass().getSimpleName());
 					
-					//Plotter.generateAllPlots(); // TODO Remove.
 				}
 							
 				double improvement = trainEvaluator.higherScoresAreBetter() ? 
@@ -396,13 +395,12 @@ public class NeuralNet extends SupervisedLearner
 	/**
 	 * Copies all weight values from source to dest.
 	 */
-	private void copyWeights(Node[][] dest, Node[][] source)
+	private void copyWeights(double[][] dest, double[][] source)
 	{
 		for (int i = 0; i < source.length; i++)
 			for (int j = 0; j < source[i].length; j++)
 			{
-				for (int w = 0; w < source[i][j].getWeights().length; w++)
-				dest[i][j].getWeights()[w] = source[i][j].getWeights()[w];
+				dest[i][j] = source[i][j];
 			}
 	}
 
@@ -479,17 +477,20 @@ public class NeuralNet extends SupervisedLearner
 		for(int i = 0; i < layers.length; i++)
 		{
 			Vector inputs = i == 0 ? input : new Vector(outputs[i - 1]);
-			for(int j = 0; j < layers[i].length; j++)
-			{
-				outputs[i][j] = layers[i][j].calcOutput(inputs);
-			}
+			int numWeights = nodeWeightCountsPerLayer[i];
+			
+			Kernel kernel = kernelCreator.createHiddenLayerOutputKernel(inputs.getValues(), layers[i], 
+			 		numWeights, outputs[i]);
+
+			kernel.execute(com.amd.aparapi.Range.create(outputs[i].length));
+			kernel.dispose();
 			
 			if (increaseContrastOfHiddenLayerOutputs)
 			{
 				// Don't increase the contrast of the output layer outputs.
 				if (i + 1 < layers.length)
 				{
-					Bounds nodeBounds = layers[i][0].getOutputRange();
+					Bounds nodeBounds = kernelCreator.getNodeOutputRange();
 					increaseContrast(outputs[i], nodeBounds);
 				}
 			}
@@ -498,8 +499,6 @@ public class NeuralNet extends SupervisedLearner
 				Plotter.addDatumForLinePlot("layer_" + i, outputs[i], "prediction", "activation");
 				//Plotter.addDatumForLinePlot("layer_" + i + "_weights", layers[i][0].getWeights(), "prediction", "weight");
 			}
-			
-			
 			
 		}
 		if (softmax)
