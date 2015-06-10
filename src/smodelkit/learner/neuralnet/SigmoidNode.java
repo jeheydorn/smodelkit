@@ -18,7 +18,7 @@ public class SigmoidNode extends Node
 	{
 		return 1/(1 + Math.exp(-net));
 	}
-	
+
 	@Override
 	public double calcOutputNodeError(double target, double output)
 	{
