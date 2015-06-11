@@ -214,7 +214,7 @@ public class WOVEnsemble extends SupervisedLearner
 		
 		// Convert the map to a scored list.
 		List<Vector> result = scores.entrySet().stream().map(
-				entry -> new VectorDouble(entry.getKey(), entry.getValue())).collect(Collectors.toList());
+				entry -> Vector.create(entry.getKey(), entry.getValue())).collect(Collectors.toList());
 		result.sort((v1, v2) -> -Double.compare(v1.getWeight(), v2.getWeight()));
 		return result;
 	}

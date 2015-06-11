@@ -77,7 +77,7 @@ public class RelativeEntropy extends Evaluator
 			values[i] = v.get(i);
 		}
 		softmaxInPlace(values);
-		return new VectorDouble(values, v.getWeight());
+		return Vector.create(values, v.getWeight());
 	}
 	
 	public static void softmaxInPlace(double[] values)
@@ -86,6 +86,20 @@ public class RelativeEntropy extends Evaluator
 		for (int i = 0; i < values.length; i++)
 		{
 			values[i] = Math.exp(values[i]);
+			total += values[i];
+		}
+		for (int i = 0; i < values.length; i++)
+		{
+			values[i] /= total;
+		}
+	}
+
+	public static void softmaxInPlace(float[] values)
+	{
+		double total = 0;
+		for (int i = 0; i < values.length; i++)
+		{
+			values[i] = (float)Math.exp(values[i]);
 			total += values[i];
 		}
 		for (int i = 0; i < values.length; i++)

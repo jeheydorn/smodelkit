@@ -60,7 +60,7 @@ public class MeanModeUnknownFiller extends Filter
 			else
 				after[i] = before.get(i);
 		}
-		return new VectorDouble(after, before.getWeight());
+		return Vector.create(after, before.getWeight());
 	}
 
 	@Override

@@ -445,18 +445,11 @@ public class NeuralNet extends SupervisedLearner
 			// Update all weights
 			for(int i = 0; i < layers.length; i++)
 			{
-				Vector input = i == 0 ? inputs.row(instanceRow) : new VectorDouble(outputs[i - 1]);
+				Vector input = i == 0 ? inputs.row(instanceRow) : Vector.create(outputs[i - 1]);
 				double instanceWeight = inputs.row(instanceRow).getWeight();
 				for(int j = 0; j < layers[i].length; j++)
 				{
-					if (i == outputs.length - 1)
-					{
-						layers[i][j].updateWeights(input, errors[i][j], learningRate * instanceWeight);
-					}
-					else
-					{
-						layers[i][j].updateWeights(input, errors[i][j], learningRate * instanceWeight);
-					}
+					layers[i][j].updateWeights(input, errors[i][j], learningRate * instanceWeight);
 				}
 			}
 		}
@@ -479,7 +472,7 @@ public class NeuralNet extends SupervisedLearner
 		double[][] outputs = generateNetworkSizeArray();
 		for(int i = 0; i < layers.length; i++)
 		{
-			Vector inputs = i == 0 ? input : new VectorDouble(outputs[i - 1]);
+			Vector inputs = i == 0 ? input : Vector.create(outputs[i - 1]);
 			for(int j = 0; j < layers[i].length; j++)
 			{
 				outputs[i][j] = layers[i][j].calcOutput(inputs);
@@ -529,7 +522,7 @@ public class NeuralNet extends SupervisedLearner
 	{
 		double[][] outputs = calcOutputs(input);
 
-		return new VectorDouble(outputs[outputs.length - 1]);
+		return Vector.create(outputs[outputs.length - 1]);
 	}
 	
 	@Override

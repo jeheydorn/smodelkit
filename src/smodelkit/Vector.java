@@ -18,8 +18,11 @@ import smodelkit.util.Range;
  */
 public interface Vector extends Serializable, Comparable<Vector>
 {
-	// TODO Decide if I want to use create methods.
 	public static boolean useDouble = true;
+	/**
+	 * Creates a new vector with instance weight 1.
+	 * @param values The values to be stored within the vector.
+	 */
 	public static Vector create(double... values)
 	{
 		if (useDouble)
@@ -27,7 +30,86 @@ public interface Vector extends Serializable, Comparable<Vector>
 		else
 			return new VectorFloat(convertToFloats(values));
 	}
+
+	/**
+	 * Creates a new vector with instance weight 1.
+	 * @param values The values to be stored within the vector.
+	 */
+	public static Vector create(float... values)
+	{
+		if (useDouble)
+			return new VectorDouble(convertToDoubles(values));
+		else
+			return new VectorFloat(values);
+	}
+	
+	public static Vector create(double[] values, double weight)
+	{
+		if (useDouble)
+			return new VectorDouble(values, weight);
+		else
+			return new VectorFloat(convertToFloats(values), (float)weight);		
 		
+	}
+
+	public static Vector create(float[] values, float weight)
+	{
+		if (useDouble)
+			return new VectorDouble(convertToDoubles(values), (float)weight);
+		else
+			return new VectorFloat(values, weight);	
+		
+	}
+
+	public static Vector create(double[] values, double weight, int from, int to)
+	{
+		if (useDouble)
+			return new VectorDouble(values, weight, from, to);
+		else
+			return new VectorFloat(convertToFloats(values), (float)weight, from, to);		
+	}
+
+	public static Vector create(float[] values, float weight, int from, int to)
+	{
+		if (useDouble)
+			return new VectorDouble(convertToDoubles(values), weight, from, to);
+		else
+			return new VectorFloat(values, weight, from, to);		
+	}
+	
+	/**
+	 * Creates a copy of other.
+	 */
+	public static Vector create(Vector other)
+	{
+		if (useDouble)
+			return new VectorDouble((VectorDouble) other);
+		else
+			return new VectorFloat((VectorFloat)other);
+	}
+	
+	/**
+	 * Creates a new Vector with values from other, and the specified weight.
+	 */
+	public static Vector create(Vector other, double weight)
+	{
+		if (useDouble)
+			return new VectorDouble((VectorDouble)other, weight);
+		else
+			return new VectorFloat((VectorFloat)other, (float)weight);					
+	}
+
+	/**
+	 * Creates a new Vector with values from other, and the specified weight.
+	 */
+	public static Vector create(Vector other, float weight)
+	{
+		if (useDouble)
+			return new VectorDouble((VectorDouble)other, weight);
+		else
+			return new VectorFloat((VectorFloat)other, weight);					
+	}
+
 	public double getWeight();
 	
 	public float getWeightFloat();

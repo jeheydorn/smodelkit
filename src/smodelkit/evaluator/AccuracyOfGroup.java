@@ -62,7 +62,7 @@ public class AccuracyOfGroup extends Evaluator
 			result[i] = label.get(c);
 			i++;
 		}
-		return new VectorDouble(result);
+		return Vector.create(result);
 	}
 
 	@Override

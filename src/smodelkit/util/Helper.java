@@ -275,7 +275,20 @@ public class Helper
 		}
 		return maxElement;
 	}
-	
+
+	public static float max(float[] array)
+	{
+		if (array.length == 0)
+			throw new IllegalArgumentException("length cannot be 0.");
+		float maxElement = Float.NEGATIVE_INFINITY;
+		for (float f : array)
+		{
+			if (f > maxElement)
+				maxElement = f;
+		}
+		return maxElement;
+	}
+
 	public static double min(double[] array)
 	{
 		if (array.length == 0)
@@ -288,6 +301,20 @@ public class Helper
 		}
 		return maxElement;
 	}
+	
+	public static float min(float[] array)
+	{
+		if (array.length == 0)
+			throw new IllegalArgumentException("length cannot be 0.");
+		float maxElement = Float.POSITIVE_INFINITY;
+		for (float f : array)
+		{
+			if (f < maxElement)
+				maxElement = f;
+		}
+		return maxElement;
+	}
+
 	
 	public static double mean(double[] array)
 	{
@@ -525,6 +552,40 @@ public class Helper
 		}
 	}
 	
+	/**
+	 * Normalizes the given array such that the sum of its elements equals 1.
+	 * All elements must be non-negative. If all elemnts are zero, then
+	 * the given array is assigned a uniform distribution.
+	 * @param array
+	 */
+	public static void normalize(float[] array)
+	{
+		float sum = 0f;
+		for (float d : array)
+		{
+			if (d < 0f)
+				throw new IllegalArgumentException("Elements cannot be negative. value: " + d);
+			sum += d;
+		}
+		if (sum == 0f)
+		{
+			float value = 1f / array.length;
+			for (int i = 0; i < array.length; i++)
+			{
+				array[i] = value;
+			}
+			return;
+		}
+		if (Float.isNaN(sum))
+		{
+			throw new IllegalArgumentException("Sum is NaN. Did the array have unknown values?");
+		}
+		for (int i = 0; i < array.length; i++)
+		{
+			array[i] /= sum;
+		}
+	}
+
 	public static <I, R> List<R> map(List<I> items, Function<I, R> fun)
 	{
 		List<R> result = new ArrayList<R>();

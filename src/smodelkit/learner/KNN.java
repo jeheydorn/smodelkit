@@ -270,7 +270,7 @@ public class KNN extends SupervisedLearner
 		Vector prediction;
 		assert input.size() == tInputs.cols();
 
-		Vector[] kInputs = new VectorDouble[k];
+		Vector[] kInputs = new Vector[k];
 		double[] kLabels = new double[k];
 		getKNearest(input, kInputs, kLabels);
 
@@ -288,7 +288,7 @@ public class KNN extends SupervisedLearner
 			}
 
 			average /= weightSum;
-			prediction = new VectorDouble(new double[]{average});
+			prediction = Vector.create(new double[]{average});
 		}
 		else
 		{
@@ -318,7 +318,7 @@ public class KNN extends SupervisedLearner
 
 			// Find the attribute with the largest weighted vote.
 			// (Attribute values are integer numbers. Here the index into totals is the attribute value.)
-			prediction = new VectorDouble(new double[]{ Helper.indexOfMaxElementInRange(totals, 0, totals.length)});
+			prediction = Vector.create(new double[]{ Helper.indexOfMaxElementInRange(totals, 0, totals.length)});
 		}
 		return prediction;
 	}

@@ -128,7 +128,7 @@ public class Normalize extends Filter
 				}
 			}
 		}
-		return new VectorDouble(after, before.getWeight());
+		return Vector.create(after, before.getWeight());
 	}
 
 
@@ -156,7 +156,7 @@ public class Normalize extends Filter
 				}
 			}
 		}
-		return new VectorDouble(after, before.getWeight());
+		return Vector.create(after, before.getWeight());
 	}
 	@Override
 	public void configure(String[] args)

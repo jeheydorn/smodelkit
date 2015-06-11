@@ -208,7 +208,7 @@ public class RankedCC extends SupervisedLearner
 								// This should only happen once in this loop.
 								predictions.setSize(0, predFiltered.length);								
 							}
-							predictions.addRow(new VectorDouble(predFiltered));
+							predictions.addRow(Vector.create(predFiltered));
 						}
 						inputsMut.copyColumns(predictions, 0, predictions.cols());						
 					}
@@ -243,7 +243,7 @@ public class RankedCC extends SupervisedLearner
 		Branch maxBranch = Collections.max(branches);
 		double[] prediction = maxBranch.getAllPredictions();
 //		Logger.printArray("prediction in innerPredict", prediction);
-		return new VectorDouble(prediction);
+		return Vector.create(prediction);
 	}
 		
 	@Override
@@ -257,7 +257,7 @@ public class RankedCC extends SupervisedLearner
 		for (Branch b : branches)
 		{
 //			Logger.println(b);
-			predictions.add(new VectorDouble(b.getAllPredictions(), b.score));
+			predictions.add(Vector.create(b.getAllPredictions(), b.score));
 		}
 		
 //		Logger.println("predictions:");

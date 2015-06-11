@@ -93,7 +93,7 @@ public class HMONN extends SupervisedLearner
 		// First, predict using inn.
 		Vector innerPred = inn.predict(input);
 		// Combine inn's prediction with the input to make a query.
-		Vector query = new VectorDouble(input);
+		Vector query = Vector.create(input);
 		query.addAll(innerPred);
 
 		
@@ -128,7 +128,7 @@ public class HMONN extends SupervisedLearner
 			counts.increment(label);
 		}
 		List<Vector> result = counts.toListFromHighToLow().stream().map(
-				tuple -> new VectorDouble(tuple.getFirst(), (double)(int)tuple.getSecond()))
+				tuple -> Vector.create(tuple.getFirst(), (double)(int)tuple.getSecond()))
 				.collect(Collectors.toList());
 		return result;
 	}

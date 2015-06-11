@@ -81,10 +81,10 @@ public class Sample
 		{
 			if (weights[i] > 0)
 			{
-				Vector x = new VectorDouble(inputs.row(i));
+				Vector x = Vector.create(inputs.row(i));
 				x.setWeight(weights[i]);
 				baggedInputs.addRow(x);
-				Vector y = new VectorDouble(labels.row(i));
+				Vector y = Vector.create(labels.row(i));
 				y.setWeight(weights[i]);
 				baggedLabels.addRow(y);
 			}

@@ -115,7 +115,7 @@ public class VotingEnsemble extends SupervisedLearner
 				result[c] = counts.argmax();
 			}
 		}
-		return new VectorDouble(result);
+		return Vector.create(result);
 	}
 
 	@Override

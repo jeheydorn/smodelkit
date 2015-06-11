@@ -183,7 +183,7 @@ public abstract class SupervisedLearner implements Serializable
 			if (predictions.size() == 1)
 			{
 				// Unfilter the prediction. 
-				return Collections.singletonList(new VectorDouble(
+				return Collections.singletonList(Vector.create(
 						filter.unfilterLabel(predictions.get(0))));
 			}
 			

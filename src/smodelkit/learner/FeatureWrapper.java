@@ -220,7 +220,7 @@ public class FeatureWrapper extends SupervisedLearner
 		{
 			result.add(input.get(c));
 		}
-		return new VectorDouble(Helper.toDoubleArray(result), input.getWeight());
+		return Vector.create(Helper.toDoubleArray(result), input.getWeight());
 	}
 	
 	@Override
@@ -348,8 +348,8 @@ public class FeatureWrapper extends SupervisedLearner
 			wrapper.train(inputs, labels);
 			
 			assertEquals(Arrays.asList(0), wrapper.innerModelFeatureColumns);
-			assertEquals(new VectorDouble(new double[]{1}), wrapper.selectFeatureColumns(new VectorDouble(new double[] {1, 0})));
-			assertEquals(new VectorDouble(new double[]{0}), wrapper.selectFeatureColumns(new VectorDouble(new double[] {0, 0})));
+			assertEquals(Vector.create(new double[]{1}), wrapper.selectFeatureColumns(Vector.create(new double[] {1, 0})));
+			assertEquals(Vector.create(new double[]{0}), wrapper.selectFeatureColumns(Vector.create(new double[] {0, 0})));
 		}
 
 		{
@@ -417,8 +417,8 @@ public class FeatureWrapper extends SupervisedLearner
 			wrapper.train(inputs, labels);
 			
 			assertEquals(Arrays.asList(1), wrapper.innerModelFeatureColumns);
-			assertEquals(new VectorDouble(new double[]{0}), wrapper.selectFeatureColumns(new VectorDouble(new double[] {1, 0})));
-			assertEquals(new VectorDouble(new double[]{0}), wrapper.selectFeatureColumns(new VectorDouble(new double[] {0, 0})));
+			assertEquals(Vector.create(new double[]{0}), wrapper.selectFeatureColumns(Vector.create(new double[] {1, 0})));
+			assertEquals(Vector.create(new double[]{0}), wrapper.selectFeatureColumns(Vector.create(new double[] {0, 0})));
 		}
 
 		{
@@ -468,8 +468,8 @@ public class FeatureWrapper extends SupervisedLearner
 			wrapper.train(inputs, labels);
 			
 			assertEquals(Arrays.asList(0, 1), wrapper.innerModelFeatureColumns);
-			assertEquals(new VectorDouble(new double[]{1, 0}), wrapper.selectFeatureColumns(new VectorDouble(new double[] {1, 0})));
-			assertEquals(new VectorDouble(new double[]{0, 0}), wrapper.selectFeatureColumns(new VectorDouble(new double[] {0, 0})));
+			assertEquals(Vector.create(new double[]{1, 0}), wrapper.selectFeatureColumns(Vector.create(new double[] {1, 0})));
+			assertEquals(Vector.create(new double[]{0, 0}), wrapper.selectFeatureColumns(Vector.create(new double[] {0, 0})));
 		}
 	}
 

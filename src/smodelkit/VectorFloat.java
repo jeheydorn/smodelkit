@@ -49,7 +49,7 @@ public class VectorFloat implements Serializable, Comparable<Vector>, Vector
 	 * Creates a new vector with instance weight 1.
 	 * @param values The values to be stored within the vector.
 	 */
-	public VectorFloat(float... values)
+	protected VectorFloat(float... values)
 	{
 		this.values = values;
 		this.weight = 1.0f;
@@ -57,7 +57,7 @@ public class VectorFloat implements Serializable, Comparable<Vector>, Vector
 		varify();
 	}
 		
-	public VectorFloat(float[] values, float weight)
+	protected VectorFloat(float[] values, float weight)
 	{
 		this.values = values;
 		this.weight = weight;
@@ -65,7 +65,7 @@ public class VectorFloat implements Serializable, Comparable<Vector>, Vector
 		varify();
 	}
 	
-	private VectorFloat(float[] values, float weight, int from, int to)
+	protected VectorFloat(float[] values, float weight, int from, int to)
 	{
 		if (from >= to)
 			throw new IllegalArgumentException("Bad range.");
@@ -80,21 +80,21 @@ public class VectorFloat implements Serializable, Comparable<Vector>, Vector
 		this.to = to;
 	}
 
-	public VectorFloat(Vector other)
+	protected VectorFloat(VectorFloat other)
 	{
-		this.values = other.getValuesFloat();
-		this.weight = other.getWeightFloat();
-		this.from = other.getFrom();
-		this.to = other.getTo();
+		this.values = other.values;
+		this.weight = other.weight;
+		this.from = other.from;
+		this.to = other.to;
 		varify();
 	}
 	
 	/**
 	 * Creates a new Vector with values from other, and the specified weight.
 	 */
-	public VectorFloat(Vector other, float weight)
+	protected VectorFloat(VectorFloat other, float weight)
 	{
-		this.values = other.getValuesFloat();
+		this.values = other.values;
 		this.weight = weight;
 		to = values.length;
 		varify();
@@ -117,8 +117,7 @@ public class VectorFloat implements Serializable, Comparable<Vector>, Vector
 	 */
 	public double[] getValues()
 	{
-		if (!isCompact())
-			throw new IllegalStateException();
+		compact();
 		return Vector.convertToDoubles(values);
 	}
 	
@@ -331,7 +330,16 @@ public class VectorFloat implements Serializable, Comparable<Vector>, Vector
 	@Override
 	public Vector concat(double[] v)
 	{
-		return concat(Vector.convertToFloats(v));
+		float[] result = new float[size() + v.length];
+		for (int i = 0; i < size(); i++)
+		{
+			result[i] = getFloat(i);
+		}
+		for (int i = 0; i < v.length; i++)
+		{
+			result[i + size()] = (float)v[i];
+		}
+		return new VectorFloat(result, weight);
 	}
 	@Override
 	public int getFrom()

@@ -131,7 +131,7 @@ public class NominalToCategorical extends Filter
 			}
 		}
 		
-		return new VectorDouble(after, before.getWeight());
+		return Vector.create(after, before.getWeight());
 	}
 
 
@@ -241,7 +241,7 @@ public class NominalToCategorical extends Filter
 				}
 			}
 		}
-		return new VectorDouble(Helper.toDoubleArray(after), before.getWeight());
+		return Vector.create(Helper.toDoubleArray(after), before.getWeight());
 	}
 
 	@Override

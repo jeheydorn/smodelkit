@@ -123,7 +123,7 @@ public class Matrix implements Serializable, Iterable<Vector>
 			double[] rowDest = new double[colCount];
 			for (int i = 0; i < colCount; i++)
 				rowDest[i] = rowSrc.get(colStart + i);
-			addRow(new VectorDouble(rowDest, rowSrc.getWeight()));
+			addRow(Vector.create(rowDest, rowSrc.getWeight()));
 		}
 		numLabelColumns = 0;
 	}
@@ -216,7 +216,7 @@ public class Matrix implements Serializable, Iterable<Vector>
 			double[] rowDest = new double[cols()];
 			for (int i = 0; i < cols(); i++)
 				rowDest[i] = rowSrc.get(colStart + i);
-			addRow(new VectorDouble(rowDest, rowSrc.getWeight()));
+			addRow(Vector.create(rowDest, rowSrc.getWeight()));
 		}
 	}
 
@@ -313,7 +313,7 @@ public class Matrix implements Serializable, Iterable<Vector>
 				double[] toAdd = new double[num];
 				for (int c = 0; c < toAdd.length; c++)
 					toAdd[c] = other.row(r).get(start + c);
-				row(r).addAll(new VectorDouble(toAdd));
+				row(r).addAll(Vector.create(toAdd));
 			}	
 		}
 		else
@@ -395,7 +395,7 @@ public class Matrix implements Serializable, Iterable<Vector>
 	 */
 	public void addRow(Vector v)
 	{
-		v = new VectorDouble(v);
+		v = Vector.create(v);
 		// Verify the given row.
 		if (v.size() != cols())
 			throw new IllegalArgumentException("The given row is not the expected size for this dataset.");
@@ -444,7 +444,7 @@ public class Matrix implements Serializable, Iterable<Vector>
 		for (int j = 0; j < rows; j++)
 		{
 			double[] row = new double[cols];
-			addRow(new VectorDouble(row, 1.0));
+			addRow(Vector.create(row, 1.0));
 		}
 		attrNames = new ArrayList<String>();
 		strToEnum = new ArrayList<TreeMap<String, Integer>>();
@@ -831,7 +831,7 @@ public class Matrix implements Serializable, Iterable<Vector>
 				}
 			} 
 		}
-		addRow(new VectorDouble(newRow, instanceWeight));
+		addRow(Vector.create(newRow, instanceWeight));
 
 	}
 	

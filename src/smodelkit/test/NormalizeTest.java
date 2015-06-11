@@ -26,12 +26,12 @@ public class NormalizeTest
 			
 		Matrix filteredInputs = filter.filterAllInputs(inputsAndLabels[0]);
 
-		assertVectorEquals(new VectorDouble(-1.0, 1.0, -1.0, -1.0), filteredInputs.row(0), 0.0000001);
-		assertVectorEquals(new VectorDouble(((7.0 - 5.1))/(7.3 - 5.1) * 2.0 - 1.0,
+		assertVectorEquals(Vector.create(-1.0, 1.0, -1.0, -1.0), filteredInputs.row(0), 0.0000001);
+		assertVectorEquals(Vector.create(((7.0 - 5.1))/(7.3 - 5.1) * 2.0 - 1.0,
 				(3.2 - 2.9)/(3.5 - 2.9) * 2.0 - 1.0,
 				(4.7 - 1.4)/(6.3 - 1.4) * 2.0 - 1.0,
 				(1.4 - 0.2)/(1.8 - 0.2) * 2.0 - 1.0), filteredInputs.row(1), 0);
-		assertVectorEquals(new VectorDouble(1.0, -1.0, 1.0, 1.0), filteredInputs.row(2), 0.0000001);
+		assertVectorEquals(Vector.create(1.0, -1.0, 1.0, 1.0), filteredInputs.row(2), 0.0000001);
 		
 	}
 	
@@ -45,12 +45,12 @@ public class NormalizeTest
 			
 		Matrix filteredInputs = filter.filterAllInputs(inputsAndLabels[0]);
 
-		assertVectorsEqualWithUnknowns(new VectorDouble(Vector.getUnknownValue(), 1.0, -1.0, -1.0), filteredInputs.row(0), 0.0000001);
-		assertVectorEquals(new VectorDouble(-1,
+		assertVectorsEqualWithUnknowns(Vector.create(Vector.getUnknownValue(), 1.0, -1.0, -1.0), filteredInputs.row(0), 0.0000001);
+		assertVectorEquals(Vector.create(-1,
 				(3.2 - 2.9)/(3.5 - 2.9) * 2.0 - 1.0,
 				1.0,
 				(1.4 - 0.2)/(1.8 - 0.2) * 2.0 - 1.0), filteredInputs.row(1), 0);
-		assertVectorsEqualWithUnknowns(new VectorDouble(1.0, -1.0, Vector.getUnknownValue(), 1.0), filteredInputs.row(2), 0.0000001);
+		assertVectorsEqualWithUnknowns(Vector.create(1.0, -1.0, Vector.getUnknownValue(), 1.0), filteredInputs.row(2), 0.0000001);
 				
 	}
 	
@@ -82,9 +82,9 @@ public class NormalizeTest
 		
 		Matrix labelsF = filter.filterAllLabels(labels);
 
-		assertVectorEquals(new VectorDouble(0.0), labelsF.row(0), 0);
-		assertVectorEquals(new VectorDouble(1.0), labelsF.row(1), 0);
-		assertVectorEquals(new VectorDouble(2.0), labelsF.row(2), 0);
+		assertVectorEquals(Vector.create(0.0), labelsF.row(0), 0);
+		assertVectorEquals(Vector.create(1.0), labelsF.row(1), 0);
+		assertVectorEquals(Vector.create(2.0), labelsF.row(2), 0);
 		
 		
 	}
@@ -98,12 +98,12 @@ public class NormalizeTest
 		Filter filter = new Normalize();
 		filter.initialize(inputs, labels);
 		
-		assertVectorEquals(new VectorDouble(-1.0, 1.0, -1.0, -1.0), filter.filterInput(inputs.row(0)), 0);
-		assertVectorEquals(new VectorDouble(((7.0 - 5.1))/(7.3 - 5.1) * 2.0 - 1.0,
+		assertVectorEquals(Vector.create(-1.0, 1.0, -1.0, -1.0), filter.filterInput(inputs.row(0)), 0);
+		assertVectorEquals(Vector.create(((7.0 - 5.1))/(7.3 - 5.1) * 2.0 - 1.0,
 				(3.2 - 2.9)/(3.5 - 2.9) * 2.0 - 1.0,
 				(4.7 - 1.4)/(6.3 - 1.4) * 2.0 - 1.0,
 				(1.4 - 0.2)/(1.8 - 0.2) * 2.0 - 1.0), filter.filterInput(inputs.row(1)), 0.0000001);
-		assertVectorEquals(new VectorDouble(1.0, -1.0, 1.0, 1.0), filter.filterInput(inputs.row(2)), 0);
+		assertVectorEquals(Vector.create(1.0, -1.0, 1.0, 1.0), filter.filterInput(inputs.row(2)), 0);
 
 	}
 

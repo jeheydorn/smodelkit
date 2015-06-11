@@ -115,7 +115,7 @@ public class IndependentClassifiers extends SupervisedLearner
 	@Override
 	public Vector innerPredict(Vector input)
 	{		
-		Vector result = new VectorDouble(new double[0]);
+		Vector result = Vector.create(new double[0]);
 		for (SupervisedLearner learner : models)
 		{
 			result = result.concat(learner.predict(input));
@@ -168,7 +168,7 @@ public class IndependentClassifiers extends SupervisedLearner
 		List<Vector> scoredPredictions = new ArrayList<>();
 		
 		explored.add(initialPrediction);
-		scoredPredictions.add(new VectorDouble(initialPrediction, getScoreForPrediction(weights, initialPrediction)));
+		scoredPredictions.add(Vector.create(initialPrediction, getScoreForPrediction(weights, initialPrediction)));
 		
 		for (@SuppressWarnings("unused") int ignored : new Range(maxDesiredSize))
 		{
@@ -183,7 +183,7 @@ public class IndependentClassifiers extends SupervisedLearner
 				{
 					for (int outptuValue : new Range(weights.get(c).length))
 					{
-						Vector pred = new VectorDouble(prevPrediction);
+						Vector pred = Vector.create(prevPrediction);
 						pred.set(c, outptuValue);
 						if (!explored.contains(pred))
 						{
@@ -206,7 +206,7 @@ public class IndependentClassifiers extends SupervisedLearner
 			else
 			{
 				explored.add(bestPred);
-				scoredPredictions.add(new VectorDouble(bestPred, bestScore));
+				scoredPredictions.add(Vector.create(bestPred, bestScore));
 			}
 		}		
 
@@ -260,7 +260,7 @@ public class IndependentClassifiers extends SupervisedLearner
 		for (List<Integer> labelList : new SequenceIterator(outputRanges))
 		{	
 			Vector pred = convertListOfOutputValuesToVector(labelList);
-			Vector candidate = new VectorDouble(pred, getScoreForPrediction(weights, pred));
+			Vector candidate = Vector.create(pred, getScoreForPrediction(weights, pred));
 //			Logger.println("\ncandidate: " + candidate);
 			queue.add(candidate);
 			while(queue.size() > maxDesiredSize)
@@ -288,7 +288,7 @@ public class IndependentClassifiers extends SupervisedLearner
 		{
 			label[columnIndex] = labelList.get(columnIndex);
 		}
-		return new VectorDouble(label);
+		return Vector.create(label);
 	}
 
 

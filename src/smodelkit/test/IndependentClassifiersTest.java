@@ -341,70 +341,70 @@ public class IndependentClassifiersTest
 		
 		// These were generated using my old code that exhaustively explored every output vector.		
 		List<Vector> expected = Arrays.asList(
-			new VectorDouble(new double[]{1.0, 0.0, 2.0}, 0.15284057122543168),
-			new VectorDouble(new double[]{1.0, 3.0, 2.0}, 0.09969567840333066),
-			new VectorDouble(new double[]{1.0, 2.0, 2.0}, 0.08976553529322807),
-			new VectorDouble(new double[]{0.0, 0.0, 2.0}, 0.07990163488210617),
-			new VectorDouble(new double[]{1.0, 1.0, 2.0}, 0.06801126923526359),
-			new VectorDouble(new double[]{0.0, 3.0, 2.0}, 0.052118672622320956),
-			new VectorDouble(new double[]{1.0, 0.0, 3.0}, 0.04846546350953347),
-			new VectorDouble(new double[]{0.0, 2.0, 2.0}, 0.04692741572797053),
-			new VectorDouble(new double[]{3.0, 0.0, 2.0}, 0.04640255980925351),
-			new VectorDouble(new double[]{0.0, 1.0, 2.0}, 0.03555477160766089),
-			new VectorDouble(new double[]{1.0, 3.0, 3.0}, 0.03161331592112518),
-			new VectorDouble(new double[]{3.0, 3.0, 2.0}, 0.030267713884760038),
-			new VectorDouble(new double[]{1.0, 2.0, 3.0}, 0.028464485838324217),
-			new VectorDouble(new double[]{3.0, 2.0, 2.0}, 0.027252911886268744),
-			new VectorDouble(new double[]{2.0, 0.0, 2.0}, 0.02622760463410918),
-			new VectorDouble(new double[]{0.0, 0.0, 3.0}, 0.02533666119331036),
-			new VectorDouble(new double[]{1.0, 0.0, 0.0}, 0.023710320705714997),
-			new VectorDouble(new double[]{1.0, 1.0, 3.0}, 0.02156624815604103),
-			new VectorDouble(new double[]{3.0, 1.0, 2.0}, 0.02064829359828669),
-			new VectorDouble(new double[]{2.0, 3.0, 2.0}, 0.017107884483336524),
-			new VectorDouble(new double[]{0.0, 3.0, 3.0}, 0.0165267350539849),
-			new VectorDouble(new double[]{1.0, 3.0, 0.0}, 0.015465896842470519),
-			new VectorDouble(new double[]{2.0, 2.0, 2.0}, 0.015403861360655613),
-			new VectorDouble(new double[]{0.0, 2.0, 3.0}, 0.014880597058264751),
-			new VectorDouble(new double[]{3.0, 0.0, 3.0}, 0.014714166213546017),
-			new VectorDouble(new double[]{1.0, 2.0, 0.0}, 0.013925423158641459),
-			new VectorDouble(new double[]{0.0, 0.0, 0.0}, 0.012395225775304157),
-			new VectorDouble(new double[]{2.0, 1.0, 2.0}, 0.011670806160070397),
-			new VectorDouble(new double[]{0.0, 1.0, 3.0}, 0.011274352563098508),
-			new VectorDouble(new double[]{1.0, 1.0, 0.0}, 0.01055066068022197),
-			new VectorDouble(new double[]{3.0, 3.0, 3.0}, 0.009597836301168889),
-			new VectorDouble(new double[]{3.0, 2.0, 3.0}, 0.008641848142561194),
-			new VectorDouble(new double[]{2.0, 0.0, 3.0}, 0.008316725102146053),
-			new VectorDouble(new double[]{0.0, 3.0, 0.0}, 0.008085225229947172),
-			new VectorDouble(new double[]{0.0, 2.0, 0.0}, 0.007279900015287663),
-			new VectorDouble(new double[]{3.0, 0.0, 0.0}, 0.007198478557246144),
-			new VectorDouble(new double[]{3.0, 1.0, 3.0}, 0.006547535853198789),
-			new VectorDouble(new double[]{0.0, 1.0, 0.0}, 0.005515649612383924),
-			new VectorDouble(new double[]{2.0, 3.0, 3.0}, 0.005424878646452589),
-			new VectorDouble(new double[]{2.0, 2.0, 3.0}, 0.004884536054105935),
-			new VectorDouble(new double[]{3.0, 3.0, 0.0}, 0.004695462713090605),
-			new VectorDouble(new double[]{3.0, 2.0, 0.0}, 0.004227773266006381),
-			new VectorDouble(new double[]{2.0, 0.0, 0.0}, 0.004068716259246427),
-			new VectorDouble(new double[]{2.0, 1.0, 3.0}, 0.003700791128577076),
-			new VectorDouble(new double[]{3.0, 1.0, 0.0}, 0.0032031917920474036),
-			new VectorDouble(new double[]{2.0, 3.0, 0.0}, 0.0026539643528153706),
-			new VectorDouble(new double[]{2.0, 2.0, 0.0}, 0.002389617429712563),
-			new VectorDouble(new double[]{2.0, 1.0, 0.0}, 0.0018105045979012874),
-			new VectorDouble(new double[]{1.0, 0.0, 1.0}, 7.371651808405386E-4),
-			new VectorDouble(new double[]{1.0, 3.0, 1.0}, 4.8084211024580884E-4),
-			new VectorDouble(new double[]{1.0, 2.0, 1.0}, 4.32948048591627E-4),
-			new VectorDouble(new double[]{0.0, 0.0, 1.0}, 3.8537348202164916E-4),
-			new VectorDouble(new double[]{1.0, 1.0, 1.0}, 3.280250733364533E-4),
-			new VectorDouble(new double[]{0.0, 3.0, 1.0}, 2.5137350914590935E-4),
-			new VectorDouble(new double[]{0.0, 2.0, 1.0}, 2.2633556407261344E-4),
-			new VectorDouble(new double[]{3.0, 0.0, 1.0}, 2.2380413210311632E-4),
-			new VectorDouble(new double[]{0.0, 1.0, 1.0}, 1.7148417747829157E-4),
-			new VectorDouble(new double[]{3.0, 3.0, 1.0}, 1.4598417554053338E-4),
-			new VectorDouble(new double[]{3.0, 2.0, 1.0}, 1.3144348753735705E-4),
-			new VectorDouble(new double[]{2.0, 0.0, 1.0}, 1.2649832932514043E-4),
-			new VectorDouble(new double[]{3.0, 1.0, 1.0}, 9.958876077464458E-5),
-			new VectorDouble(new double[]{2.0, 3.0, 1.0}, 8.251301770101844E-5),
-			new VectorDouble(new double[]{2.0, 2.0, 1.0}, 7.429434576518286E-5),
-			new VectorDouble(new double[]{2.0, 1.0, 1.0}, 5.6289451580586804E-5));
+			Vector.create(new double[]{1.0, 0.0, 2.0}, 0.15284057122543168),
+			Vector.create(new double[]{1.0, 3.0, 2.0}, 0.09969567840333066),
+			Vector.create(new double[]{1.0, 2.0, 2.0}, 0.08976553529322807),
+			Vector.create(new double[]{0.0, 0.0, 2.0}, 0.07990163488210617),
+			Vector.create(new double[]{1.0, 1.0, 2.0}, 0.06801126923526359),
+			Vector.create(new double[]{0.0, 3.0, 2.0}, 0.052118672622320956),
+			Vector.create(new double[]{1.0, 0.0, 3.0}, 0.04846546350953347),
+			Vector.create(new double[]{0.0, 2.0, 2.0}, 0.04692741572797053),
+			Vector.create(new double[]{3.0, 0.0, 2.0}, 0.04640255980925351),
+			Vector.create(new double[]{0.0, 1.0, 2.0}, 0.03555477160766089),
+			Vector.create(new double[]{1.0, 3.0, 3.0}, 0.03161331592112518),
+			Vector.create(new double[]{3.0, 3.0, 2.0}, 0.030267713884760038),
+			Vector.create(new double[]{1.0, 2.0, 3.0}, 0.028464485838324217),
+			Vector.create(new double[]{3.0, 2.0, 2.0}, 0.027252911886268744),
+			Vector.create(new double[]{2.0, 0.0, 2.0}, 0.02622760463410918),
+			Vector.create(new double[]{0.0, 0.0, 3.0}, 0.02533666119331036),
+			Vector.create(new double[]{1.0, 0.0, 0.0}, 0.023710320705714997),
+			Vector.create(new double[]{1.0, 1.0, 3.0}, 0.02156624815604103),
+			Vector.create(new double[]{3.0, 1.0, 2.0}, 0.02064829359828669),
+			Vector.create(new double[]{2.0, 3.0, 2.0}, 0.017107884483336524),
+			Vector.create(new double[]{0.0, 3.0, 3.0}, 0.0165267350539849),
+			Vector.create(new double[]{1.0, 3.0, 0.0}, 0.015465896842470519),
+			Vector.create(new double[]{2.0, 2.0, 2.0}, 0.015403861360655613),
+			Vector.create(new double[]{0.0, 2.0, 3.0}, 0.014880597058264751),
+			Vector.create(new double[]{3.0, 0.0, 3.0}, 0.014714166213546017),
+			Vector.create(new double[]{1.0, 2.0, 0.0}, 0.013925423158641459),
+			Vector.create(new double[]{0.0, 0.0, 0.0}, 0.012395225775304157),
+			Vector.create(new double[]{2.0, 1.0, 2.0}, 0.011670806160070397),
+			Vector.create(new double[]{0.0, 1.0, 3.0}, 0.011274352563098508),
+			Vector.create(new double[]{1.0, 1.0, 0.0}, 0.01055066068022197),
+			Vector.create(new double[]{3.0, 3.0, 3.0}, 0.009597836301168889),
+			Vector.create(new double[]{3.0, 2.0, 3.0}, 0.008641848142561194),
+			Vector.create(new double[]{2.0, 0.0, 3.0}, 0.008316725102146053),
+			Vector.create(new double[]{0.0, 3.0, 0.0}, 0.008085225229947172),
+			Vector.create(new double[]{0.0, 2.0, 0.0}, 0.007279900015287663),
+			Vector.create(new double[]{3.0, 0.0, 0.0}, 0.007198478557246144),
+			Vector.create(new double[]{3.0, 1.0, 3.0}, 0.006547535853198789),
+			Vector.create(new double[]{0.0, 1.0, 0.0}, 0.005515649612383924),
+			Vector.create(new double[]{2.0, 3.0, 3.0}, 0.005424878646452589),
+			Vector.create(new double[]{2.0, 2.0, 3.0}, 0.004884536054105935),
+			Vector.create(new double[]{3.0, 3.0, 0.0}, 0.004695462713090605),
+			Vector.create(new double[]{3.0, 2.0, 0.0}, 0.004227773266006381),
+			Vector.create(new double[]{2.0, 0.0, 0.0}, 0.004068716259246427),
+			Vector.create(new double[]{2.0, 1.0, 3.0}, 0.003700791128577076),
+			Vector.create(new double[]{3.0, 1.0, 0.0}, 0.0032031917920474036),
+			Vector.create(new double[]{2.0, 3.0, 0.0}, 0.0026539643528153706),
+			Vector.create(new double[]{2.0, 2.0, 0.0}, 0.002389617429712563),
+			Vector.create(new double[]{2.0, 1.0, 0.0}, 0.0018105045979012874),
+			Vector.create(new double[]{1.0, 0.0, 1.0}, 7.371651808405386E-4),
+			Vector.create(new double[]{1.0, 3.0, 1.0}, 4.8084211024580884E-4),
+			Vector.create(new double[]{1.0, 2.0, 1.0}, 4.32948048591627E-4),
+			Vector.create(new double[]{0.0, 0.0, 1.0}, 3.8537348202164916E-4),
+			Vector.create(new double[]{1.0, 1.0, 1.0}, 3.280250733364533E-4),
+			Vector.create(new double[]{0.0, 3.0, 1.0}, 2.5137350914590935E-4),
+			Vector.create(new double[]{0.0, 2.0, 1.0}, 2.2633556407261344E-4),
+			Vector.create(new double[]{3.0, 0.0, 1.0}, 2.2380413210311632E-4),
+			Vector.create(new double[]{0.0, 1.0, 1.0}, 1.7148417747829157E-4),
+			Vector.create(new double[]{3.0, 3.0, 1.0}, 1.4598417554053338E-4),
+			Vector.create(new double[]{3.0, 2.0, 1.0}, 1.3144348753735705E-4),
+			Vector.create(new double[]{2.0, 0.0, 1.0}, 1.2649832932514043E-4),
+			Vector.create(new double[]{3.0, 1.0, 1.0}, 9.958876077464458E-5),
+			Vector.create(new double[]{2.0, 3.0, 1.0}, 8.251301770101844E-5),
+			Vector.create(new double[]{2.0, 2.0, 1.0}, 7.429434576518286E-5),
+			Vector.create(new double[]{2.0, 1.0, 1.0}, 5.6289451580586804E-5));
 
 		
 		List<Vector> actual = ic.predictScoredList(inputs.row(0), 1000);
@@ -412,7 +412,7 @@ public class IndependentClassifiersTest
 		// This prints out the above expected results.
 //		for (Tuple2<double[], Double> tuple : actual)
 //		{
-//			System.out.println("new VectorDouble(new double[]" 
+//			System.out.println("Vector.create(new double[]" 
 //					+ Arrays.toString(tuple.getFirst()).replace("[", "{").replace("]", "}") + ", " + tuple.getSecond() + "),");
 //		}
 		
@@ -458,10 +458,10 @@ public class IndependentClassifiersTest
 		
 		// These were generated using my old code that exhaustively explored every output vector.
 		List<Vector> expected = Arrays.asList(
-				new VectorDouble(new double[]{1.0, 1.0}, 0.28534662063805905),
-				new VectorDouble(new double[]{0.0, 1.0}, 0.2793039608983343),
-				new VectorDouble(new double[]{1.0, 0.0}, 0.2383080748259086),
-				new VectorDouble(new double[]{0.0, 0.0}, 0.23326152965855448)
+				Vector.create(new double[]{1.0, 1.0}, 0.28534662063805905),
+				Vector.create(new double[]{0.0, 1.0}, 0.2793039608983343),
+				Vector.create(new double[]{1.0, 0.0}, 0.2383080748259086),
+				Vector.create(new double[]{0.0, 0.0}, 0.23326152965855448)
 				);
 		
 		List<Vector> actual = ic.predictScoredList(inputs.row(0), 100);
@@ -469,7 +469,7 @@ public class IndependentClassifiersTest
 		// This prints out the above expected results.
 //		for (Tuple2<double[], Double> tuple : actual)
 //		{
-//			System.out.println("new VectorDouble( new double[]" 
+//			System.out.println("Vector.create( new double[]" 
 //					+ Arrays.toString(tuple.getFirst()).replace("[", "{").replace("]", "}") + ", " + tuple.getSecond() + "),");
 //		}
 		

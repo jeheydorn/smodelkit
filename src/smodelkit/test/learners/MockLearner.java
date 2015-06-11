@@ -31,7 +31,7 @@ public class MockLearner extends SupervisedLearner
 	@Override
 	public Vector innerPredict(Vector input)
 	{
-		return new VectorDouble(predIterator.next());
+		return Vector.create(predIterator.next());
 	}
 
 	@Override

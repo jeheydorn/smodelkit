@@ -90,7 +90,7 @@ public class ReorderOutputs extends Filter
 		{			
 			result[c] = before.get(outputColumnOrder.indexOf(c));
 		}
-		return new VectorDouble(result, before.getWeight());
+		return Vector.create(result, before.getWeight());
 	}
 	
 	/**

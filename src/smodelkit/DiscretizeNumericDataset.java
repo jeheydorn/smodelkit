@@ -68,7 +68,7 @@ public class DiscretizeNumericDataset
 			{
 				rowNominal[i] = labels.getAttrValueIndex(i, numericToNominal(rowNumeric.get(i)));
 			}
-			labels.addRow(new VectorDouble(rowNominal, rowNumeric.getWeight()));
+			labels.addRow(Vector.create(rowNominal, rowNumeric.getWeight()));
 		}
 		
 		result.copyColumns(labels,0, labels.cols());

@@ -62,7 +62,7 @@ public class ZeroR extends SupervisedLearner
 					pred[c] = labels.findMode(c);
 				}
 			}
-			prediction = new VectorDouble(pred);
+			prediction = Vector.create(pred);
 		}
 		
 	}

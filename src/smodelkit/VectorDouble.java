@@ -6,6 +6,8 @@ import java.io.Serializable;
 import java.util.Arrays;
 import java.util.stream.DoubleStream;
 
+import com.sun.org.apache.bcel.internal.generic.INSTANCEOF;
+
 import smodelkit.util.Range;
 
 
@@ -49,7 +51,7 @@ public class VectorDouble implements Serializable, Comparable<Vector>, Vector
 	 * Creates a new vector with instance weight 1.
 	 * @param values The values to be stored within the vector.
 	 */
-	public VectorDouble(double... values)
+	protected VectorDouble(double... values)
 	{
 		this.values = values;
 		this.weight = 1.0;
@@ -57,7 +59,7 @@ public class VectorDouble implements Serializable, Comparable<Vector>, Vector
 		varify();
 	}
 		
-	public VectorDouble(double[] values, double weight)
+	protected VectorDouble(double[] values, double weight)
 	{
 		this.values = values;
 		this.weight = weight;
@@ -65,7 +67,7 @@ public class VectorDouble implements Serializable, Comparable<Vector>, Vector
 		varify();
 	}
 	
-	private VectorDouble(double[] values, double weight, int from, int to)
+	protected VectorDouble(double[] values, double weight, int from, int to)
 	{
 		if (from >= to)
 			throw new IllegalArgumentException("Bad range.");
@@ -80,21 +82,21 @@ public class VectorDouble implements Serializable, Comparable<Vector>, Vector
 		this.to = to;
 	}
 
-	public VectorDouble(Vector other)
+	protected VectorDouble(VectorDouble other)
 	{
-		this.values = other.getValues();
-		this.weight = other.getWeight();
-		this.from = other.getFrom();
-		this.to = other.getTo();
+		this.values = other.values;
+		this.weight = other.weight;
+		this.from = other.from;
+		this.to = other.to;
 		varify();
 	}
 	
 	/**
 	 * Creates a new Vector with values from other, and the specified weight.
 	 */
-	public VectorDouble(Vector other, double weight)
+	protected VectorDouble(VectorDouble other, double weight)
 	{
-		this.values = other.getValues();
+		this.values = other.values;
 		this.weight = weight;
 		to = values.length;
 		varify();
@@ -112,16 +114,15 @@ public class VectorDouble implements Serializable, Comparable<Vector>, Vector
 	}
 	
 	/**
-	 * Returns the internal values from this vector.
+	 * Returns the values in this vector as an array.
 	 * The caller MUST NOT modify these values.
 	 */
 	public double[] getValues()
 	{
-		if (!isCompact())
-			throw new IllegalStateException();
+		compact();
 		return values;
 	}
-	
+		
 	/**
 	 * Sets the value at the specified index to the specified value.
 	 * 
@@ -175,7 +176,7 @@ public class VectorDouble implements Serializable, Comparable<Vector>, Vector
 	 * Concatenates the values from the given vector the the end of this vector.
 	 * @param v
 	 */
-	public void addAll(VectorDouble v)
+	public void addAll(Vector v)
 	{
 		double[] newValues = new double[size() + v.size()];
 		for (int i = 0; i < size(); i++)
@@ -195,7 +196,7 @@ public class VectorDouble implements Serializable, Comparable<Vector>, Vector
 	 * Returns a new vector with the values of this vector concatenated with the values of v.
 	 * The weight of the result is that this.
 	 */
-	public VectorDouble concat(VectorDouble v)
+	public Vector concat(Vector v)
 	{
 		VectorDouble result = new VectorDouble(this);
 		result.addAll(v);
@@ -311,51 +312,49 @@ public class VectorDouble implements Serializable, Comparable<Vector>, Vector
 	@Override
 	public float getWeightFloat()
 	{
-		// TODO Auto-generated method stub
-		return 0;
+		return (float)weight;
 	}
+	
 	@Override
 	public void setWeight(float value)
 	{
-		// TODO Auto-generated method stub
-		
+		weight = value;
 	}
+	
 	@Override
 	public float getFloat(int index)
 	{
-		// TODO Auto-generated method stub
-		return 0;
+		return (float)values[index];
 	}
+	
 	@Override
 	public float[] getValuesFloat()
 	{
 		// TODO Auto-generated method stub
 		return null;
 	}
+	
 	@Override
 	public void set(int index, float value)
 	{
-		// TODO Auto-generated method stub
-		
+		set(index, (double)value);
 	}
+	
 	@Override
 	public Vector concat(float[] v)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		double[] result = new double[size() + v.length];
+		for (int i = 0; i < size(); i++)
+		{
+			result[i] = get(i);
+		}
+		for (int i = 0; i < v.length; i++)
+		{
+			result[i + size()] = v[i];
+		}
+		return new VectorDouble(result, weight);
 	}
-	@Override
-	public void addAll(Vector v)
-	{
-		// TODO Auto-generated method stub
-		
-	}
-	@Override
-	public Vector concat(Vector v)
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
+	
 	@Override
 	public int getFrom()
 	{

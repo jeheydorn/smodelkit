@@ -78,7 +78,7 @@ public class MonolithicTransformation extends SupervisedLearner
 		
 		for (int r : new Range(labels.rows()))
 		{
-			result.addRow(new VectorDouble(new double[] {result.getAttrValueIndex(0, getLabelName.apply(labels.row(r)))}));
+			result.addRow(Vector.create(new double[] {result.getAttrValueIndex(0, getLabelName.apply(labels.row(r)))}));
 		}
 		
 		return result;
@@ -102,7 +102,7 @@ public class MonolithicTransformation extends SupervisedLearner
 		List<Vector> result = new ArrayList<>(resultSize);
 		for (int i : new Range(Math.min(indexes.length, maxDesiredSize)))
 		{
-			result.add(new VectorDouble(uniqueLabelsList.get(indexes[i]), weights[indexes[i]]));
+			result.add(Vector.create(uniqueLabelsList.get(indexes[i]), weights[indexes[i]]));
 		}
 		
 		return result;

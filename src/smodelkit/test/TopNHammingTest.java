@@ -38,7 +38,7 @@ public class TopNHammingTest
 			Matrix inputs = inputsAndLabels.getFirst();
 			Matrix labels = inputsAndLabels.getSecond();
 			
-			List<Vector> pred1 = Arrays.asList(new VectorDouble(new double[]{0.0, 0.0, 0.0}, 0.9));
+			List<Vector> pred1 = Arrays.asList(Vector.create(new double[]{0.0, 0.0, 0.0}, 0.9));
 			ScoredListMockLearner learner = new ScoredListMockLearner(Arrays.asList(pred1));
 			TopNHamming evaluator = new TopNHamming();
 			evaluator.configure(Arrays.asList(1, 2, 3));
@@ -63,9 +63,9 @@ public class TopNHammingTest
 			Matrix labels = inputsAndLabels.getSecond();
 			
 			List<Vector> pred1 = Arrays.asList(
-					new VectorDouble(new double[]{1.0, 1.0, 0.0}, 0.9),
-					new VectorDouble(new double[]{0.0, 0.0, 1.0}, 0.8),
-					new VectorDouble(new double[]{0.0, 0.0, 0.0}, 0.6));
+					Vector.create(new double[]{1.0, 1.0, 0.0}, 0.9),
+					Vector.create(new double[]{0.0, 0.0, 1.0}, 0.8),
+					Vector.create(new double[]{0.0, 0.0, 0.0}, 0.6));
 			ScoredListMockLearner learner = new ScoredListMockLearner(Arrays.asList(pred1));
 			TopNHamming evaluator = new TopNHamming();
 			evaluator.configure(Arrays.asList(1, 2, 3));
@@ -94,9 +94,9 @@ public class TopNHammingTest
 			Matrix labels = inputsAndLabels.getSecond();
 			
 			List<Vector> pred1 = Arrays.asList(
-					new VectorDouble(new double[]{1.0, 1.0, 1.0}, 0.9),
-					new VectorDouble(new double[]{0.0, 1.0, 1.0}, 0.8),
-					new VectorDouble(new double[]{1.0, 1.0, 1.0}, 0.6));
+					Vector.create(new double[]{1.0, 1.0, 1.0}, 0.9),
+					Vector.create(new double[]{0.0, 1.0, 1.0}, 0.8),
+					Vector.create(new double[]{1.0, 1.0, 1.0}, 0.6));
 			ScoredListMockLearner learner = new ScoredListMockLearner(Arrays.asList(pred1));
 			TopNHamming evaluator = new TopNHamming();
 			evaluator.configure(Arrays.asList(1, 2, 3));
@@ -125,9 +125,9 @@ public class TopNHammingTest
 			Matrix labels = inputsAndLabels.getSecond();
 			
 			List<Vector> pred1 = Arrays.asList(
-					new VectorDouble(new double[]{1.0, 1.0, 0.0}, 0.9),
-					new VectorDouble(new double[]{0.0, 0.0, 1.0}, 0.8),
-					new VectorDouble(new double[]{0.0, 0.0, 0.0}, 0.6));
+					Vector.create(new double[]{1.0, 1.0, 0.0}, 0.9),
+					Vector.create(new double[]{0.0, 0.0, 1.0}, 0.8),
+					Vector.create(new double[]{0.0, 0.0, 0.0}, 0.6));
 			ScoredListMockLearner learner = new ScoredListMockLearner(Arrays.asList(pred1));
 			TopNHamming evaluator = new TopNHamming();
 			evaluator.configure(Arrays.asList(3, 2, 1));
@@ -156,10 +156,10 @@ public class TopNHammingTest
 			Matrix labels = inputsAndLabels.getSecond();
 			
 			List<Vector> pred1 = Arrays.asList(
-					new VectorDouble(new double[]{1.0, 1.0, 1.0}, 0.9),
-					new VectorDouble(new double[]{0.0, 1.0, 1.0}, 0.8),
-					new VectorDouble(new double[]{1.0, 1.0, 1.0}, 0.6),
-					new VectorDouble(new double[]{0.0, 0.0, 0.0}, 0.4));
+					Vector.create(new double[]{1.0, 1.0, 1.0}, 0.9),
+					Vector.create(new double[]{0.0, 1.0, 1.0}, 0.8),
+					Vector.create(new double[]{1.0, 1.0, 1.0}, 0.6),
+					Vector.create(new double[]{0.0, 0.0, 0.0}, 0.4));
 			ScoredListMockLearner learner = new ScoredListMockLearner(Arrays.asList(pred1));
 			TopNHamming evaluator = new TopNHamming();
 			evaluator.configure(Arrays.asList(3));
@@ -190,19 +190,19 @@ public class TopNHammingTest
 			
 			// n=1: 2/3, n=2: 2/3, n=3, 2/3
 			List<Vector> pred1 = Arrays.asList(
-					new VectorDouble(new double[]{1.0, 1.0, 0.0}, 0.9),
-					new VectorDouble(new double[]{0.0, 0.0, 1.0}, 0.8),
-					new VectorDouble(new double[]{0.0, 0.0, 0.0}, 0.6));
+					Vector.create(new double[]{1.0, 1.0, 0.0}, 0.9),
+					Vector.create(new double[]{0.0, 0.0, 1.0}, 0.8),
+					Vector.create(new double[]{0.0, 0.0, 0.0}, 0.6));
 			// n=1: 0, n=2: 1/3, n=3, 1
 			List<Vector> pred2 = Arrays.asList(
-					new VectorDouble(new double[]{0.0, 0.0, 0.0}, 0.9),
-					new VectorDouble(new double[]{0.0, 0.0, 1.0}, 0.8),
-					new VectorDouble(new double[]{1.0, 1.0, 1.0}, 0.6));
+					Vector.create(new double[]{0.0, 0.0, 0.0}, 0.9),
+					Vector.create(new double[]{0.0, 0.0, 1.0}, 0.8),
+					Vector.create(new double[]{1.0, 1.0, 1.0}, 0.6));
 			// n=1: 0, n=2: 1, n=3, 1
 			List<Vector> pred3 = Arrays.asList(
-					new VectorDouble(new double[]{0.0, 1.0, 2.0}, 0.9),
-					new VectorDouble(new double[]{1.0, 2.0, 3.0}, 0.8),
-					new VectorDouble(new double[]{0.0, 0.0, 0.0}, 0.6));
+					Vector.create(new double[]{0.0, 1.0, 2.0}, 0.9),
+					Vector.create(new double[]{1.0, 2.0, 3.0}, 0.8),
+					Vector.create(new double[]{0.0, 0.0, 0.0}, 0.6));
 			ScoredListMockLearner learner = new ScoredListMockLearner(Arrays.asList(pred1, pred2, pred3));
 			TopNHamming evaluator = new TopNHamming();
 			evaluator.configure(Arrays.asList(1, 2, 3));
