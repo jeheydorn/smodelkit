@@ -11,6 +11,7 @@ import org.json.simple.JSONObject;
 import smodelkit.MLSystemsManager;
 import smodelkit.Matrix;
 import smodelkit.Vector;
+import smodelkit.VectorDouble;
 import smodelkit.util.Helper;
 import smodelkit.util.Range;
 
@@ -77,7 +78,7 @@ public class MonolithicTransformation extends SupervisedLearner
 		
 		for (int r : new Range(labels.rows()))
 		{
-			result.addRow(new Vector(new double[] {result.getAttrValueIndex(0, getLabelName.apply(labels.row(r)))}));
+			result.addRow(new VectorDouble(new double[] {result.getAttrValueIndex(0, getLabelName.apply(labels.row(r)))}));
 		}
 		
 		return result;
@@ -101,7 +102,7 @@ public class MonolithicTransformation extends SupervisedLearner
 		List<Vector> result = new ArrayList<>(resultSize);
 		for (int i : new Range(Math.min(indexes.length, maxDesiredSize)))
 		{
-			result.add(new Vector(uniqueLabelsList.get(indexes[i]), weights[indexes[i]]));
+			result.add(new VectorDouble(uniqueLabelsList.get(indexes[i]), weights[indexes[i]]));
 		}
 		
 		return result;

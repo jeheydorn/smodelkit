@@ -10,6 +10,7 @@ import org.json.simple.JSONObject;
 import smodelkit.MLSystemsManager;
 import smodelkit.Matrix;
 import smodelkit.Vector;
+import smodelkit.VectorDouble;
 import smodelkit.util.Counter;
 import smodelkit.util.Helper;
 import smodelkit.util.Range;
@@ -114,7 +115,7 @@ public class VotingEnsemble extends SupervisedLearner
 				result[c] = counts.argmax();
 			}
 		}
-		return new Vector(result);
+		return new VectorDouble(result);
 	}
 
 	@Override

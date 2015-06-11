@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 import smodelkit.ConfusionMatrix;
 import smodelkit.Matrix;
 import smodelkit.Vector;
+import smodelkit.VectorDouble;
 import smodelkit.util.Range;
 
 /**
@@ -61,7 +62,7 @@ public class AccuracyOfGroup extends Evaluator
 			result[i] = label.get(c);
 			i++;
 		}
-		return new Vector(result);
+		return new VectorDouble(result);
 	}
 
 	@Override

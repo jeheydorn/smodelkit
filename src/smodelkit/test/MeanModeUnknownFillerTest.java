@@ -6,6 +6,7 @@ import org.junit.Test;
 
 import smodelkit.Matrix;
 import smodelkit.Vector;
+import smodelkit.VectorDouble;
 import smodelkit.filter.MeanModeUnknownFiller;
 import smodelkit.util.Pair;
 
@@ -21,10 +22,10 @@ public class MeanModeUnknownFillerTest
 		filler.initialize(inputsAndLabels.getFirst(), inputsAndLabels.getSecond());
 		Matrix actual = filler.filterAllInputs(inputsAndLabels.getFirst());
 		
-		assertVectorEquals(new Vector(7.5, 3.5, 1.4, 5.0, 0.2), actual.row(0), 0);
-		assertVectorEquals(new Vector(7.0, 3.2, 4.7, 0.0, 1.4), actual.row(1), 0);
-		assertVectorEquals(new Vector(7.3, 2.9, 3.05, 0.0, 1.8), actual.row(2), 0);
-		assertVectorEquals(new Vector(8.2, 3.3, 3.05, 0.0, 1.133333333), actual.row(3), 0.000001);
+		assertVectorEquals(new VectorDouble(7.5, 3.5, 1.4, 5.0, 0.2), actual.row(0), 0);
+		assertVectorEquals(new VectorDouble(7.0, 3.2, 4.7, 0.0, 1.4), actual.row(1), 0);
+		assertVectorEquals(new VectorDouble(7.3, 2.9, 3.05, 0.0, 1.8), actual.row(2), 0);
+		assertVectorEquals(new VectorDouble(8.2, 3.3, 3.05, 0.0, 1.133333333), actual.row(3), 0.000001);
 	}	
 
 	private Matrix loadDataset()

@@ -7,6 +7,7 @@ import org.json.simple.JSONObject;
 
 import smodelkit.Matrix;
 import smodelkit.Vector;
+import smodelkit.VectorDouble;
 import smodelkit.learner.SupervisedLearner;
 
 /**
@@ -30,7 +31,7 @@ public class MockLearner extends SupervisedLearner
 	@Override
 	public Vector innerPredict(Vector input)
 	{
-		return new Vector(predIterator.next());
+		return new VectorDouble(predIterator.next());
 	}
 
 	@Override

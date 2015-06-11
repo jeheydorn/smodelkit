@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import smodelkit.ConfusionMatrix;
+import smodelkit.Vector;
 import smodelkit.Matrix;
 import smodelkit.Vector;
 import smodelkit.util.Range;

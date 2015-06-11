@@ -7,9 +7,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import smodelkit.Vector;
 import smodelkit.MLSystemsManager;
 import smodelkit.Matrix;
 import smodelkit.Vector;
+import smodelkit.VectorDouble;
 import smodelkit.util.Pair;
 import smodelkit.util.Range;
 
@@ -88,7 +90,7 @@ public class ReorderOutputs extends Filter
 		{			
 			result[c] = before.get(outputColumnOrder.indexOf(c));
 		}
-		return new Vector(result, before.getWeight());
+		return new VectorDouble(result, before.getWeight());
 	}
 	
 	/**

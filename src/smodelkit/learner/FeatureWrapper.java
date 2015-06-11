@@ -13,6 +13,7 @@ import org.json.simple.JSONObject;
 import smodelkit.MLSystemsManager;
 import smodelkit.Matrix;
 import smodelkit.Vector;
+import smodelkit.VectorDouble;
 import smodelkit.evaluator.Evaluator;
 import smodelkit.evaluator.TopN;
 import smodelkit.filter.Filter;
@@ -219,7 +220,7 @@ public class FeatureWrapper extends SupervisedLearner
 		{
 			result.add(input.get(c));
 		}
-		return new Vector(Helper.toDoubleArray(result), input.getWeight());
+		return new VectorDouble(Helper.toDoubleArray(result), input.getWeight());
 	}
 	
 	@Override
@@ -347,8 +348,8 @@ public class FeatureWrapper extends SupervisedLearner
 			wrapper.train(inputs, labels);
 			
 			assertEquals(Arrays.asList(0), wrapper.innerModelFeatureColumns);
-			assertEquals(new Vector(new double[]{1}), wrapper.selectFeatureColumns(new Vector(new double[] {1, 0})));
-			assertEquals(new Vector(new double[]{0}), wrapper.selectFeatureColumns(new Vector(new double[] {0, 0})));
+			assertEquals(new VectorDouble(new double[]{1}), wrapper.selectFeatureColumns(new VectorDouble(new double[] {1, 0})));
+			assertEquals(new VectorDouble(new double[]{0}), wrapper.selectFeatureColumns(new VectorDouble(new double[] {0, 0})));
 		}
 
 		{
@@ -416,8 +417,8 @@ public class FeatureWrapper extends SupervisedLearner
 			wrapper.train(inputs, labels);
 			
 			assertEquals(Arrays.asList(1), wrapper.innerModelFeatureColumns);
-			assertEquals(new Vector(new double[]{0}), wrapper.selectFeatureColumns(new Vector(new double[] {1, 0})));
-			assertEquals(new Vector(new double[]{0}), wrapper.selectFeatureColumns(new Vector(new double[] {0, 0})));
+			assertEquals(new VectorDouble(new double[]{0}), wrapper.selectFeatureColumns(new VectorDouble(new double[] {1, 0})));
+			assertEquals(new VectorDouble(new double[]{0}), wrapper.selectFeatureColumns(new VectorDouble(new double[] {0, 0})));
 		}
 
 		{
@@ -467,8 +468,8 @@ public class FeatureWrapper extends SupervisedLearner
 			wrapper.train(inputs, labels);
 			
 			assertEquals(Arrays.asList(0, 1), wrapper.innerModelFeatureColumns);
-			assertEquals(new Vector(new double[]{1, 0}), wrapper.selectFeatureColumns(new Vector(new double[] {1, 0})));
-			assertEquals(new Vector(new double[]{0, 0}), wrapper.selectFeatureColumns(new Vector(new double[] {0, 0})));
+			assertEquals(new VectorDouble(new double[]{1, 0}), wrapper.selectFeatureColumns(new VectorDouble(new double[] {1, 0})));
+			assertEquals(new VectorDouble(new double[]{0, 0}), wrapper.selectFeatureColumns(new VectorDouble(new double[] {0, 0})));
 		}
 	}
 

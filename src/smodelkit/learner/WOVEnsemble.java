@@ -25,6 +25,7 @@ import smodelkit.util.Sample;
 import smodelkit.util.SequenceIterator;
 import smodelkit.util.Tuple2;
 import smodelkit.util.Tuple2Iterator;
+import smodelkit.VectorDouble;
 
 /**
  * An ensemble of MDC classifiers. The final result is a ranked list of output vectors,
@@ -213,7 +214,7 @@ public class WOVEnsemble extends SupervisedLearner
 		
 		// Convert the map to a scored list.
 		List<Vector> result = scores.entrySet().stream().map(
-				entry -> new Vector(entry.getKey(), entry.getValue())).collect(Collectors.toList());
+				entry -> new VectorDouble(entry.getKey(), entry.getValue())).collect(Collectors.toList());
 		result.sort((v1, v2) -> -Double.compare(v1.getWeight(), v2.getWeight()));
 		return result;
 	}

@@ -6,6 +6,7 @@ import java.util.List;
 import smodelkit.ConfusionMatrix;
 import smodelkit.Matrix;
 import smodelkit.Vector;
+import smodelkit.VectorDouble;
 
 /**
  * Find the average relative entropy of targets and predictions.
@@ -76,7 +77,7 @@ public class RelativeEntropy extends Evaluator
 			values[i] = v.get(i);
 		}
 		softmaxInPlace(values);
-		return new Vector(values, v.getWeight());
+		return new VectorDouble(values, v.getWeight());
 	}
 	
 	public static void softmaxInPlace(double[] values)

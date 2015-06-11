@@ -11,9 +11,11 @@ import java.util.stream.Collectors;
 
 import org.json.simple.JSONObject;
 
+import smodelkit.Vector;
 import smodelkit.MLSystemsManager;
 import smodelkit.Matrix;
 import smodelkit.Vector;
+import smodelkit.VectorDouble;
 import smodelkit.util.Counter;
 import smodelkit.util.Helper;
 import smodelkit.util.Logger;
@@ -91,7 +93,7 @@ public class HMONN extends SupervisedLearner
 		// First, predict using inn.
 		Vector innerPred = inn.predict(input);
 		// Combine inn's prediction with the input to make a query.
-		Vector query = new Vector(input);
+		Vector query = new VectorDouble(input);
 		query.addAll(innerPred);
 
 		
@@ -126,7 +128,7 @@ public class HMONN extends SupervisedLearner
 			counts.increment(label);
 		}
 		List<Vector> result = counts.toListFromHighToLow().stream().map(
-				tuple -> new Vector(tuple.getFirst(), (double)(int)tuple.getSecond()))
+				tuple -> new VectorDouble(tuple.getFirst(), (double)(int)tuple.getSecond()))
 				.collect(Collectors.toList());
 		return result;
 	}

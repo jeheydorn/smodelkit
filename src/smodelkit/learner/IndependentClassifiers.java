@@ -17,6 +17,7 @@ import org.json.simple.JSONObject;
 import smodelkit.MLSystemsManager;
 import smodelkit.Matrix;
 import smodelkit.Vector;
+import smodelkit.VectorDouble;
 import smodelkit.util.Logger;
 import smodelkit.util.Range;
 import smodelkit.util.SequenceIterator;
@@ -114,7 +115,7 @@ public class IndependentClassifiers extends SupervisedLearner
 	@Override
 	public Vector innerPredict(Vector input)
 	{		
-		Vector result = new Vector(new double[0]);
+		Vector result = new VectorDouble(new double[0]);
 		for (SupervisedLearner learner : models)
 		{
 			result = result.concat(learner.predict(input));
@@ -167,7 +168,7 @@ public class IndependentClassifiers extends SupervisedLearner
 		List<Vector> scoredPredictions = new ArrayList<>();
 		
 		explored.add(initialPrediction);
-		scoredPredictions.add(new Vector(initialPrediction, getScoreForPrediction(weights, initialPrediction)));
+		scoredPredictions.add(new VectorDouble(initialPrediction, getScoreForPrediction(weights, initialPrediction)));
 		
 		for (@SuppressWarnings("unused") int ignored : new Range(maxDesiredSize))
 		{
@@ -182,7 +183,7 @@ public class IndependentClassifiers extends SupervisedLearner
 				{
 					for (int outptuValue : new Range(weights.get(c).length))
 					{
-						Vector pred = new Vector(prevPrediction);
+						Vector pred = new VectorDouble(prevPrediction);
 						pred.set(c, outptuValue);
 						if (!explored.contains(pred))
 						{
@@ -205,7 +206,7 @@ public class IndependentClassifiers extends SupervisedLearner
 			else
 			{
 				explored.add(bestPred);
-				scoredPredictions.add(new Vector(bestPred, bestScore));
+				scoredPredictions.add(new VectorDouble(bestPred, bestScore));
 			}
 		}		
 
@@ -259,7 +260,7 @@ public class IndependentClassifiers extends SupervisedLearner
 		for (List<Integer> labelList : new SequenceIterator(outputRanges))
 		{	
 			Vector pred = convertListOfOutputValuesToVector(labelList);
-			Vector candidate = new Vector(pred, getScoreForPrediction(weights, pred));
+			Vector candidate = new VectorDouble(pred, getScoreForPrediction(weights, pred));
 //			Logger.println("\ncandidate: " + candidate);
 			queue.add(candidate);
 			while(queue.size() > maxDesiredSize)
@@ -287,7 +288,7 @@ public class IndependentClassifiers extends SupervisedLearner
 		{
 			label[columnIndex] = labelList.get(columnIndex);
 		}
-		return new Vector(label);
+		return new VectorDouble(label);
 	}
 
 

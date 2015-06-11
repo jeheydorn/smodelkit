@@ -11,8 +11,10 @@ import java.util.List;
 
 import org.junit.Test;
 
+import smodelkit.Vector;
 import smodelkit.Matrix;
 import smodelkit.Vector;
+import smodelkit.VectorDouble;
 import smodelkit.util.Range;
 
 public class MatrixTest
@@ -338,10 +340,10 @@ public class MatrixTest
 		assertEquals(2.0, data.row(0).getWeight(), Double.MAX_VALUE);
 		
 		// Add a new row and make sure the instance weight is correct.
-		data.addRow(new Vector(new double[] {0.1, 0.2, 0.0}));
+		data.addRow(new VectorDouble(new double[] {0.1, 0.2, 0.0}));
 		assertEquals(1.0, data.row(data.rows() - 1).getWeight(), Double.MIN_VALUE);
 		
-		data.addRow(new Vector(new double[] {0.1, 0.2, 2.0}, 10.0));
+		data.addRow(new VectorDouble(new double[] {0.1, 0.2, 2.0}, 10.0));
 		assertEquals(10.0, data.row(data.rows() - 1).getWeight(), Double.MIN_VALUE);
 		
 		

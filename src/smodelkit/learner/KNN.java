@@ -7,8 +7,10 @@ import java.util.List;
 
 import org.json.simple.JSONObject;
 
+import smodelkit.Vector;
 import smodelkit.Matrix;
 import smodelkit.Vector;
+import smodelkit.VectorDouble;
 import smodelkit.util.Helper;
 import smodelkit.util.Logger;
 
@@ -268,7 +270,7 @@ public class KNN extends SupervisedLearner
 		Vector prediction;
 		assert input.size() == tInputs.cols();
 
-		Vector[] kInputs = new Vector[k];
+		Vector[] kInputs = new VectorDouble[k];
 		double[] kLabels = new double[k];
 		getKNearest(input, kInputs, kLabels);
 
@@ -286,7 +288,7 @@ public class KNN extends SupervisedLearner
 			}
 
 			average /= weightSum;
-			prediction = new Vector(new double[]{average});
+			prediction = new VectorDouble(new double[]{average});
 		}
 		else
 		{
@@ -316,7 +318,7 @@ public class KNN extends SupervisedLearner
 
 			// Find the attribute with the largest weighted vote.
 			// (Attribute values are integer numbers. Here the index into totals is the attribute value.)
-			prediction = new Vector(new double[]{ Helper.indexOfMaxElementInRange(totals, 0, totals.length)});
+			prediction = new VectorDouble(new double[]{ Helper.indexOfMaxElementInRange(totals, 0, totals.length)});
 		}
 		return prediction;
 	}

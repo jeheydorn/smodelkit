@@ -10,6 +10,7 @@ import org.json.simple.JSONObject;
 
 import smodelkit.Matrix;
 import smodelkit.Vector;
+import smodelkit.VectorDouble;
 import smodelkit.filter.Filter;
 import smodelkit.filter.ReorderOutputs;
 import smodelkit.util.Bounds;
@@ -182,7 +183,7 @@ public abstract class SupervisedLearner implements Serializable
 			if (predictions.size() == 1)
 			{
 				// Unfilter the prediction. 
-				return Collections.singletonList(new Vector(
+				return Collections.singletonList(new VectorDouble(
 						filter.unfilterLabel(predictions.get(0))));
 			}
 			

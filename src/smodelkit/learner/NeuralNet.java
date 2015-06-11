@@ -9,6 +9,7 @@ import com.amd.aparapi.Kernel;
 
 import smodelkit.Matrix;
 import smodelkit.Vector;
+import smodelkit.VectorDouble;
 import smodelkit.evaluator.Evaluator;
 import smodelkit.evaluator.MSE;
 import smodelkit.evaluator.RelativeEntropy;
@@ -28,7 +29,7 @@ import smodelkit.util.Range;
 public class NeuralNet extends SupervisedLearner
 {
 	private static final long serialVersionUID = 1L;
-	final boolean PRINT_EPOCH_TIMES = false;
+	final boolean PRINT_EPOCH_TIMES = true;
 	final int EPOCH_PRINT_FREQUENCY = 1;
 	final boolean SAVE_ERROR_RATES = false;
 	// This is the layers of the network; the hidden and output layers. The last layer is the output layer.
@@ -444,7 +445,7 @@ public class NeuralNet extends SupervisedLearner
 			// Update all weights
 			for(int i = 0; i < layers.length; i++)
 			{
-				Vector input = i == 0 ? inputs.row(instanceRow) : new Vector(outputs[i - 1]);
+				Vector input = i == 0 ? inputs.row(instanceRow) : new VectorDouble(outputs[i - 1]);
 				double instanceWeight = inputs.row(instanceRow).getWeight();
 				for(int j = 0; j < layers[i].length; j++)
 				{
@@ -478,7 +479,7 @@ public class NeuralNet extends SupervisedLearner
 		double[][] outputs = generateNetworkSizeArray();
 		for(int i = 0; i < layers.length; i++)
 		{
-			Vector inputs = i == 0 ? input : new Vector(outputs[i - 1]);
+			Vector inputs = i == 0 ? input : new VectorDouble(outputs[i - 1]);
 			for(int j = 0; j < layers[i].length; j++)
 			{
 				outputs[i][j] = layers[i][j].calcOutput(inputs);
@@ -528,7 +529,7 @@ public class NeuralNet extends SupervisedLearner
 	{
 		double[][] outputs = calcOutputs(input);
 
-		return new Vector(outputs[outputs.length - 1]);
+		return new VectorDouble(outputs[outputs.length - 1]);
 	}
 	
 	@Override

@@ -10,6 +10,7 @@ import org.apache.commons.math3.util.MathUtils;
 
 import smodelkit.Matrix;
 import smodelkit.Vector;
+import smodelkit.VectorDouble;
 
 /**
  * Helper functions for generating samples.
@@ -80,10 +81,10 @@ public class Sample
 		{
 			if (weights[i] > 0)
 			{
-				Vector x = new Vector(inputs.row(i));
+				Vector x = new VectorDouble(inputs.row(i));
 				x.setWeight(weights[i]);
 				baggedInputs.addRow(x);
-				Vector y = new Vector(labels.row(i));
+				Vector y = new VectorDouble(labels.row(i));
 				y.setWeight(weights[i]);
 				baggedLabels.addRow(y);
 			}

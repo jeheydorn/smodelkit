@@ -12,6 +12,7 @@ import org.json.simple.JSONObject;
 import smodelkit.MLSystemsManager;
 import smodelkit.Matrix;
 import smodelkit.Vector;
+import smodelkit.VectorDouble;
 /**
  * An ensemble of MDC classifiers which selects each output as the one which the base models
  *  give the most weight to. Weights are scores given by base models.
@@ -140,7 +141,7 @@ public class MaxWeightEnsemble extends SupervisedLearner
 			
 			result[j] = bestV;
 		}
-		return new Vector(result);
+		return new VectorDouble(result);
 					
 	}
 
@@ -192,7 +193,7 @@ public class MaxWeightEnsemble extends SupervisedLearner
 							new double[] {0.6, 0.4, 0.1},
 							new double[] {0.5, 0.4, 0.1}));
 			Vector actual = findLabelWithMostWeightPerColumn(outputWeights);
-			assertVectorEquals(new Vector(new double[] {0}), new Vector(actual), 0.0000001);
+			assertVectorEquals(new VectorDouble(new double[] {0}), new VectorDouble(actual), 0.0000001);
 		}
 		
 		{
@@ -203,7 +204,7 @@ public class MaxWeightEnsemble extends SupervisedLearner
 							new double[] {0.6, 0.4, 1.0},
 							new double[] {0.2, 0.4, 1.0}));
 			Vector actual = findLabelWithMostWeightPerColumn(outputWeights);
-			assertVectorEquals(new Vector(new double[] {2}), new Vector(actual), 0.000001);
+			assertVectorEquals(new VectorDouble(new double[] {2}), new VectorDouble(actual), 0.000001);
 		}
 
 		{
@@ -220,7 +221,7 @@ public class MaxWeightEnsemble extends SupervisedLearner
 							new double[] {0.2, 0.4}
 							));
 			Vector actual = findLabelWithMostWeightPerColumn(outputWeights);
-			assertVectorEquals(new Vector(new double[] {1, 1}), actual, 0.000001);
+			assertVectorEquals(new VectorDouble(new double[] {1, 1}), actual, 0.000001);
 		}
 
 		{
@@ -237,7 +238,7 @@ public class MaxWeightEnsemble extends SupervisedLearner
 							new double[] {0.2, 0.4}
 							));
 			Vector actual = findLabelWithMostWeightPerColumn(outputWeights);
-			assertVectorEquals(new Vector(new double[] {0, 1}), actual, 0.000001);
+			assertVectorEquals(new VectorDouble(new double[] {0, 1}), actual, 0.000001);
 		}
 
 	}

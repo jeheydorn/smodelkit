@@ -6,6 +6,7 @@ import org.junit.Test;
 
 import smodelkit.Matrix;
 import smodelkit.Vector;
+import smodelkit.VectorDouble;
 import smodelkit.filter.Filter;
 import smodelkit.filter.NominalToCategorical;
 import smodelkit.filter.Normalize;
@@ -25,8 +26,8 @@ public class NominalToCategoricalTest
 
 		Matrix filteredInputs = filter.filterAllInputs(inputs);
 
-		assertVectorEquals(new Vector(1, 0, 0, 8.88), filteredInputs.row(0), 0);
-		assertVectorEquals(new Vector(0, 0, 1, 999.1), filteredInputs.row(1), 0);
+		assertVectorEquals(new VectorDouble(1, 0, 0, 8.88), filteredInputs.row(0), 0);
+		assertVectorEquals(new VectorDouble(0, 0, 1, 999.1), filteredInputs.row(1), 0);
 	}
 
 	@Test
@@ -40,8 +41,8 @@ public class NominalToCategoricalTest
 		
 		Matrix labelsF = filter.filterAllLabels(labels);
 		
-		assertVectorEquals(new Vector(0, 1, 0, 0), labelsF.row(0), 0);
-		assertVectorEquals(new Vector(1, 0, 0, 1), labelsF.row(1), 0);
+		assertVectorEquals(new VectorDouble(0, 1, 0, 0), labelsF.row(0), 0);
+		assertVectorEquals(new VectorDouble(1, 0, 0, 1), labelsF.row(1), 0);
 		
 	}
 
@@ -56,8 +57,8 @@ public class NominalToCategoricalTest
 		
 		Matrix labelsF = filter.filterAllLabels(labels);
 		
-		assertVectorEquals(new Vector(1, 0, 1, 0, 0), labelsF.row(0), 0);
-		assertVectorEquals(new Vector(0, 1, 0, 0, 1), labelsF.row(1), 0);
+		assertVectorEquals(new VectorDouble(1, 0, 1, 0, 0), labelsF.row(0), 0);
+		assertVectorEquals(new VectorDouble(0, 1, 0, 0, 1), labelsF.row(1), 0);
 		
 	}
 
@@ -70,8 +71,8 @@ public class NominalToCategoricalTest
 		Filter filter = new NominalToCategorical(true);
 		filter.initialize(inputs, labels);
 
-		assertVectorEquals(new Vector(1, 0, 0, 8.88), filter.filterInput(inputs.row(0)), 0);
-		assertVectorEquals(new Vector(0, 0, 1, 999.1), filter.filterInput(inputs.row(1)), 0);
+		assertVectorEquals(new VectorDouble(1, 0, 0, 8.88), filter.filterInput(inputs.row(0)), 0);
+		assertVectorEquals(new VectorDouble(0, 0, 1, 999.1), filter.filterInput(inputs.row(1)), 0);
 	}
 
 	@Test
@@ -205,12 +206,12 @@ public class NominalToCategoricalTest
 		filter.initialize(inputs, labels);
 		
 		Matrix inputsF = filter.filterAllInputs(inputs);
-		assertVectorEquals(new Vector(1, 0, 0, -1), inputsF.row(0), 0);
+		assertVectorEquals(new VectorDouble(1, 0, 0, -1), inputsF.row(0), 0);
 
-		assertVectorEquals(new Vector(0, 0, 1, 1.0), inputsF.row(1), 0);
+		assertVectorEquals(new VectorDouble(0, 0, 1, 1.0), inputsF.row(1), 0);
 		
 		Matrix labelsF = filter.filterAllLabels(labels);
-		assertVectorEquals(new Vector(1, 0, 0, 1), labelsF.row(1), 0);
+		assertVectorEquals(new VectorDouble(1, 0, 0, 1), labelsF.row(1), 0);
 
 	}
 
@@ -244,13 +245,13 @@ public class NominalToCategoricalTest
 		filter.initialize(inputs, labels);
 		
 		Matrix inputsF = filter.filterAllInputs(inputs);
-		assertVectorEquals(new Vector(1, 0, 0, -1), inputsF.row(0), 0);
+		assertVectorEquals(new VectorDouble(1, 0, 0, -1), inputsF.row(0), 0);
 
-		assertVectorEquals(new Vector(0, 0, 1, 1.0), inputsF.row(1), 0);
+		assertVectorEquals(new VectorDouble(0, 0, 1, 1.0), inputsF.row(1), 0);
 		
 		Matrix labelsF = filter.filterAllLabels(labels);
-		assertVectorEquals(new Vector(1), labelsF.row(0), 0);
-		assertVectorEquals(new Vector(-1), labelsF.row(1), 0);
+		assertVectorEquals(new VectorDouble(1), labelsF.row(0), 0);
+		assertVectorEquals(new VectorDouble(-1), labelsF.row(1), 0);
 
 	}
 

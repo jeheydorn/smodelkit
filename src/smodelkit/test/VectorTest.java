@@ -2,11 +2,12 @@ package smodelkit.test;
 
 import static org.junit.Assert.*;
 import static smodelkit.Vector.assertVectorEquals;
-import org.junit.Assert;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 import smodelkit.Vector;
+import smodelkit.VectorDouble;
 import smodelkit.util.Range;
 
 public class VectorTest
@@ -17,7 +18,7 @@ public class VectorTest
 	{
 		{
 			double[] values = new double[]{1.0, 2.0, 3.0};
-			Vector actual = new Vector(values);
+			Vector actual = new VectorDouble(values);
 			assertEquals(1.0, actual.getWeight(), 0);
 			for (int i : new Range(values.length))
 			{
@@ -27,7 +28,7 @@ public class VectorTest
 
 		{
 			double[] values = new double[]{1.0, 2.0, 3.0};
-			Vector actual = new Vector(values, 2.0);
+			Vector actual = new VectorDouble(values, 2.0);
 			assertEquals(2.0, actual.getWeight(), 0);
 			for (int i : new Range(values.length))
 			{
@@ -37,7 +38,7 @@ public class VectorTest
 
 		{
 			double[] values = new double[]{1.0, 2.0, 3.0};
-			Vector actual = new Vector(new Vector(values), 2.0);
+			Vector actual = new VectorDouble(new VectorDouble(values), 2.0);
 			assertEquals(2.0, actual.getWeight(), 0);
 			for (int i : new Range(values.length))
 			{
@@ -47,7 +48,7 @@ public class VectorTest
 
 		{
 			double[] values = new double[]{1.0, 2.0, 3.0};
-			Vector actual = new Vector(new Vector(values));
+			Vector actual = new VectorDouble(new VectorDouble(values));
 			assertEquals(1.0, actual.getWeight(), 0);
 			for (int i : new Range(values.length))
 			{
@@ -60,7 +61,7 @@ public class VectorTest
 	public void setTest()
 	{
 		double[] values = new double[]{1.0, 2.0, 3.0};
-		Vector actual = new Vector(values);
+		Vector actual = new VectorDouble(values);
 		assertEquals(1.0, actual.getWeight(), 0);
 		actual.set(1, 10);
 		assertEquals(10, actual.get(1), 0);
@@ -85,7 +86,7 @@ public class VectorTest
 	
 	private void subVectorTest(double[] values, int from, int to)
 	{
-		Vector v = new Vector(values, 2.0);
+		Vector v = new VectorDouble(values, 2.0);
 		Vector actual = v.subVector(from, to);
 		assertEquals(2.0, actual.getWeight(), 0);
 		assertEquals(to - from, actual.size());
@@ -121,28 +122,28 @@ public class VectorTest
 	@Test(expected=IllegalArgumentException.class)
 	public void subVectorNegativeTest1()
 	{
-		new Vector(new double[]{1.0, 2.0, 3.0, 4.0}).subVector(-1, 2);
+		new VectorDouble(new double[]{1.0, 2.0, 3.0, 4.0}).subVector(-1, 2);
 	}
 
 	@Test(expected=IllegalArgumentException.class)
 	public void subVectorNegativeTest2()
 	{
-		new Vector(new double[]{1.0, 2.0, 3.0, 4.0}).subVector(1, 5);
+		new VectorDouble(new double[]{1.0, 2.0, 3.0, 4.0}).subVector(1, 5);
 	}
 	
 	@Test
 	public void addAllTest()
 	{
-		Vector v = new Vector(1.0, 2.0, 3.0);
-		v.addAll(new Vector(4.0));
-		assertVectorEquals(new Vector(1, 2, 3, 4), v, 0);
+		Vector v = new VectorDouble(1.0, 2.0, 3.0);
+		v.addAll(new VectorDouble(4.0));
+		assertVectorEquals(new VectorDouble(1, 2, 3, 4), v, 0);
 	}
 	
 	@Test public void assertVectorEqualsTest1()
 	{
 		try
 		{
-			assertVectorEquals(new Vector(1, 2, 3), new Vector(1, 2), 0);
+			assertVectorEquals(new VectorDouble(1, 2, 3), new VectorDouble(1, 2), 0);
 		}
 		catch(AssertionError e)
 		{
@@ -156,7 +157,7 @@ public class VectorTest
 	{
 		try
 		{
-			assertVectorEquals(new Vector(1, 2), new Vector(1, 2, 3), 0);
+			assertVectorEquals(new VectorDouble(1, 2), new VectorDouble(1, 2, 3), 0);
 		}
 		catch(AssertionError e)
 		{
@@ -170,7 +171,7 @@ public class VectorTest
 	{
 		try
 		{
-			assertVectorEquals(new Vector(new double[]{1, 2}, 2.0), new Vector(1, 2), 0);
+			assertVectorEquals(new VectorDouble(new double[]{1, 2}, 2.0), new VectorDouble(1, 2), 0);
 		}
 		catch(AssertionError e)
 		{
@@ -184,7 +185,7 @@ public class VectorTest
 	{
 		try
 		{
-			assertVectorEquals(new Vector(1, 2), new Vector(1, 3), 0);
+			assertVectorEquals(new VectorDouble(1, 2), new VectorDouble(1, 3), 0);
 		}
 		catch(AssertionError e)
 		{
@@ -197,19 +198,19 @@ public class VectorTest
 	@Test
 	public void concatTest1()
 	{
-		assertVectorEquals(new Vector(1, 2), new Vector(1).concat(new Vector(2)), 0);		
+		assertVectorEquals(new VectorDouble(1, 2), new VectorDouble(1).concat(new VectorDouble(2)), 0);		
 	}
 	@Test
 	public void concatTest2()
 	{
-		assertVectorEquals(new Vector(1, 2), new Vector(1).concat(new double[] {2}), 0);		
+		assertVectorEquals(new VectorDouble(1, 2), new VectorDouble(1).concat(new double[] {2}), 0);		
 	}
 	
 	@Test
 	public void removeTest()
 	{
 		double[] values = new double[]{1.0, 2.0, 3.0};
-		Vector actual = new Vector(values);
+		Vector actual = new VectorDouble(values);
 		actual.remove(1);
 		assertEquals(1, actual.get(0), 0);
 		assertEquals(3, actual.get(1), 0);

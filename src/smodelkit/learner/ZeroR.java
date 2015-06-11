@@ -4,6 +4,7 @@ import org.json.simple.JSONObject;
 
 import smodelkit.Matrix;
 import smodelkit.Vector;
+import smodelkit.VectorDouble;
 import smodelkit.util.Counter;
 import smodelkit.util.Range;
 
@@ -61,7 +62,7 @@ public class ZeroR extends SupervisedLearner
 					pred[c] = labels.findMode(c);
 				}
 			}
-			prediction = new Vector(pred);
+			prediction = new VectorDouble(pred);
 		}
 		
 	}

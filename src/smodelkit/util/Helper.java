@@ -1,5 +1,7 @@
 package smodelkit.util;
 
+import static org.junit.Assert.assertEquals;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
@@ -32,6 +34,7 @@ import java.util.function.Function;
 
 import org.json.simple.JSONArray;
 
+import smodelkit.Vector;
 import smodelkit.Vector;
 
 public class Helper 
@@ -729,6 +732,8 @@ public class Helper
 		}
 		return toReturn;
 	}
+	
+
 }
 
 

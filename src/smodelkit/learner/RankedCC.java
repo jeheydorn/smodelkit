@@ -12,6 +12,7 @@ import org.json.simple.JSONObject;
 import smodelkit.MLSystemsManager;
 import smodelkit.Matrix;
 import smodelkit.Vector;
+import smodelkit.VectorDouble;
 import smodelkit.evaluator.TopN;
 import smodelkit.filter.Filter;
 import smodelkit.filter.Normalize;
@@ -207,7 +208,7 @@ public class RankedCC extends SupervisedLearner
 								// This should only happen once in this loop.
 								predictions.setSize(0, predFiltered.length);								
 							}
-							predictions.addRow(new Vector(predFiltered));
+							predictions.addRow(new VectorDouble(predFiltered));
 						}
 						inputsMut.copyColumns(predictions, 0, predictions.cols());						
 					}
@@ -242,7 +243,7 @@ public class RankedCC extends SupervisedLearner
 		Branch maxBranch = Collections.max(branches);
 		double[] prediction = maxBranch.getAllPredictions();
 //		Logger.printArray("prediction in innerPredict", prediction);
-		return new Vector(prediction);
+		return new VectorDouble(prediction);
 	}
 		
 	@Override
@@ -256,7 +257,7 @@ public class RankedCC extends SupervisedLearner
 		for (Branch b : branches)
 		{
 //			Logger.println(b);
-			predictions.add(new Vector(b.getAllPredictions(), b.score));
+			predictions.add(new VectorDouble(b.getAllPredictions(), b.score));
 		}
 		
 //		Logger.println("predictions:");

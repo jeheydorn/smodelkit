@@ -151,7 +151,7 @@ public class SyntheticDataGenerator
 			if (numNoisyOutputColumns > 0)
 				row = makeIrrelevantColumns(row, metaData, rand);
 			
-			metaData.addRow(new Vector(row));
+			metaData.addRow(new VectorDouble(row));
 		}
 		
 		out.println("Writing results to: " + resultsFilename);

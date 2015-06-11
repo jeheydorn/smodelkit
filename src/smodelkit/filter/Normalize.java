@@ -5,6 +5,7 @@ import java.util.TreeSet;
 
 import smodelkit.Matrix;
 import smodelkit.Vector;
+import smodelkit.VectorDouble;
 
 public class Normalize extends Filter
 {
@@ -127,7 +128,7 @@ public class Normalize extends Filter
 				}
 			}
 		}
-		return new Vector(after, before.getWeight());
+		return new VectorDouble(after, before.getWeight());
 	}
 
 
@@ -155,7 +156,7 @@ public class Normalize extends Filter
 				}
 			}
 		}
-		return new Vector(after, before.getWeight());
+		return new VectorDouble(after, before.getWeight());
 	}
 	@Override
 	public void configure(String[] args)

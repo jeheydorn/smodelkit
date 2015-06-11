@@ -16,143 +16,42 @@ import smodelkit.util.Range;
  * @author joseph
  *
  */
-@SuppressWarnings("serial")
-public class Vector implements Serializable, Comparable<Vector>
+public interface Vector extends Serializable, Comparable<Vector>
 {
-	/**
-	 * Elements of this array should never be modified because they may be shared by other Vectors.
-	 */
-	private double[] values;
-	
-
-	private int from;
-
-	private int to;
-	
-	/**
-	 * This is the instance weight when training, and a predicted confidence level when predicting
-	 * scored lists.
-	 */
-	private double weight;
-	public double getWeight()
+	// TODO Decide if I want to use create methods.
+	public static boolean useDouble = true;
+	public static Vector create(double... values)
 	{
-		return weight;
-	}
-	public void setWeight(double value)
-	{
-		if (value < 0.0)
-			throw new IllegalArgumentException("Instance weights cannot be negative. value: " + value);
-		weight = value;
-	}
-	
-	/**
-	 * Creates a new vector with instance weight 1.
-	 * @param values The values to be stored within the vector.
-	 */
-	public Vector(double... values)
-	{
-		this.values = values;
-		this.weight = 1.0;
-		to = values.length;
-		varify();
+		if (useDouble)
+			return new VectorDouble(values);
+		else
+			return new VectorFloat(convertToFloats(values));
 	}
 		
-	public Vector(double[] values, double weight)
-	{
-		this.values = values;
-		this.weight = weight;
-		to = values.length;
-		varify();
-	}
+	public double getWeight();
 	
-	private Vector(double[] values, double weight, int from, int to)
-	{
-		if (from >= to)
-			throw new IllegalArgumentException("Bad range.");
-		if (to > values.length)
-			throw new IllegalArgumentException("Bad range.");
-		if (from < 0)
-			throw new IllegalArgumentException("Bad range.");
-			
-		this .values = values;
-		this.weight = weight;
-		this.from = from;
-		this.to = to;
-	}
-
-	public Vector(Vector other)
-	{
-		this.values = other.values;
-		this.weight = other.weight;
-		this.from = other.from;
-		this.to = other.to;
-		varify();
-	}
+	public float getWeightFloat();
 	
-	/**
-	 * Creates a new Vector with values from other, and the specified weight.
-	 */
-	public Vector(Vector other, double weight)
-	{
-		this.values = other.values;
-		this.weight = weight;
-		to = values.length;
-		varify();
-	}
+	public void setWeight(double value);
 	
-	private void varify()
-	{
-		if (weight < 0.0)
-			throw new IllegalArgumentException("Instance weights cannot be negative.");
-	}
-
-	public double get(int index)
-	{
-		return values[from + index];
-	}
+	public void setWeight(float value);
+		
+	public double get(int index);	
+	
+	public float getFloat(int index);
 	
 	/**
 	 * Returns the internal values from this vector.
 	 * The caller MUST NOT modify these values.
 	 */
-	public double[] getValues()
-	{
-		if (!isCompact())
-			throw new IllegalStateException();
-		return values;
-	}
+	public double[] getValues();
 	
-	/**
-	 * Sets the value at the specified index to the specified value.
-	 * 
-	 * The internal array is copied to avoid changing it.
-	 */
-	public void set(int index, double value)
-	{
-		if (!compact())
-		{
-			values = Arrays.copyOf(values, values.length);
-		}
-		values[index] = value;
-	}
+	public float[] getValuesFloat();
+
+	public void set(int index, double value);
 	
-	private boolean isCompact()
-	{
-		return from == 0 && to == values.length;
-	}
-	
-	private boolean compact()
-	{
-		if (!isCompact())
-		{
-			values = Arrays.copyOfRange(values, from, to);
-			from = 0;
-			to = values.length;
-			return true;
-		}
-		return false;
-	}
-	
+	public void set(int index, float value);
+		
 	/**
 	 * Creates a new vector which gives a view of the values from this vector in the specified range.
 	 * This runs in O(1) time with respect to the size of this vector.
@@ -160,94 +59,35 @@ public class Vector implements Serializable, Comparable<Vector>
 	 * @param to (exclusive).
 	 * @return
 	 */
-	public Vector subVector(int from, int to)
-	{
-		return new Vector(values, weight, this.from + from, this.from + to);
-		
-	}
+	public Vector subVector(int from, int to);
 	
-	public int size()
-	{
-		return to - from;
-	}
+	public int size();
 	
 	/**
 	 * Concatenates the values from the given vector the the end of this vector.
 	 * @param v
 	 */
-	public void addAll(Vector v)
-	{
-		double[] newValues = new double[size() + v.size()];
-		for (int i = 0; i < size(); i++)
-		{
-			newValues[i] = get(i);
-		}
-		for (int i = 0; i < v.size(); i++)
-		{
-			newValues[i + size()] = v.get(i);
-		}
-		this.values = newValues;
-		from = 0;
-		to = values.length;
-	}
+	public void addAll(Vector v);
 	
 	/**
 	 * Returns a new vector with the values of this vector concatenated with the values of v.
 	 * The weight of the result is that this.
 	 */
-	public Vector concat(Vector v)
-	{
-		Vector result = new Vector(this);
-		result.addAll(v);
-		return result;
-	}
+	public Vector concat(Vector v);
 
 	/**
 	 * Returns a new vector with the values of this vector concatenated with the values of v.
 	 * The weight of the result is that this.
 	 */
-	public Vector concat(double[] v)
-	{
-		double[] result = new double[size() + v.length];
-		for (int i = 0; i < size(); i++)
-		{
-			result[i] = get(i);
-		}
-		for (int i = 0; i < v.length; i++)
-		{
-			result[i + size()] = v[i];
-		}
-		return new Vector(result, weight);
-	}
+	public Vector concat(double[] v);
+	
+	public Vector concat(float[] v);
 
 	/**
 	 * Removes the value at the specified index.
 	 */
-	public void remove(int index)
-	{
-		double[] temp = new double[size() - 1];
-		for (int i = 0; i < temp.length; i++)
-		{
-			if (i < index)
-				temp[i] = get(i);
-			else
-				temp[i] = get(i + 1);
-		}
-		values = temp;
-		from = 0;
-		to = values.length;
-	}
-		
-	/**
-	 * Returns the value which represents unknown values. If you need to know if a value
-	 * is unknown, use isUnknown(value). Do NOT use value == getUnknownValue().
-	 * @return
-	 */
-	public static double getUnknownValue()
-	{
-		return Double.NaN;
-	}
-	
+	public void remove(int index);
+			
 	/**
 	 * Determines if the given value represents an unknown (missing) value.
 	 */
@@ -255,77 +95,57 @@ public class Vector implements Serializable, Comparable<Vector>
 	{
 		return Double.isNaN(value);
 	}
-		
+
+	/**
+	 * Determines if the given value represents an unknown (missing) value.
+	 */
+	public static boolean isUnknown(float value)
+	{
+		return Float.isNaN(value);
+	}
+	
+	public static double getUnknownValue()
+	{
+		return Double.NaN;
+	}
+
+	public static double getUnknownValueFloat()
+	{
+		return Float.NaN;
+	}
+
 	/**
 	 * Compares vector values. Ignores weight.
 	 */
 	@Override
-	public boolean equals(Object other)
-	{
-		if (!(other instanceof Vector))
-			return false;
-		Vector otherV = (Vector)other;
-		if (size() != otherV.size())
-			return false;
-		for (int i = 0; i < size(); i++)
-		{
-			if (get(i) != otherV.get(i))
-				return false;
-		}
-		return true;
-	}
-	
-	@Override
-	/**
-	 * Compares vector values. Ignores weight.
-	 */
-	public int compareTo(Vector v)
-	{
-		for (int i = 0; i < size() && i < v.size(); i++)
-		{				
-			if (get(i) < v.get(i))
-				return -1;
-			if (get(i) > v.get(i))
-				return 1;
-		}
+	public boolean equals(Object other);
 		
-		int sizeComp = Integer.compare(size(), v.size());
-		return sizeComp;
-		
-	}
+	public DoubleStream stream();	
 	
-	public DoubleStream stream()
+	int getFrom();
+	
+	int getTo();
+	
+	public static double[] convertToDoubles(float[] array)
 	{
-		return Arrays.stream(values, from, to);
+		double[] result = new double[array.length];
+		for (int i = 0; i < array.length; i++)
+		{
+			result[i] = array[i];
+		}
+		return result;
 	}
-	
-	@Override
-	public String toString()
+
+	public static float[] convertToFloats(double[] array)
 	{
-		if (weight == 1.0)
+		float[] result = new float[array.length];
+		for (int i = 0; i < array.length; i++)
 		{
-			return valuesToString();
+			result[i] =(float) array[i];
 		}
-		else
-		{
-			return "values: " + valuesToString() + ", weight: " + weight;
-		}
+		return result;
 	}
-	
-	private String valuesToString()
-	{
-		StringBuilder result = new StringBuilder();
-		result.append("[");
-		for (int i : new Range(size()))
-		{
-			result.append(get(i));
-			if (i < size() - 1)
-				result.append(", ");
-		}
-		result.append("]");
-		return result.toString();
-	}
-	
+
 	public static void assertVectorEquals(Vector v1,  Vector v2, double threshold)
 	{
 		if (v1.size() != v2.size())
@@ -340,7 +160,7 @@ public class Vector implements Serializable, Comparable<Vector>
 			}
 			assertEquals(v1.get(i), v2.get(i), threshold);
 		}
-		assertEquals(v1.weight, v2.weight, threshold);
+		assertEquals(v1.getWeight(), v2.getWeight(), threshold);
 	}
-	
+
 }

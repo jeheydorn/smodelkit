@@ -2,6 +2,7 @@ package smodelkit.filter;
 
 import smodelkit.Matrix;
 import smodelkit.Vector;
+import smodelkit.VectorDouble;
 import smodelkit.util.Range;
 
 /**
@@ -59,7 +60,7 @@ public class MeanModeUnknownFiller extends Filter
 			else
 				after[i] = before.get(i);
 		}
-		return new Vector(after, before.getWeight());
+		return new VectorDouble(after, before.getWeight());
 	}
 
 	@Override

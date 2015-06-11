@@ -5,6 +5,7 @@ import java.util.List;
 
 import smodelkit.Matrix;
 import smodelkit.Vector;
+import smodelkit.VectorDouble;
 import smodelkit.util.Helper;
 
 /**
@@ -130,7 +131,7 @@ public class NominalToCategorical extends Filter
 			}
 		}
 		
-		return new Vector(after, before.getWeight());
+		return new VectorDouble(after, before.getWeight());
 	}
 
 
@@ -240,7 +241,7 @@ public class NominalToCategorical extends Filter
 				}
 			}
 		}
-		return new Vector(Helper.toDoubleArray(after), before.getWeight());
+		return new VectorDouble(Helper.toDoubleArray(after), before.getWeight());
 	}
 
 	@Override

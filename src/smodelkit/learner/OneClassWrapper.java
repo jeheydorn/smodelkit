@@ -2,6 +2,7 @@ package smodelkit.learner;
 
 import org.json.simple.JSONObject;
 
+import smodelkit.Vector;
 import smodelkit.MLSystemsManager;
 import smodelkit.Matrix;
 import smodelkit.Vector;
