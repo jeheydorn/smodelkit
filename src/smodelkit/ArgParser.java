@@ -73,9 +73,9 @@ class ArgParser
     		+ " of worker threads to create.")
     Integer maxThreads = null;
 
-    @Parameter(names = {"--rows"}, description = "Number of rows from the data set to use. This is usefull" +
+    @Parameter(names = {"--max_rows"}, description = "The maximum number of rows from the data set to use. This is usefull" +
     		" to see how a model does with less data. The first n rows will be used, where n is this paramter.")
-    Integer numRows = null;
+    int maxRows = Integer.MAX_VALUE;
     
     @Parameter(names = {"--oversample_training_data"}, description = "Oversample class in the trainin data unitl classes"
     		+ "are balanced.")

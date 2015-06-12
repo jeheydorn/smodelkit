@@ -321,8 +321,8 @@ public class VectorDouble implements Serializable, Comparable<Vector>, Vector
 	@Override
 	public float[] getValuesFloat()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		// TODO implement this.
+		throw new UnsupportedOperationException();
 	}
 	
 	@Override

@@ -20,7 +20,7 @@ public class MoveClassesToBeginningOfAttributes
 	public static void moveClassesToFrontOfArff(String inputFilename, String outputFilename)
 	{
 		Matrix data = new Matrix();
-		data.loadFromArffFile(inputFilename, true);
+		data.loadFromArffFile(inputFilename, true, Integer.MAX_VALUE);
 		out.println("#columns: before: " + data.cols());
 		
 		Matrix result = new Matrix();

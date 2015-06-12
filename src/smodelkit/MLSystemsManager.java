@@ -136,7 +136,7 @@ public class MLSystemsManager
 				if (!fileName.endsWith(".arff"))
 					throw new IllegalArgumentException("When only 1 parameter is given with -A, it must be an" +
 							" arff file name. -A arguments were: " + parser.dataset);
-				data.loadFromArffFile(fileName);		
+				data.loadFromArffFile(fileName, true, parser.maxRows);		
 			}
 			else
 			{
@@ -160,23 +160,7 @@ public class MLSystemsManager
 				&& parser.numLabelColumns != parser.labelColumnNames.size())
 			throw new IllegalArgumentException("Number of label indexes must match the number of label" +
 					" columns specified (if specified).");
-		
-		if (parser.numRows != null)
-		{
-			if (parser.numRows > data.rows())
-				throw new IllegalArgumentException("Number of rows to use =" + parser.numRows + ", but the" +
-						" data set only has " + data.rows() + " rows.");
-			
-			// Only use the first numRows rows of the data.
-			Matrix dataTemp = new Matrix();
-			dataTemp.copyMetadata(data);
-			for (int i : new Range(parser.numRows))
-				dataTemp.addRow(data.row(i));
-			data = dataTemp;
-			
-			Logger.println("Number of inputs reduced to: " + data.rows());
-		}
-		
+				
 		if (parser.numLabelColumns != null)
 		{
 			// Override any existing value for numLabelColumns in data.

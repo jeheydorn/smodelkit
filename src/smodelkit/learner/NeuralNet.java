@@ -408,14 +408,15 @@ public class NeuralNet extends SupervisedLearner
 	}
 
 	protected void doEpoch(Matrix inputs, Matrix labels, int nextIndex)
-	{	
+	{			
 		for (int instanceRow : new Range(nextIndex, nextIndex + epochSize))
 		{
 			instanceRow %= inputs.rows();
 
 			// Calculate the output for every node
 			double[][] outputs = calcOutputs(inputs.row(instanceRow));
-//			printVector("outputs: ", outputs[outputs.length - 1]);
+			// TODO remove
+//			Logger.printArray2D("outputs", outputs); 
 
 
 			// Calculate errors for every node
@@ -441,6 +442,9 @@ public class NeuralNet extends SupervisedLearner
 					Plotter.addDatumForLinePlot("layer_" + i + "_error", errors[i], "prediction", "error");
 				}
 			}
+			// TODO remove
+//			Logger.printArray2D("errors", errors); 
+		
 
 			// Update all weights
 			for(int i = 0; i < layers.length; i++)

@@ -148,6 +148,19 @@ public class Logger
 		}
 	}
 
+	public static synchronized void printArray2D(String title, float[][] vect)
+	{
+		StackTraceElement[] stacktrace = Thread.currentThread().getStackTrace();
+		StackTraceElement e = stacktrace[2];
+		if (loggingClassNames.contains(e.getClassName()))
+		{
+			String str = Helper.arrayToString2D(title, vect);
+			str = addTabs(str);
+			out.print(str);
+			lastChar = str.charAt(str.length()-1);
+		}
+	}
+
 	private static String addTabs(String str)
 	{
 		// Don't add tabs at the end of str if it ends in "\n".

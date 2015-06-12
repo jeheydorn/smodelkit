@@ -15,7 +15,7 @@ public class MoveClassesToEndOfAttributes
 	public static void moveClassesToEndOfAttributes(String inputFilename, String outputFilename)
 	{
 		Matrix data = new Matrix();
-		data.loadFromArffFile(inputFilename, true);
+		data.loadFromArffFile(inputFilename, true, Integer.MAX_VALUE);
 		
 		Matrix result = new Matrix();
 		result.setRelationName(data.getRelationName());

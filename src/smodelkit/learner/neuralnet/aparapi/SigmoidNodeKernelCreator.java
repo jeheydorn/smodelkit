@@ -1,7 +1,5 @@
 package smodelkit.learner.neuralnet.aparapi;
 
-import smodelkit.learner.neuralnet.NeuralNode;
-import smodelkit.util.Bounds;
 import smodelkit.util.BoundsFloat;
 
 import com.amd.aparapi.Kernel;
@@ -81,7 +79,7 @@ public class SigmoidNodeKernelCreator
 			{
 				int nodeIndex = getGlobalId();
 				
-				outErrors[nodeIndex] = outputs[nodeIndex] * outputs[nodeIndex] 
+				outErrors[nodeIndex] = outputs[nodeIndex] * (1f - outputs[nodeIndex]) 
 						* dotProductErrorFromHigherLayer(nodeIndex);
 			}
 			
@@ -90,14 +88,14 @@ public class SigmoidNodeKernelCreator
 				float sum = 0;
 				for (int i = 0; i < numHigherLayerNodes; i++)
 				{
-					sum += getHigherLayerWeight(nodeNumber, i) * higherLayerErrors[i];
+					sum += getHigherLayerWeight(i, nodeNumber) * higherLayerErrors[i];
 				}
 				return sum;
 			}
 
-			float getHigherLayerWeight(int nodeNumber, int weightNumber)
+			float getHigherLayerWeight(int higherLayerNodeNumber, int weightNumber)
 			{
-				return higherLayerWeights[higherLayerWeightsPerNode * nodeNumber + weightNumber];
+				return higherLayerWeights[higherLayerWeightsPerNode * higherLayerNodeNumber + weightNumber];
 			}
 		};	
 	}
@@ -106,6 +104,7 @@ public class SigmoidNodeKernelCreator
 	{
 		int numInputs = inputs.length;
 		int numWeightsPerNode = numInputs + 1; // + 1 for the bias weights.
+		int numErrors = errors.length;
 		assert layerWeights.length == (numInputs + 1) * errors.length;
 		
 		return new Kernel()
@@ -117,11 +116,11 @@ public class SigmoidNodeKernelCreator
 				
 				for (int i = 0; i < numInputs; i++)
 				{
-					layerWeights[numWeightsPerNode * nodeIndex + i] = learningRate * errors[i] * inputs[i];
+					layerWeights[numWeightsPerNode * nodeIndex + i] += learningRate * errors[nodeIndex] * inputs[i];
 				}
 				
 				// bias weight
-				layerWeights[numWeightsPerNode * nodeIndex + numInputs] = learningRate * errors[numInputs];
+				layerWeights[numWeightsPerNode * nodeIndex + numInputs] += learningRate * errors[numErrors - 1];
 			}
 			
 		};

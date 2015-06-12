@@ -4,7 +4,7 @@
 	"hiddenLayerSizes": [1000],
 	"maxHiddenLayerSize": null,
 	"includeLabelsInHiddenLayerMultiples": false,
-	"validationSetPercent": 0.2,
+	"validationSetPercent": 0.0,
 	"learningRate": 0.1,
 	"momentum": 0.0,
 

@@ -1,4 +1,5 @@
 package smodelkit.learner;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -428,7 +429,8 @@ public class NeuralNetGPU extends SupervisedLearner
 
 			// Calculate the output for every node
 			float[][] outputs = calcOutputs(inputs.row(instanceRow));
-//			printVector("outputs: ", outputs[outputs.length - 1]);
+			// TODO remove
+//			Logger.printArray2D("outputs", outputs); 
 
 
 			// Calculate errors for every node
@@ -453,6 +455,9 @@ public class NeuralNetGPU extends SupervisedLearner
 					Plotter.addDatumForLinePlot("layer_" + i + "_error", Vector.convertToDoubles(errors[i]), "prediction", "error");
 				}
 			}
+			// TODO remove
+//			Logger.printArray2D("errors", errors); 
+
 
 			// Update all weights
 			for(int i = 0; i < layers.length; i++)
@@ -465,6 +470,23 @@ public class NeuralNetGPU extends SupervisedLearner
 				kernel.dispose();			
 			}
 		}
+	}
+	
+	void printWeights()
+	{
+		for(int i = 0; i < layers.length; i++)
+		{
+			Logger.println("Weights for layer " + i + ": ");
+			for(int j = 0; j < nodeCountsPerLayer[i]; j++)
+			{
+				int start = j * nodeWeightCountsPerLayer[i];
+				int end = start + nodeWeightCountsPerLayer[i];
+				float[] nodeWeights = Arrays.copyOfRange(layers[i], start, end);
+				Logger.println(Helper.printArray("node " + j, nodeWeights));
+			}
+		}
+		Logger.println();
+
 	}
 	
 	protected float[][] generateNetworkSizeArray()
@@ -487,10 +509,12 @@ public class NeuralNetGPU extends SupervisedLearner
 			float[] inputs = i == 0 ? input.getValuesFloat() : outputs[i - 1];
 			int numWeights = nodeWeightCountsPerLayer[i];
 			
-			Kernel kernel = kernelCreator.createOutputKernel(inputs, layers[i], 
+			Kernel kernel = kernelCreator.createOutputKernel(inputs, layers[i],
 			 		numWeights, outputs[i]);
 
 			kernel.execute(com.amd.aparapi.Range.create(outputs[i].length));
+//			Logger.println("Conversion time: " + kernel.getConversionTime());
+//			Logger.println("Execution time: " + kernel.getExecutionTime());
 			kernel.dispose();
 			
 			if (increaseContrastOfHiddenLayerOutputs)

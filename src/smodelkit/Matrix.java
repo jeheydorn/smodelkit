@@ -467,11 +467,11 @@ public class Matrix implements Serializable, Iterable<Vector>
 	 * @param filename
 	 * @param loadComments If true, any comments before the relation name will be loaded.
 	 */
-	public void loadFromArffFile(String filename, boolean loadComments)
+	public void loadFromArffFile(String filename, boolean loadComments, int maxRows)
 	{
 		try (Scanner s = new Scanner(new File(filename)))
 		{
-			loadArff(s, loadComments);
+			loadArff(s, loadComments, maxRows);
 		} 
 		catch (FileNotFoundException e)
 		{
@@ -485,7 +485,7 @@ public class Matrix implements Serializable, Iterable<Vector>
 	 */
 	public void loadFromArffFile(String filename)
 	{
-		loadFromArffFile(filename, false);
+		loadFromArffFile(filename, false, Integer.MAX_VALUE);
 	}
 
 	/**
@@ -497,7 +497,7 @@ public class Matrix implements Serializable, Iterable<Vector>
 	{
 		try (Scanner s = new Scanner(content))
 		{
-			loadArff(s, false);
+			loadArff(s, false, Integer.MAX_VALUE);
 		}
 	}
 	
@@ -506,7 +506,7 @@ public class Matrix implements Serializable, Iterable<Vector>
 	 * @param filename
 	 * @throws FileNotFoundException
 	 */
-	private void loadArff(Scanner s, boolean loadComments)
+	private void loadArff(Scanner s, boolean loadComments, int maxRows)
 	{
 		data = new ArrayList<>();
 		attrNames = new ArrayList<String>();
@@ -629,7 +629,10 @@ public class Matrix implements Serializable, Iterable<Vector>
 					} 
 					else
 					{
-						loadDataRow(line, Collections.emptyList());
+						if (rows() < maxRows)
+							loadDataRow(line, Collections.emptyList());
+						else
+							break;
 					}
 				}
 			}

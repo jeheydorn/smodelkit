@@ -12,11 +12,11 @@
     <property name="debuglevel" value="source,lines,vars"/>
     <property name="target" value="1.8"/>
     <property name="source" value="1.8"/>
-    <path id="home/joseph/Documents/Research/workspace-java/smodelkit/bin.libraryclasspath"/>
+    <path id="Persisted container [/home/joseph/Documents/Research/workspace-java/smodelkit/bin for project [smodelkit]].libraryclasspath"/>
     <path id="smodelkit.classpath">
         <pathelement location="bin"/>
         <pathelement location="${JRE_LIB}"/>
-        <path refid="home/joseph/Documents/Research/workspace-java/smodelkit/bin.libraryclasspath"/>
+        <path refid="Persisted container [/home/joseph/Documents/Research/workspace-java/smodelkit/bin for project [smodelkit]].libraryclasspath"/>
         <pathelement location="libraries/commons-io-2.4.jar"/>
         <pathelement location="libraries/commons-math3-3.2.jar"/>
         <pathelement location="libraries/jcommander.jar"/>
@@ -24,12 +24,18 @@
         <pathelement location="libraries/opencsv-2.3.jar"/>
         <pathelement location="libraries/junit.jar"/>
         <pathelement location="libraries/org.hamcrest.core_1.3.0.v201303031735.jar"/>
+        <pathelement location="libraries/aparapi.jar"/>
     </path>
     <path id="run.IndependentClassifiersTest.classpath">
         <pathelement location="${JRE_LIB}"/>
         <path refid="smodelkit.classpath"/>
     </path>
     <path id="run.IndependentClassifiersTest.bootclasspath"/>
+    <path id="run.SampleTest.classpath">
+        <pathelement location="${JRE_LIB}"/>
+        <path refid="smodelkit.classpath"/>
+    </path>
+    <path id="run.SampleTest.bootclasspath"/>
     <path id="run.EvaluatorPluginTest.loadEvaluatorWithArgsTest.classpath">
         <pathelement location="${JRE_LIB}"/>
         <path refid="smodelkit.classpath"/>
@@ -40,36 +46,41 @@
         <path refid="smodelkit.classpath"/>
     </path>
     <path id="run.AccuracyOfGroupTest.test.bootclasspath"/>
-    <path id="run.VectorTest.addAllTest.classpath">
+    <path id="run.VectorDoubleTest.classpath">
         <pathelement location="${JRE_LIB}"/>
         <path refid="smodelkit.classpath"/>
     </path>
-    <path id="run.VectorTest.addAllTest.bootclasspath"/>
-    <path id="run.VectorTest.assertVectorEqualsTest4.classpath">
+    <path id="run.VectorDoubleTest.bootclasspath"/>
+    <path id="run.VectorDoubleTest.assertVectorEqualsTest2.classpath">
         <pathelement location="${JRE_LIB}"/>
         <path refid="smodelkit.classpath"/>
     </path>
-    <path id="run.VectorTest.assertVectorEqualsTest4.bootclasspath"/>
+    <path id="run.VectorDoubleTest.assertVectorEqualsTest2.bootclasspath"/>
     <path id="run.MLSystemsManagerTest.staticTest.classpath">
         <pathelement location="${JRE_LIB}"/>
         <path refid="smodelkit.classpath"/>
     </path>
     <path id="run.MLSystemsManagerTest.staticTest.bootclasspath"/>
-    <path id="run.VectorTest.subVectorNegativeTest1.classpath">
+    <path id="run.MLSystemsManagerTest.classpath">
         <pathelement location="${JRE_LIB}"/>
         <path refid="smodelkit.classpath"/>
     </path>
-    <path id="run.VectorTest.subVectorNegativeTest1.bootclasspath"/>
-    <path id="run.VectorTest.classpath">
+    <path id="run.MLSystemsManagerTest.bootclasspath"/>
+    <path id="run.VectorDoubleTest.subVectorNegativeTest1.classpath">
         <pathelement location="${JRE_LIB}"/>
         <path refid="smodelkit.classpath"/>
     </path>
-    <path id="run.VectorTest.bootclasspath"/>
-    <path id="run.VectorTest.assertVectorEqualsTest3.classpath">
+    <path id="run.VectorDoubleTest.subVectorNegativeTest1.bootclasspath"/>
+    <path id="run.VectorDoubleTest.removeTest.classpath">
         <pathelement location="${JRE_LIB}"/>
         <path refid="smodelkit.classpath"/>
     </path>
-    <path id="run.VectorTest.assertVectorEqualsTest3.bootclasspath"/>
+    <path id="run.VectorDoubleTest.removeTest.bootclasspath"/>
+    <path id="run.SampleTest.samplePermutationsWithoutReplacementTest.classpath">
+        <pathelement location="${JRE_LIB}"/>
+        <path refid="smodelkit.classpath"/>
+    </path>
+    <path id="run.SampleTest.samplePermutationsWithoutReplacementTest.bootclasspath"/>
     <path id="run.PairwiseCouplingTest.classpath">
         <pathelement location="${JRE_LIB}"/>
         <path refid="smodelkit.classpath"/>
@@ -80,16 +91,31 @@
         <path refid="smodelkit.classpath"/>
     </path>
     <path id="run.SupervisedLearnerTest.bootclasspath"/>
+    <path id="run.VectorDoubleTest.subVectorDoubleTest.classpath">
+        <pathelement location="${JRE_LIB}"/>
+        <path refid="smodelkit.classpath"/>
+    </path>
+    <path id="run.VectorDoubleTest.subVectorDoubleTest.bootclasspath"/>
     <path id="run.MLSystemsManager.classpath">
         <pathelement location="${JRE_LIB}"/>
         <path refid="smodelkit.classpath"/>
     </path>
     <path id="run.MLSystemsManager.bootclasspath"/>
-    <path id="run.VectorTest.assertVectorEqualsTest2.classpath">
+    <path id="run.VectorDoubleTest.assertVectorEqualsTest.classpath">
         <pathelement location="${JRE_LIB}"/>
         <path refid="smodelkit.classpath"/>
     </path>
-    <path id="run.VectorTest.assertVectorEqualsTest2.bootclasspath"/>
+    <path id="run.VectorDoubleTest.assertVectorEqualsTest.bootclasspath"/>
+    <path id="run.MetadataPrinter.classpath">
+        <pathelement location="${JRE_LIB}"/>
+        <path refid="smodelkit.classpath"/>
+    </path>
+    <path id="run.MetadataPrinter.bootclasspath"/>
+    <path id="run.VectorDoubleTest.assertVectorEqualsTest4.classpath">
+        <pathelement location="${JRE_LIB}"/>
+        <path refid="smodelkit.classpath"/>
+    </path>
+    <path id="run.VectorDoubleTest.assertVectorEqualsTest4.bootclasspath"/>
     <path id="run.EvaluatorPluginTest.loadEvaluatorWithMutlipleArgsTest.classpath">
         <pathelement location="${JRE_LIB}"/>
         <path refid="smodelkit.classpath"/>
@@ -100,6 +126,11 @@
         <path refid="smodelkit.classpath"/>
     </path>
     <path id="run.AccuracyOfGroupTest.bootclasspath"/>
+    <path id="run.Squares (1).classpath">
+        <pathelement location="${JRE_LIB}"/>
+        <path refid="smodelkit.classpath"/>
+    </path>
+    <path id="run.Squares (1).bootclasspath"/>
     <path id="run.EvaluatorPluginTest.classpath">
         <pathelement location="${JRE_LIB}"/>
         <path refid="smodelkit.classpath"/>
@@ -110,26 +141,31 @@
         <path refid="smodelkit.classpath"/>
     </path>
     <path id="run.MatrixTest.instanceWeightNegativeTest.bootclasspath"/>
+    <path id="run.VectorDoubleTest.addAllTest.classpath">
+        <pathelement location="${JRE_LIB}"/>
+        <path refid="smodelkit.classpath"/>
+    </path>
+    <path id="run.VectorDoubleTest.addAllTest.bootclasspath"/>
     <path id="run.WekaWrapperTest.classpath">
         <pathelement location="${JRE_LIB}"/>
         <path refid="smodelkit.classpath"/>
     </path>
     <path id="run.WekaWrapperTest.bootclasspath"/>
-    <path id="run.VectorTest.removeTest.classpath">
+    <path id="run.MLSystemsManagerTest.randomTestWithFloats.classpath">
         <pathelement location="${JRE_LIB}"/>
         <path refid="smodelkit.classpath"/>
     </path>
-    <path id="run.VectorTest.removeTest.bootclasspath"/>
+    <path id="run.MLSystemsManagerTest.randomTestWithFloats.bootclasspath"/>
     <path id="run.TopNHammingTest.test.classpath">
         <pathelement location="${JRE_LIB}"/>
         <path refid="smodelkit.classpath"/>
     </path>
     <path id="run.TopNHammingTest.test.bootclasspath"/>
-    <path id="run.VectorTest.subVectorTest.classpath">
+    <path id="run.VectorFloatTest.classpath">
         <pathelement location="${JRE_LIB}"/>
         <path refid="smodelkit.classpath"/>
     </path>
-    <path id="run.VectorTest.subVectorTest.bootclasspath"/>
+    <path id="run.VectorFloatTest.bootclasspath"/>
     <path id="run.InstanceWeightTest.neuralNetTest.classpath">
         <pathelement location="${JRE_LIB}"/>
         <path refid="smodelkit.classpath"/>
@@ -150,16 +186,26 @@
         <path refid="smodelkit.classpath"/>
     </path>
     <path id="run.EvaluatorPluginTest.multipleEvaluatorTest.bootclasspath"/>
-    <path id="run.VectorTest.assertVectorEqualsTest.classpath">
+    <path id="run.MLSystemsManagerTest.randomTest.classpath">
         <pathelement location="${JRE_LIB}"/>
         <path refid="smodelkit.classpath"/>
     </path>
-    <path id="run.VectorTest.assertVectorEqualsTest.bootclasspath"/>
+    <path id="run.MLSystemsManagerTest.randomTest.bootclasspath"/>
     <path id="run.smodelkit.test.classpath">
         <pathelement location="${JRE_LIB}"/>
         <path refid="smodelkit.classpath"/>
     </path>
     <path id="run.smodelkit.test.bootclasspath"/>
+    <path id="run.SampleTest.sampleWithoutReplacementTest.classpath">
+        <pathelement location="${JRE_LIB}"/>
+        <path refid="smodelkit.classpath"/>
+    </path>
+    <path id="run.SampleTest.sampleWithoutReplacementTest.bootclasspath"/>
+    <path id="run.VectorDoubleTest.assertVectorEqualsTest3.classpath">
+        <pathelement location="${JRE_LIB}"/>
+        <path refid="smodelkit.classpath"/>
+    </path>
+    <path id="run.VectorDoubleTest.assertVectorEqualsTest3.bootclasspath"/>
     <path id="run.ReorderOutputsTest.classpath">
         <pathelement location="${JRE_LIB}"/>
         <path refid="smodelkit.classpath"/>
@@ -227,6 +273,17 @@
             </bootclasspath>
         </junit>
     </target>
+    <target name="SampleTest">
+        <mkdir dir="${junit.output.dir}"/>
+        <junit fork="yes" printsummary="withOutAndErr">
+            <formatter type="xml"/>
+            <test name="smodelkit.test.SampleTest" todir="${junit.output.dir}"/>
+            <classpath refid="run.SampleTest.classpath"/>
+            <bootclasspath>
+                <path refid="run.SampleTest.bootclasspath"/>
+            </bootclasspath>
+        </junit>
+    </target>
     <target name="EvaluatorPluginTest.loadEvaluatorWithArgsTest">
         <mkdir dir="${junit.output.dir}"/>
         <junit fork="yes" printsummary="withOutAndErr">
@@ -249,25 +306,25 @@
             </bootclasspath>
         </junit>
     </target>
-    <target name="VectorTest.addAllTest">
+    <target name="VectorDoubleTest">
         <mkdir dir="${junit.output.dir}"/>
         <junit fork="yes" printsummary="withOutAndErr">
             <formatter type="xml"/>
-            <test name="smodelkit.test.VectorTest" todir="${junit.output.dir}"/>
-            <classpath refid="run.VectorTest.addAllTest.classpath"/>
+            <test name="smodelkit.test.VectorDoubleTest" todir="${junit.output.dir}"/>
+            <classpath refid="run.VectorDoubleTest.classpath"/>
             <bootclasspath>
-                <path refid="run.VectorTest.addAllTest.bootclasspath"/>
+                <path refid="run.VectorDoubleTest.bootclasspath"/>
             </bootclasspath>
         </junit>
     </target>
-    <target name="VectorTest.assertVectorEqualsTest4">
+    <target name="VectorDoubleTest.assertVectorEqualsTest2">
         <mkdir dir="${junit.output.dir}"/>
         <junit fork="yes" printsummary="withOutAndErr">
             <formatter type="xml"/>
-            <test name="smodelkit.test.VectorTest" todir="${junit.output.dir}"/>
-            <classpath refid="run.VectorTest.assertVectorEqualsTest4.classpath"/>
+            <test name="smodelkit.test.VectorDoubleTest" todir="${junit.output.dir}"/>
+            <classpath refid="run.VectorDoubleTest.assertVectorEqualsTest2.classpath"/>
             <bootclasspath>
-                <path refid="run.VectorTest.assertVectorEqualsTest4.bootclasspath"/>
+                <path refid="run.VectorDoubleTest.assertVectorEqualsTest2.bootclasspath"/>
             </bootclasspath>
         </junit>
     </target>
@@ -282,36 +339,47 @@
             </bootclasspath>
         </junit>
     </target>
-    <target name="VectorTest.subVectorNegativeTest1">
+    <target name="MLSystemsManagerTest">
         <mkdir dir="${junit.output.dir}"/>
         <junit fork="yes" printsummary="withOutAndErr">
             <formatter type="xml"/>
-            <test name="smodelkit.test.VectorTest" todir="${junit.output.dir}"/>
-            <classpath refid="run.VectorTest.subVectorNegativeTest1.classpath"/>
+            <test name="smodelkit.test.MLSystemsManagerTest" todir="${junit.output.dir}"/>
+            <classpath refid="run.MLSystemsManagerTest.classpath"/>
             <bootclasspath>
-                <path refid="run.VectorTest.subVectorNegativeTest1.bootclasspath"/>
+                <path refid="run.MLSystemsManagerTest.bootclasspath"/>
             </bootclasspath>
         </junit>
     </target>
-    <target name="VectorTest">
+    <target name="VectorDoubleTest.subVectorNegativeTest1">
         <mkdir dir="${junit.output.dir}"/>
         <junit fork="yes" printsummary="withOutAndErr">
             <formatter type="xml"/>
-            <test name="smodelkit.test.VectorTest" todir="${junit.output.dir}"/>
-            <classpath refid="run.VectorTest.classpath"/>
+            <test name="smodelkit.test.VectorDoubleTest" todir="${junit.output.dir}"/>
+            <classpath refid="run.VectorDoubleTest.subVectorNegativeTest1.classpath"/>
             <bootclasspath>
-                <path refid="run.VectorTest.bootclasspath"/>
+                <path refid="run.VectorDoubleTest.subVectorNegativeTest1.bootclasspath"/>
             </bootclasspath>
         </junit>
     </target>
-    <target name="VectorTest.assertVectorEqualsTest3">
+    <target name="VectorDoubleTest.removeTest">
         <mkdir dir="${junit.output.dir}"/>
         <junit fork="yes" printsummary="withOutAndErr">
             <formatter type="xml"/>
-            <test name="smodelkit.test.VectorTest" todir="${junit.output.dir}"/>
-            <classpath refid="run.VectorTest.assertVectorEqualsTest3.classpath"/>
+            <test name="smodelkit.test.VectorDoubleTest" todir="${junit.output.dir}"/>
+            <classpath refid="run.VectorDoubleTest.removeTest.classpath"/>
             <bootclasspath>
-                <path refid="run.VectorTest.assertVectorEqualsTest3.bootclasspath"/>
+                <path refid="run.VectorDoubleTest.removeTest.bootclasspath"/>
+            </bootclasspath>
+        </junit>
+    </target>
+    <target name="SampleTest.samplePermutationsWithoutReplacementTest">
+        <mkdir dir="${junit.output.dir}"/>
+        <junit fork="yes" printsummary="withOutAndErr">
+            <formatter type="xml"/>
+            <test name="smodelkit.test.SampleTest" todir="${junit.output.dir}"/>
+            <classpath refid="run.SampleTest.samplePermutationsWithoutReplacementTest.classpath"/>
+            <bootclasspath>
+                <path refid="run.SampleTest.samplePermutationsWithoutReplacementTest.bootclasspath"/>
             </bootclasspath>
         </junit>
     </target>
@@ -337,23 +405,54 @@
             </bootclasspath>
         </junit>
     </target>
+    <target name="VectorDoubleTest.subVectorDoubleTest">
+        <mkdir dir="${junit.output.dir}"/>
+        <junit fork="yes" printsummary="withOutAndErr">
+            <formatter type="xml"/>
+            <test name="smodelkit.test.VectorDoubleTest" todir="${junit.output.dir}"/>
+            <classpath refid="run.VectorDoubleTest.subVectorDoubleTest.classpath"/>
+            <bootclasspath>
+                <path refid="run.VectorDoubleTest.subVectorDoubleTest.bootclasspath"/>
+            </bootclasspath>
+        </junit>
+    </target>
     <target name="MLSystemsManager">
         <java classname="smodelkit.MLSystemsManager" failonerror="true" fork="yes">
-            <arg line="-L neuralnet model_settings/neuralnet_test.json -A Datasets/mdc/synthetic/continuous_2out_4class.arff -E cross 5 -M top-n 1 2 3"/>
+            <jvmarg line="-Xmx5g"/>
+            <arg line="-L neuralnet_gpu model_settings/neuralnet.json -A Datasets/mcc/CIFAR-10_train.arff -E static Datasets/mcc/CIFAR-10_test.arff --max_rows 1000 --float"/>
             <classpath refid="run.MLSystemsManager.classpath"/>
             <bootclasspath>
                 <path refid="run.MLSystemsManager.bootclasspath"/>
             </bootclasspath>
         </java>
     </target>
-    <target name="VectorTest.assertVectorEqualsTest2">
+    <target name="VectorDoubleTest.assertVectorEqualsTest">
         <mkdir dir="${junit.output.dir}"/>
         <junit fork="yes" printsummary="withOutAndErr">
             <formatter type="xml"/>
-            <test name="smodelkit.test.VectorTest" todir="${junit.output.dir}"/>
-            <classpath refid="run.VectorTest.assertVectorEqualsTest2.classpath"/>
+            <test name="smodelkit.test.VectorDoubleTest" todir="${junit.output.dir}"/>
+            <classpath refid="run.VectorDoubleTest.assertVectorEqualsTest.classpath"/>
             <bootclasspath>
-                <path refid="run.VectorTest.assertVectorEqualsTest2.bootclasspath"/>
+                <path refid="run.VectorDoubleTest.assertVectorEqualsTest.bootclasspath"/>
+            </bootclasspath>
+        </junit>
+    </target>
+    <target name="MetadataPrinter">
+        <java classname="smodelkit.MetadataPrinter" failonerror="true" fork="yes">
+            <classpath refid="run.MetadataPrinter.classpath"/>
+            <bootclasspath>
+                <path refid="run.MetadataPrinter.bootclasspath"/>
+            </bootclasspath>
+        </java>
+    </target>
+    <target name="VectorDoubleTest.assertVectorEqualsTest4">
+        <mkdir dir="${junit.output.dir}"/>
+        <junit fork="yes" printsummary="withOutAndErr">
+            <formatter type="xml"/>
+            <test name="smodelkit.test.VectorDoubleTest" todir="${junit.output.dir}"/>
+            <classpath refid="run.VectorDoubleTest.assertVectorEqualsTest4.classpath"/>
+            <bootclasspath>
+                <path refid="run.VectorDoubleTest.assertVectorEqualsTest4.bootclasspath"/>
             </bootclasspath>
         </junit>
     </target>
@@ -379,6 +478,14 @@
             </bootclasspath>
         </junit>
     </target>
+    <target name="Squares (1)">
+        <java classname="smodelkit.Squares" failonerror="true" fork="yes">
+            <classpath refid="run.Squares (1).classpath"/>
+            <bootclasspath>
+                <path refid="run.Squares (1).bootclasspath"/>
+            </bootclasspath>
+        </java>
+    </target>
     <target name="EvaluatorPluginTest">
         <mkdir dir="${junit.output.dir}"/>
         <junit fork="yes" printsummary="withOutAndErr">
@@ -401,6 +508,17 @@
             </bootclasspath>
         </junit>
     </target>
+    <target name="VectorDoubleTest.addAllTest">
+        <mkdir dir="${junit.output.dir}"/>
+        <junit fork="yes" printsummary="withOutAndErr">
+            <formatter type="xml"/>
+            <test name="smodelkit.test.VectorDoubleTest" todir="${junit.output.dir}"/>
+            <classpath refid="run.VectorDoubleTest.addAllTest.classpath"/>
+            <bootclasspath>
+                <path refid="run.VectorDoubleTest.addAllTest.bootclasspath"/>
+            </bootclasspath>
+        </junit>
+    </target>
     <target name="WekaWrapperTest">
         <mkdir dir="${junit.output.dir}"/>
         <junit fork="yes" printsummary="withOutAndErr">
@@ -412,14 +530,14 @@
             </bootclasspath>
         </junit>
     </target>
-    <target name="VectorTest.removeTest">
+    <target name="MLSystemsManagerTest.randomTestWithFloats">
         <mkdir dir="${junit.output.dir}"/>
         <junit fork="yes" printsummary="withOutAndErr">
             <formatter type="xml"/>
-            <test name="smodelkit.test.VectorTest" todir="${junit.output.dir}"/>
-            <classpath refid="run.VectorTest.removeTest.classpath"/>
+            <test name="smodelkit.test.MLSystemsManagerTest" todir="${junit.output.dir}"/>
+            <classpath refid="run.MLSystemsManagerTest.randomTestWithFloats.classpath"/>
             <bootclasspath>
-                <path refid="run.VectorTest.removeTest.bootclasspath"/>
+                <path refid="run.MLSystemsManagerTest.randomTestWithFloats.bootclasspath"/>
             </bootclasspath>
         </junit>
     </target>
@@ -434,14 +552,14 @@
             </bootclasspath>
         </junit>
     </target>
-    <target name="VectorTest.subVectorTest">
+    <target name="VectorFloatTest">
         <mkdir dir="${junit.output.dir}"/>
         <junit fork="yes" printsummary="withOutAndErr">
             <formatter type="xml"/>
-            <test name="smodelkit.test.VectorTest" todir="${junit.output.dir}"/>
-            <classpath refid="run.VectorTest.subVectorTest.classpath"/>
+            <test name="smodelkit.test.VectorFloatTest" todir="${junit.output.dir}"/>
+            <classpath refid="run.VectorFloatTest.classpath"/>
             <bootclasspath>
-                <path refid="run.VectorTest.subVectorTest.bootclasspath"/>
+                <path refid="run.VectorFloatTest.bootclasspath"/>
             </bootclasspath>
         </junit>
     </target>
@@ -489,14 +607,14 @@
             </bootclasspath>
         </junit>
     </target>
-    <target name="VectorTest.assertVectorEqualsTest">
+    <target name="MLSystemsManagerTest.randomTest">
         <mkdir dir="${junit.output.dir}"/>
         <junit fork="yes" printsummary="withOutAndErr">
             <formatter type="xml"/>
-            <test name="smodelkit.test.VectorTest" todir="${junit.output.dir}"/>
-            <classpath refid="run.VectorTest.assertVectorEqualsTest.classpath"/>
+            <test name="smodelkit.test.MLSystemsManagerTest" todir="${junit.output.dir}"/>
+            <classpath refid="run.MLSystemsManagerTest.randomTest.classpath"/>
             <bootclasspath>
-                <path refid="run.VectorTest.assertVectorEqualsTest.bootclasspath"/>
+                <path refid="run.MLSystemsManagerTest.randomTest.bootclasspath"/>
             </bootclasspath>
         </junit>
     </target>
@@ -528,10 +646,34 @@
             <test name="smodelkit.test.SupervisedLearnerTest" todir="${junit.output.dir}"/>
             <test name="smodelkit.test.TopNHammingTest" todir="${junit.output.dir}"/>
             <test name="smodelkit.test.Tuple2IteratorTest" todir="${junit.output.dir}"/>
-            <test name="smodelkit.test.VectorTest" todir="${junit.output.dir}"/>
+            <test name="smodelkit.test.VectorDoubleTest" todir="${junit.output.dir}"/>
+            <test name="smodelkit.test.VectorFloatTest" todir="${junit.output.dir}"/>
+            <test name="smodelkit.test.WekaWrapperTest" todir="${junit.output.dir}"/>
             <classpath refid="run.smodelkit.test.classpath"/>
             <bootclasspath>
                 <path refid="run.smodelkit.test.bootclasspath"/>
+            </bootclasspath>
+        </junit>
+    </target>
+    <target name="SampleTest.sampleWithoutReplacementTest">
+        <mkdir dir="${junit.output.dir}"/>
+        <junit fork="yes" printsummary="withOutAndErr">
+            <formatter type="xml"/>
+            <test name="smodelkit.test.SampleTest" todir="${junit.output.dir}"/>
+            <classpath refid="run.SampleTest.sampleWithoutReplacementTest.classpath"/>
+            <bootclasspath>
+                <path refid="run.SampleTest.sampleWithoutReplacementTest.bootclasspath"/>
+            </bootclasspath>
+        </junit>
+    </target>
+    <target name="VectorDoubleTest.assertVectorEqualsTest3">
+        <mkdir dir="${junit.output.dir}"/>
+        <junit fork="yes" printsummary="withOutAndErr">
+            <formatter type="xml"/>
+            <test name="smodelkit.test.VectorDoubleTest" todir="${junit.output.dir}"/>
+            <classpath refid="run.VectorDoubleTest.assertVectorEqualsTest3.classpath"/>
+            <bootclasspath>
+                <path refid="run.VectorDoubleTest.assertVectorEqualsTest3.bootclasspath"/>
             </bootclasspath>
         </junit>
     </target>

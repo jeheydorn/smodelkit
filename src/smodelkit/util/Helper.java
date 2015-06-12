@@ -99,6 +99,26 @@ public class Helper
 		return result;
 	}
 
+	public static String printArray(String title, float[] vect)
+	{
+		String result = title + ": ";
+		result += arrayToString(vect);
+		result += "\n";
+		return result;
+	}
+
+	public static String arrayToString(float[] vect)
+	{
+		String result = "";
+		for(int j = 0; j < vect.length; j++)
+		{
+			result += formatDouble(vect[j]);
+			if (j + 1 < vect.length)
+				result += " ";
+		}
+		return result;
+	}
+
 	public static String arrayToString2D(String title, String innerTitle, double[][] vect)
 	{
 		String result = title + ": \n";
@@ -115,10 +135,22 @@ public class Helper
 		for(int i = 0; i < vect.length; i++)
 		{
 			result += arrayToString(vect[i]);
+			result += "\n";
 		}
-		return result + "\n";
+		return result;
 	}
 	
+	public static String arrayToString2D(String title, float[][] vect)
+	{
+		String result = title + ": \n";
+		for(int i = 0; i < vect.length; i++)
+		{
+			result += arrayToString(vect[i]);
+			result += "\n";
+		}
+		return result;
+	}
+
 	public static String printArray(Object[] array, String separator)
 	{
 		StringBuilder builder = new StringBuilder();
