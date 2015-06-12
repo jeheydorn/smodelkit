@@ -12,7 +12,7 @@ import smodelkit.util.Bounds;
  * This node type requires additional logic in NeuralNet, so the error and activation functions here
  * are not enough to tell what the actual error and activation functions are.
  */
-public class SoftmaxNode extends Node
+public class SoftmaxNode extends NeuralNode
 {
 	private static final long serialVersionUID = 1L;
 	

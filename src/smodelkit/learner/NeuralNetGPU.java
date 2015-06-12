@@ -14,7 +14,6 @@ import smodelkit.evaluator.MSE;
 import smodelkit.evaluator.RelativeEntropy;
 import smodelkit.learner.neuralnet.*;
 import smodelkit.learner.neuralnet.aparapi.SigmoidNodeKernelCreator;
-import smodelkit.util.Bounds;
 import smodelkit.util.BoundsFloat;
 import smodelkit.util.Helper;
 import smodelkit.util.Logger;
@@ -30,7 +29,7 @@ import smodelkit.util.Range;
 public class NeuralNetGPU extends SupervisedLearner
 {
 	private static final long serialVersionUID = 1L;
-	final boolean PRINT_EPOCH_TIMES = false;
+	final boolean PRINT_EPOCH_TIMES = true;
 	final int EPOCH_PRINT_FREQUENCY = 1;
 	final boolean SAVE_ERROR_RATES = false;
 	// This is the weights of each layer of the network; the hidden and output layers. The last layer is the output layer.
@@ -38,7 +37,7 @@ public class NeuralNetGPU extends SupervisedLearner
 	// The number of weights (including bias weights) in nodes in each layer.
 	int[] nodeWeightCountsPerLayer;
 	// The number of nodes per layer.
-	int[] nodeCountPerLayer;
+	int[] nodeCountsPerLayer;
 	
 	float improvementThreshold;
 	float validationSetPercent;
@@ -46,7 +45,7 @@ public class NeuralNetGPU extends SupervisedLearner
 	int maxEpochsWithoutImprovement;
 	protected int[] hiddenLayerSizes;
 	float [] hiddenLayerMultiples;
-	Integer maxHiddenLayerSize;
+	int maxHiddenLayerSize;
 	boolean includLabelsInHiddenLayerMultiples;
 	protected float learningRate;
 	/** Used when the learner is training. It works in the domain of the filtered
@@ -170,7 +169,7 @@ public class NeuralNetGPU extends SupervisedLearner
 		this.maxEpochsWithoutImprovement = maxEpochsWithoutImprovement;
 		this.hiddenLayerSizes = hiddenLayerSizes;
 		this.hiddenLayerMultiples = hiddenLayerMultiples;
-		this.maxHiddenLayerSize = maxHiddenLayerSize;
+		this.maxHiddenLayerSize = maxHiddenLayerSize == null ? Integer.MAX_VALUE : this.maxHiddenLayerSize;
 		this.includLabelsInHiddenLayerMultiples = includLabelsInHiddenLayerMultiples;
 		this.increaseContrastOfHiddenLayerOutputs = increaseContrastOfHiddenLayerOutputs;
 		this.epochSize = epochSize;
@@ -229,7 +228,6 @@ public class NeuralNetGPU extends SupervisedLearner
 	{		
 		if (labels.isContinuous(0) && labels.getNumCatagoricalCols().size() == 0)
 		{
-			// TODO Implement a linear unit for this case.
 			throw new UnsupportedOperationException("To support a numeric target, I need to implement a linear node.");
 		}
 		
@@ -285,13 +283,14 @@ public class NeuralNetGPU extends SupervisedLearner
 		else
 			createNetwork(tInputs, tLabels, tLabels.cols());
 
+		initializeWeights();
 
 		if (layers != null)
 		{
 			Logger.println("Network input count: " + nodeWeightCountsPerLayer[0]); // -1 for bias weight.
 			Logger.print("Layer sizes (the output layer is last): ");
 			for (int i = 0; i < layers.length; i++)
-				Logger.print(layers[i].length + " ");
+				Logger.print(nodeCountsPerLayer[i] + " ");
 			Logger.println();
 		}
 		
@@ -314,7 +313,7 @@ public class NeuralNetGPU extends SupervisedLearner
 		int count = 0;
 		int totalCount = 0;
 		int nextInstanceIndex = 0;
-		float timeBefore = System.currentTimeMillis();
+		long timeBefore = System.currentTimeMillis();
 		do
 		{
 			count++;
@@ -328,7 +327,7 @@ public class NeuralNetGPU extends SupervisedLearner
 			
 			if (PRINT_EPOCH_TIMES)
 			{
-				float timeAfter = System.currentTimeMillis();
+				long timeAfter = System.currentTimeMillis();
 				Logger.println("Epoch time: " + (timeAfter - timeBefore)/1000.0 + " seconds");
 				timeBefore = timeAfter;
 			}
@@ -397,6 +396,18 @@ public class NeuralNetGPU extends SupervisedLearner
 		Logger.unindent();
 	}
 
+	private void initializeWeights()
+	{
+		final float standardDeviation = 0.1f;
+		for (int i : new Range(layers.length))
+		{
+			for (int j : new Range(layers[i].length))
+			{
+				layers[i][j] = (float)rand.nextGaussian() * standardDeviation;
+			}
+		}
+	}
+
 	/**
 	 * Copies all weight values from source to dest.
 	 */
@@ -461,7 +472,7 @@ public class NeuralNetGPU extends SupervisedLearner
 		float[][] result = new float[layers.length][];
 		for (int i = 0; i < layers.length; i++)
 		{
-			result[i] = new float[layers[i].length];
+			result[i] = new float[nodeCountsPerLayer[i]];
 		}
 		return result;
 	}
@@ -567,7 +578,7 @@ public class NeuralNetGPU extends SupervisedLearner
 		return Collections.singletonList(Vector.convertToDoubles(weights));
 	}
 	
-	public float dotProductErrorFromHigherLayer(int weightIndex, Node[] higherLayer,
+	public float dotProductErrorFromHigherLayer(int weightIndex, NeuralNode[] higherLayer,
 			float[] higherLayerErrors)
 	{
 		float sum = 0;
@@ -584,40 +595,29 @@ public class NeuralNetGPU extends SupervisedLearner
 	 */
 	void createNetwork(Matrix inputs, int numOutputs, int[] hiddenLayerSizes)
 	{
-		layers = new Node[hiddenLayerSizes.length + 1][];
+		layers = new float[hiddenLayerSizes.length + 1][];
+		nodeWeightCountsPerLayer = new int[hiddenLayerSizes.length + 1];
+		nodeCountsPerLayer = new int[hiddenLayerSizes.length + 1];
 		
-		for(int i = 0; i < layers.length - 1; i++)
+		for(int i : new Range(hiddenLayerSizes.length))
 		{
 			if (hiddenLayerSizes[i] == 0)
 				throw new IllegalArgumentException("A hidden layer cannot have 0 nodes.");
-			layers[i] = new Node[maxHiddenLayerSize == null ?  hiddenLayerSizes[i] 
-					: Math.min(maxHiddenLayerSize, hiddenLayerSizes[i])];
 			
 			// Each node has 1 input from every node in the layer closer
 			// to the inputs, except those receiving the features as inputs.
 			int numInputs = i == 0 ? inputs.cols() : layers[i-1].length;
-
-			for(int j = 0; j < layers[i].length; j++)
-			{
-				if (hiddenLayerNodeType.equals("sigmoid"))
-					layers[i][j] = new SigmoidNode(rand, numInputs, momentum); // TODO Change back to SigmoidNode.
-				else if (hiddenLayerNodeType.equals("softsign"))
-					layers[i][j] = new SoftsignNode(rand, numInputs, momentum);
-				else
-					throw new IllegalArgumentException();
-			}
+			
+			nodeCountsPerLayer[i] = Math.min(maxHiddenLayerSize, hiddenLayerSizes[i]);
+			nodeWeightCountsPerLayer[i] = numInputs + 1;
+			layers[i] = new float[nodeWeightCountsPerLayer[i] * nodeCountsPerLayer[i]];
 		}
 		
-		// Create the output layer. It has 1 node per output.
-		layers[layers.length -1] = new Node[numOutputs];
-		for (int n = 0; n < layers[layers.length - 1].length; n++)
-		{
-			int numOutputLayerIntputs = layers.length > 1 ? layers[layers.length-2].length : inputs.cols();
-			if (softmax)
-				layers[layers.length - 1][n] = new SoftmaxNode(rand, numOutputLayerIntputs, momentum);
-			else
-				layers[layers.length - 1][n] = new SigmoidNode(rand, numOutputLayerIntputs, momentum); 
-		}
+		// The output layer has 1 node per output.
+		int numOutputLayerInputs = layers.length > 1 ? nodeCountsPerLayer[layers.length-2] : inputs.cols();
+		nodeWeightCountsPerLayer[layers.length - 1] = numOutputLayerInputs + 1;
+		layers[layers.length - 1] = new float[nodeWeightCountsPerLayer[layers.length - 1] * numOutputs];
+		nodeCountsPerLayer[layers.length - 1] = numOutputs;
 	}
 	
 	/**

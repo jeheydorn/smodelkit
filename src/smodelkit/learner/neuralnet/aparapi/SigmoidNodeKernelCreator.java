@@ -1,6 +1,6 @@
 package smodelkit.learner.neuralnet.aparapi;
 
-import smodelkit.learner.neuralnet.Node;
+import smodelkit.learner.neuralnet.NeuralNode;
 import smodelkit.util.Bounds;
 import smodelkit.util.BoundsFloat;
 

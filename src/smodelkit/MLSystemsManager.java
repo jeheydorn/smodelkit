@@ -47,6 +47,7 @@ import smodelkit.learner.KNN;
 import smodelkit.learner.MaxWeightEnsemble;
 import smodelkit.learner.MonolithicTransformation;
 import smodelkit.learner.NeuralNet;
+import smodelkit.learner.NeuralNetGPU;
 import smodelkit.learner.OneClassWrapper;
 import smodelkit.learner.RankedCC;
 import smodelkit.learner.SupervisedLearner;
@@ -106,6 +107,8 @@ public class MLSystemsManager
 		
 		if (parser.maxThreads != null)
 			ThreadCounter.setMaxThreads(parser.maxThreads);
+		
+		Matrix.useDouble = !parser.useFloats;
 				
 		Random rand = null;
 		if (parser.seedStr == null || parser.seedStr.equals(""))
@@ -824,6 +827,10 @@ public class MLSystemsManager
 		if (learnerName.equals("neuralnet"))
 		{
 			learnerName = NeuralNet.class.getCanonicalName();
+		}
+		else if (learnerName.equals("neuralnet_gpu"))
+		{
+			learnerName = NeuralNetGPU.class.getCanonicalName();
 		}
 		else if (learnerName.equals("rankedcc"))
 		{

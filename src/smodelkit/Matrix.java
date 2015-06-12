@@ -29,6 +29,11 @@ import smodelkit.util.Tuple2Comp;
 public class Matrix implements Serializable, Iterable<Vector>
 {
 	private static final long serialVersionUID = 1L;
+	
+	/**
+	 * Determines if Vectors are created using doubles (true) or floats (false).
+	 */
+	public static boolean useDouble = true;
 
 	String relationName;
 	

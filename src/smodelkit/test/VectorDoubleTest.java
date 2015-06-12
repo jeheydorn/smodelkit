@@ -10,7 +10,7 @@ import smodelkit.Vector;
 import smodelkit.VectorDouble;
 import smodelkit.util.Range;
 
-public class VectorTest
+public class VectorDoubleTest
 {
 
 	@Test

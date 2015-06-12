@@ -1,12 +1,8 @@
 package smodelkit;
 
-import static org.junit.Assert.*;
-
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.stream.DoubleStream;
-
-import com.sun.org.apache.bcel.internal.generic.INSTANCEOF;
 
 import smodelkit.util.Range;
 
@@ -276,12 +272,7 @@ public class VectorDouble implements Serializable, Comparable<Vector>, Vector
 		return sizeComp;
 		
 	}
-	
-	public DoubleStream stream()
-	{
-		return Arrays.stream(values, from, to);
-	}
-	
+		
 	@Override
 	public String toString()
 	{
@@ -291,7 +282,7 @@ public class VectorDouble implements Serializable, Comparable<Vector>, Vector
 		}
 		else
 		{
-			return "values: " + valuesToString() + ", weight: " + weight;
+			return "VectorDouble: values: " + valuesToString() + ", weight: " + weight;
 		}
 	}
 	

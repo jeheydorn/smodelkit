@@ -49,7 +49,7 @@ public class MeanModeUnknownFiller extends Filter
 					+ ", but was " + before.size());
 		
 		// If before has no unknown values, return it to save memory.
-		if (!before.stream().anyMatch(d -> Vector.isUnknown(d)))
+		if (!containsUnknownValues(before))
 			return before;
 		
 		double[] after = new double[before.size()];
@@ -61,6 +61,16 @@ public class MeanModeUnknownFiller extends Filter
 				after[i] = before.get(i);
 		}
 		return Vector.create(after, before.getWeight());
+	}
+	
+	private boolean containsUnknownValues(Vector vec)
+	{
+		for (int i : new Range(vec.size()))
+		{
+			if (Vector.isUnknown(vec.get(i)))
+				return true;
+		}
+		return false;
 	}
 
 	@Override

@@ -33,7 +33,7 @@ public class NeuralNet extends SupervisedLearner
 	final int EPOCH_PRINT_FREQUENCY = 1;
 	final boolean SAVE_ERROR_RATES = false;
 	// This is the layers of the network; the hidden and output layers. The last layer is the output layer.
-	protected Node[][] layers;
+	protected NeuralNode[][] layers;
 	protected double momentum;
 	double improvementThreshold;
 	double validationSetPercent;
@@ -298,7 +298,7 @@ public class NeuralNet extends SupervisedLearner
 //		printWeights();
 
 		// A copy of the network layers from the time they did best on a validation set.
-		Node[][] savedLayers = (Node[][]) Helper.deepCopy(layers);
+		NeuralNode[][] savedLayers = (NeuralNode[][]) Helper.deepCopy(layers);
 		int epochOfSavedWeights = 0;
 
 		double evaluation = 0;
@@ -397,7 +397,7 @@ public class NeuralNet extends SupervisedLearner
 	/**
 	 * Copies all weight values from source to dest.
 	 */
-	private void copyWeights(Node[][] dest, Node[][] source)
+	private void copyWeights(NeuralNode[][] dest, NeuralNode[][] source)
 	{
 		for (int i = 0; i < source.length; i++)
 			for (int j = 0; j < source[i].length; j++)
@@ -566,7 +566,7 @@ public class NeuralNet extends SupervisedLearner
 		return Collections.singletonList(weights);
 	}
 	
-	public double dotProductErrorFromHigherLayer(int weightIndex, Node[] higherLayer,
+	public double dotProductErrorFromHigherLayer(int weightIndex, NeuralNode[] higherLayer,
 			double[] higherLayerErrors)
 	{
 		double sum = 0;
@@ -599,13 +599,13 @@ public class NeuralNet extends SupervisedLearner
 	 */
 	void createNetwork(Matrix inputs, int numOutputs, int[] hiddenLayerSizes)
 	{
-		layers = new Node[hiddenLayerSizes.length + 1][];
+		layers = new NeuralNode[hiddenLayerSizes.length + 1][];
 		
 		for(int i = 0; i < layers.length - 1; i++)
 		{
 			if (hiddenLayerSizes[i] == 0)
 				throw new IllegalArgumentException("A hidden layer cannot have 0 nodes.");
-			layers[i] = new Node[maxHiddenLayerSize == null ?  hiddenLayerSizes[i] 
+			layers[i] = new NeuralNode[maxHiddenLayerSize == null ?  hiddenLayerSizes[i] 
 					: Math.min(maxHiddenLayerSize, hiddenLayerSizes[i])];
 			
 			// Each node has 1 input from every node in the layer closer
@@ -624,14 +624,14 @@ public class NeuralNet extends SupervisedLearner
 		}
 		
 		// Create the output layer. It has 1 node per output.
-		layers[layers.length -1] = new Node[numOutputs];
+		layers[layers.length -1] = new NeuralNode[numOutputs];
 		for (int n = 0; n < layers[layers.length - 1].length; n++)
 		{
-			int numOutputLayerIntputs = layers.length > 1 ? layers[layers.length-2].length : inputs.cols();
+			int numOutputLayerInputs = layers.length > 1 ? layers[layers.length-2].length : inputs.cols();
 			if (softmax)
-				layers[layers.length - 1][n] = new SoftmaxNode(rand, numOutputLayerIntputs, momentum);
+				layers[layers.length - 1][n] = new SoftmaxNode(rand, numOutputLayerInputs, momentum);
 			else
-				layers[layers.length - 1][n] = new SigmoidNode(rand, numOutputLayerIntputs, momentum); 
+				layers[layers.length - 1][n] = new SigmoidNode(rand, numOutputLayerInputs, momentum); 
 		}
 	}
 	

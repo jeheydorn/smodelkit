@@ -24,8 +24,7 @@ public class MLSystemsManagerTest
 	public void randomTest() throws ClassNotFoundException, IOException, InterruptedException, ExecutionException 
 	{
 		Evaluation evaluation = new MLSystemsManager().run("-L neuralnet model_settings/neuralnet_test.json -A Datasets/mcc/iris.arff -E random 0.1 -M top-n 1 -R 0".split(" "), null);
-		assertEquals(0.9333333333333333, evaluation.getScores(TopN.class).get(0), 0.000000001);
-		
+		assertEquals(0.9333333333333333, evaluation.getScores(TopN.class).get(0), 0.000000001);	
 	}
 
 	@Test
@@ -33,7 +32,6 @@ public class MLSystemsManagerTest
 	{
 		Evaluation evaluation = new MLSystemsManager().run("-L neuralnet model_settings/neuralnet_test.json -A Datasets/mcc/iris.arff -E training -M top-n 1 -R 0".split(" "), null);
 		assertEquals(0.98, evaluation.getScores(TopN.class).get(0), 0.000000001);
-		
 	}
 
 	@Test
@@ -60,6 +58,13 @@ public class MLSystemsManagerTest
 		// Make sure cross validation is deterministic when it is run on multiple threads.
 		Evaluation evaluation2 = new MLSystemsManager().run("-L neuralnet model_settings/neuralnet_test.json -A Datasets/mcc/iris.arff -E cross 10 1 --threads 8 -M top-n 1 -R 0".split(" "), null);
 		assertEquals(0.97333, evaluation2.getScores(TopN.class).get(0), 0.00001);
+	}
+	
+	@Test
+	public void randomTestWithFloats() throws ClassNotFoundException, IOException, InterruptedException, ExecutionException 
+	{
+		Evaluation evaluation = new MLSystemsManager().run("-L neuralnet model_settings/neuralnet_test.json -A Datasets/mcc/iris.arff -E random 0.1 -M top-n 1 -R 0 --float".split(" "), null);
+		assertEquals(0.9333333333333333, evaluation.getScores(TopN.class).get(0), 0.000000001);	
 	}
 	
 	@Test

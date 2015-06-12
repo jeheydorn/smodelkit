@@ -11,7 +11,7 @@ import smodelkit.util.Bounds;
  * @author joseph
  *
  */
-public class EntropyLogisticNode extends Node
+public class EntropyLogisticNode extends NeuralNode
 {
 	private static final long serialVersionUID = 1L;
 	

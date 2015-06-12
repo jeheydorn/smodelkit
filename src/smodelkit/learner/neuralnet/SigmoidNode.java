@@ -7,7 +7,7 @@ import smodelkit.Vector;
 import smodelkit.util.Bounds;
 
 
-public class SigmoidNode extends Node
+public class SigmoidNode extends NeuralNode
 {
 	private static final long serialVersionUID = 1L;
 	

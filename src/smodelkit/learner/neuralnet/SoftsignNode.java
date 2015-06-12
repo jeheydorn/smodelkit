@@ -4,7 +4,7 @@ import java.util.Random;
 import smodelkit.util.Bounds;
 
 
-public class SoftsignNode extends Node
+public class SoftsignNode extends NeuralNode
 {
 	private static final long serialVersionUID = 1L;
 	

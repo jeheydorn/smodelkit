@@ -284,7 +284,7 @@ public class VectorFloat implements Serializable, Comparable<Vector>, Vector
 		}
 		else
 		{
-			return "values: " + valuesToString() + ", weight: " + weight;
+			return "VectorFloat: values: " + valuesToString() + ", weight: " + weight;
 		}
 	}
 	
@@ -350,11 +350,5 @@ public class VectorFloat implements Serializable, Comparable<Vector>, Vector
 	public int getTo()
 	{
 		return to;
-	}
-	@Override
-	public DoubleStream stream()
-	{
-		throw new UnsupportedOperationException();
-	}
-	
+	}	
 }

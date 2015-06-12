@@ -92,6 +92,10 @@ class ArgParser
     		+ " test data specified with -E.")
     boolean includeTrainingDataEvaluations;
     
+    @Parameter(names = {"--float"}, description = "Causes all vectors to be loaded using floats instead of doubles. This will save"
+    		+ " some memory but will slow down a learner unless it is written to use floats.")
+    boolean useFloats = false;
+    
 
     
 	public static ArgParser parse(String[] args)

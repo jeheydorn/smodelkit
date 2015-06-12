@@ -18,14 +18,13 @@ import smodelkit.util.Range;
  */
 public interface Vector extends Serializable, Comparable<Vector>
 {
-	public static boolean useDouble = true;
 	/**
 	 * Creates a new vector with instance weight 1.
 	 * @param values The values to be stored within the vector.
 	 */
 	public static Vector create(double... values)
 	{
-		if (useDouble)
+		if (Matrix.useDouble)
 			return new VectorDouble(values);
 		else
 			return new VectorFloat(convertToFloats(values));
@@ -37,7 +36,7 @@ public interface Vector extends Serializable, Comparable<Vector>
 	 */
 	public static Vector create(float... values)
 	{
-		if (useDouble)
+		if (Matrix.useDouble)
 			return new VectorDouble(convertToDoubles(values));
 		else
 			return new VectorFloat(values);
@@ -45,7 +44,7 @@ public interface Vector extends Serializable, Comparable<Vector>
 	
 	public static Vector create(double[] values, double weight)
 	{
-		if (useDouble)
+		if (Matrix.useDouble)
 			return new VectorDouble(values, weight);
 		else
 			return new VectorFloat(convertToFloats(values), (float)weight);		
@@ -54,7 +53,7 @@ public interface Vector extends Serializable, Comparable<Vector>
 
 	public static Vector create(float[] values, float weight)
 	{
-		if (useDouble)
+		if (Matrix.useDouble)
 			return new VectorDouble(convertToDoubles(values), (float)weight);
 		else
 			return new VectorFloat(values, weight);	
@@ -63,7 +62,7 @@ public interface Vector extends Serializable, Comparable<Vector>
 
 	public static Vector create(double[] values, double weight, int from, int to)
 	{
-		if (useDouble)
+		if (Matrix.useDouble)
 			return new VectorDouble(values, weight, from, to);
 		else
 			return new VectorFloat(convertToFloats(values), (float)weight, from, to);		
@@ -71,7 +70,7 @@ public interface Vector extends Serializable, Comparable<Vector>
 
 	public static Vector create(float[] values, float weight, int from, int to)
 	{
-		if (useDouble)
+		if (Matrix.useDouble)
 			return new VectorDouble(convertToDoubles(values), weight, from, to);
 		else
 			return new VectorFloat(values, weight, from, to);		
@@ -82,7 +81,7 @@ public interface Vector extends Serializable, Comparable<Vector>
 	 */
 	public static Vector create(Vector other)
 	{
-		if (useDouble)
+		if (Matrix.useDouble)
 			return new VectorDouble((VectorDouble) other);
 		else
 			return new VectorFloat((VectorFloat)other);
@@ -93,7 +92,7 @@ public interface Vector extends Serializable, Comparable<Vector>
 	 */
 	public static Vector create(Vector other, double weight)
 	{
-		if (useDouble)
+		if (Matrix.useDouble)
 			return new VectorDouble((VectorDouble)other, weight);
 		else
 			return new VectorFloat((VectorFloat)other, (float)weight);					
@@ -104,7 +103,7 @@ public interface Vector extends Serializable, Comparable<Vector>
 	 */
 	public static Vector create(Vector other, float weight)
 	{
-		if (useDouble)
+		if (Matrix.useDouble)
 			return new VectorDouble((VectorDouble)other, weight);
 		else
 			return new VectorFloat((VectorFloat)other, weight);					
@@ -201,9 +200,7 @@ public interface Vector extends Serializable, Comparable<Vector>
 	 */
 	@Override
 	public boolean equals(Object other);
-		
-	public DoubleStream stream();	
-	
+			
 	int getFrom();
 	
 	int getTo();

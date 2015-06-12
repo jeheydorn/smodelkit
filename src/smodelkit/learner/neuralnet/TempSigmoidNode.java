@@ -4,7 +4,7 @@ import java.util.Random;
 import smodelkit.util.Bounds;
 
 
-public class TempSigmoidNode extends Node
+public class TempSigmoidNode extends NeuralNode
 {
 	private static final long serialVersionUID = 1L;
 	

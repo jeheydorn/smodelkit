@@ -14,12 +14,12 @@ import smodelkit.util.Bounds;
  *
  */
 @SuppressWarnings("serial")
-public abstract class Node implements Serializable
+public abstract class NeuralNode implements Serializable
 {
 	private double[] weights;
 	protected double momentum;
 	
-	public Node(Random r, int numInputs, double momentum)
+	public NeuralNode(Random r, int numInputs, double momentum)
 	{
 		this.momentum = momentum;
 		
