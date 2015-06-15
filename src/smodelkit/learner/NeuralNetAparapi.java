@@ -14,7 +14,7 @@ import smodelkit.evaluator.Evaluator;
 import smodelkit.evaluator.MSE;
 import smodelkit.evaluator.RelativeEntropy;
 import smodelkit.learner.neuralnet.*;
-import smodelkit.learner.neuralnet.aparapi.SigmoidNodeKernelCreator;
+import smodelkit.learner.neuralnet.cl.SigmoidNodeKernelCreator;
 import smodelkit.util.BoundsFloat;
 import smodelkit.util.Helper;
 import smodelkit.util.Logger;
@@ -27,7 +27,7 @@ import smodelkit.util.Range;
  * @author joseph
  *
  */
-public class NeuralNetGPU extends SupervisedLearner
+public class NeuralNetAparapi extends SupervisedLearner
 {
 	private static final long serialVersionUID = 1L;
 	final boolean PRINT_EPOCH_TIMES = true;
@@ -65,7 +65,7 @@ public class NeuralNetGPU extends SupervisedLearner
 	long freq = Long.MAX_VALUE;
 	
 	
-	public NeuralNetGPU()
+	public NeuralNetAparapi()
 	{
 		
 	}
@@ -630,7 +630,7 @@ public class NeuralNetGPU extends SupervisedLearner
 			
 			// Each node has 1 input from every node in the layer closer
 			// to the inputs, except those receiving the features as inputs.
-			int numInputs = i == 0 ? inputs.cols() : layers[i-1].length;
+			int numInputs = i == 0 ? inputs.cols() : nodeCountsPerLayer[i-1];
 			
 			nodeCountsPerLayer[i] = Math.min(maxHiddenLayerSize, hiddenLayerSizes[i]);
 			nodeWeightCountsPerLayer[i] = numInputs + 1;

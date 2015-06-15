@@ -13,7 +13,7 @@
 	"increaseContrastOfHiddenLayerOutputs": false,
 	"normalizePredictions": false,
 		
-	"maxEpochs" : 500,
+	"maxEpochs" : 10,
 	"maxEpochsWithoutImprovement": null,
 	"improvementThreshold": 0.00000,
 	"epochSize": null,

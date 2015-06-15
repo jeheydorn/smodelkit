@@ -1,4 +1,4 @@
-package smodelkit.learner.neuralnet.aparapi;
+package smodelkit.learner.neuralnet.cl;
 
 import smodelkit.util.BoundsFloat;
 

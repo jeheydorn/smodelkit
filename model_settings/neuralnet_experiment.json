@@ -16,6 +16,6 @@
 	"maxEpochs" : 50,
 	"maxEpochsWithoutImprovement": null,
 	"improvementThreshold": 0.00000,
-	"epochSize": 100,
+	"epochSize": 10,
 	"minEpochSize": null
 }

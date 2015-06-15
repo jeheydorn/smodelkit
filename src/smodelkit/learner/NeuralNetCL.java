@@ -1,20 +1,40 @@
 package smodelkit.learner;
+import static java.lang.Math.cos;
+import static java.lang.Math.sin;
+import static org.bridj.Pointer.allocateFloats;
+
+import java.io.IOException;
+import java.nio.ByteOrder;
+import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import org.bridj.Pointer;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 import com.amd.aparapi.Kernel;
+import com.nativelibs4java.opencl.CLBuffer;
+import com.nativelibs4java.opencl.CLContext;
+import com.nativelibs4java.opencl.CLDevice;
+import com.nativelibs4java.opencl.CLEvent;
+import com.nativelibs4java.opencl.CLKernel;
+import com.nativelibs4java.opencl.CLPlatform;
+import com.nativelibs4java.opencl.CLProgram;
+import com.nativelibs4java.opencl.CLQueue;
+import com.nativelibs4java.opencl.JavaCL;
+import com.nativelibs4java.opencl.CLMem.Usage;
+import com.nativelibs4java.util.IOUtils;
 
 import smodelkit.Matrix;
 import smodelkit.Vector;
-import smodelkit.VectorDouble;
 import smodelkit.evaluator.Evaluator;
 import smodelkit.evaluator.MSE;
 import smodelkit.evaluator.RelativeEntropy;
 import smodelkit.learner.neuralnet.*;
-import smodelkit.util.Bounds;
+import smodelkit.learner.neuralnet.cl.SigmoidNodeKernelCreator;
+import smodelkit.util.BoundsFloat;
 import smodelkit.util.Helper;
 import smodelkit.util.Logger;
 import smodelkit.util.Plotter;
@@ -26,24 +46,28 @@ import smodelkit.util.Range;
  * @author joseph
  *
  */
-public class NeuralNet extends SupervisedLearner
+public class NeuralNetCL extends SupervisedLearner
 {
 	private static final long serialVersionUID = 1L;
 	final boolean PRINT_EPOCH_TIMES = true;
 	final int EPOCH_PRINT_FREQUENCY = 1;
 	final boolean SAVE_ERROR_RATES = false;
-	// This is the layers of the network; the hidden and output layers. The last layer is the output layer.
-	protected NeuralNode[][] layers;
-	protected double momentum;
-	double improvementThreshold;
-	double validationSetPercent;
+	// This is the weights of each layer of the network; the hidden and output layers. The last layer is the output layer.
+	float[] layers;
+	// The number of weights (including bias weights) in nodes in each layer.
+	int[] nodeWeightCountsPerLayer;
+	// The number of nodes per layer.
+	int[] nodeCountsPerLayer;
+	
+	float improvementThreshold;
+	float validationSetPercent;
 	int maxEpochs;
 	int maxEpochsWithoutImprovement;
 	protected int[] hiddenLayerSizes;
-	double [] hiddenLayerMultiples;
-	Integer maxHiddenLayerSize;
+	float [] hiddenLayerMultiples;
+	int maxHiddenLayerSize;
 	boolean includLabelsInHiddenLayerMultiples;
-	protected double learningRate;
+	protected float learningRate;
 	/** Used when the learner is training. It works in the domain of the filtered
 	 * inputs and labels.
 	 */
@@ -54,12 +78,13 @@ public class NeuralNet extends SupervisedLearner
 	private boolean normalizePredictions;
 	private boolean softmax;
 	private String hiddenLayerNodeType;
+	SigmoidNodeKernelCreator kernelCreator;
 	// TODO remove
 	int plotCount = 0;
 	long freq = Long.MAX_VALUE;
 	
 	
-	public NeuralNet()
+	public NeuralNetCL()
 	{
 		
 	}
@@ -71,16 +96,18 @@ public class NeuralNet extends SupervisedLearner
 		checkNullableArgumentIsPresent(settings, "hiddenLayerSizes");
 		if (settings.get("hiddenLayerSizes") != null)
 				hiddenLayerSizes = Helper.JSONArrayToIntArray((JSONArray)settings.get("hiddenLayerSizes"));
-		double[] hiddenLayerMultiples = null;
+		float[] hiddenLayerMultiples = null;
 		checkNullableArgumentIsPresent(settings, "hiddenLayerMultiples");
 		if (settings.get("hiddenLayerMultiples") != null)
-			hiddenLayerMultiples = Helper.JSONArrayToDoubleArray((JSONArray)settings.get("hiddenLayerMultiples"));
+			hiddenLayerMultiples = Vector.convertToFloats(Helper.JSONArrayToDoubleArray((JSONArray)settings.get("hiddenLayerMultiples")));
 		Long maxHiddenLayerSizeLong = (Long)settings.get("maxHiddenLayerSize");
 		Integer maxHiddenLayerSize = maxHiddenLayerSizeLong != null ? maxHiddenLayerSizeLong.intValue() : null;
-		double validationSetPercent = (Double)settings.get("validationSetPercent");
-		double learningRate = (Double)settings.get("learningRate");
-		double momentum = (Double)settings.get("momentum");
-		double improvementThreshold = (Double)settings.get("improvementThreshold");
+		float validationSetPercent = (Float)(float)(double)settings.get("validationSetPercent");
+		float learningRate = (Float)(float)(double)settings.get("learningRate");
+		float improvementThreshold = (Float)(float)(double)settings.get("improvementThreshold");
+		
+		if (settings.containsKey("momentum") && (Double)settings.get("momentum") != 0.0)
+			throw new IllegalArgumentException("Momentum is not implemented in " + this.getClass().getSimpleName() + ".");
 		
 		checkNullableArgumentIsPresent(settings, "maxEpochs");
 		int maxEpochs = Integer.MAX_VALUE;
@@ -111,11 +138,10 @@ public class NeuralNet extends SupervisedLearner
 		String hiddenLayerNodeType = (String)settings.get("hiddenLayerNodeType");
 		
 		configure(learningRate, hiddenLayerSizes, hiddenLayerMultiples, maxHiddenLayerSize, 
-				momentum, validationSetPercent,
+				validationSetPercent,
 				improvementThreshold, maxEpochs, maxEpochsWithoutImprovement, includLabelsInHiddenLayerMultiples,
 				increaseContrastOfHiddenLayerOutputs, epochSize, minEpochSize, 
 				normalizePredictions, outputLayerNodeType, hiddenLayerNodeType);
-
 	}
 		
 	/**
@@ -148,23 +174,22 @@ public class NeuralNet extends SupervisedLearner
 	 * for the stopping criteria.
 	 * @param hiddenLayerNodeType The type of node to use in the hidden layers. Values are "sigmoid" and "softsign".
 	 */
-	public void configure(double learningRate, int[] hiddenLayerSizes, 
-			double[] hiddenLayerMultiples,
-			Integer maxHiddenLayerSize, double momentum, 
-			double validationSetPercent, double improvementThreshold, int maxEpochs, 
+	public void configure(float learningRate, int[] hiddenLayerSizes, 
+			float[] hiddenLayerMultiples,
+			Integer maxHiddenLayerSize, 
+			float validationSetPercent, float improvementThreshold, int maxEpochs, 
 			int maxEpochsWithoutImprovement, boolean includLabelsInHiddenLayerMultiples,
 			boolean increaseContrastOfHiddenLayerOutputs, Integer epochSize, Integer minEpochSize,
 			boolean normalizePredictions, String outputLayerNodeType, String hiddenLayerNodeType)
 	{
 		this.learningRate = learningRate;
-		this.momentum = momentum;
 		this.validationSetPercent = validationSetPercent;
 		this.improvementThreshold = improvementThreshold;
 		this.maxEpochs = maxEpochs;
 		this.maxEpochsWithoutImprovement = maxEpochsWithoutImprovement;
 		this.hiddenLayerSizes = hiddenLayerSizes;
 		this.hiddenLayerMultiples = hiddenLayerMultiples;
-		this.maxHiddenLayerSize = maxHiddenLayerSize;
+		this.maxHiddenLayerSize = maxHiddenLayerSize == null ? Integer.MAX_VALUE : this.maxHiddenLayerSize;
 		this.includLabelsInHiddenLayerMultiples = includLabelsInHiddenLayerMultiples;
 		this.increaseContrastOfHiddenLayerOutputs = increaseContrastOfHiddenLayerOutputs;
 		this.epochSize = epochSize;
@@ -185,6 +210,8 @@ public class NeuralNet extends SupervisedLearner
 		}
 		
 		this.hiddenLayerNodeType = hiddenLayerNodeType;
+		
+		kernelCreator = new SigmoidNodeKernelCreator(); // TODO Make this a parameter.
 		
 		setupTrainingEvaluator();
 		varifyArgs();
@@ -218,13 +245,9 @@ public class NeuralNet extends SupervisedLearner
 	}
 	
 	public void innerTrain(Matrix inputs, Matrix labels)
-	{
-//		System.out.println(Helper.printMatrix("inputs in NeuralNet", inputs));
-//		System.out.println(Helper.printMatrix("labels in NeuralNet", labels));
-		
+	{		
 		if (labels.isContinuous(0) && labels.getNumCatagoricalCols().size() == 0)
 		{
-			// TODO Implement a linear unit for this case.
 			throw new UnsupportedOperationException("To support a numeric target, I need to implement a linear node.");
 		}
 		
@@ -235,7 +258,6 @@ public class NeuralNet extends SupervisedLearner
 		Logger.println("improvementThreshold: " + improvementThreshold);
 		Logger.println("epochSize: " + epochSize);
 		Logger.println("learning rate: " + learningRate);
-		Logger.println("momentum: " + momentum);
 		Logger.println("validation set %: " + validationSetPercent);
 		Logger.println("increasContrastOfHiddenLayerInputs: " + increaseContrastOfHiddenLayerOutputs);
 		
@@ -281,13 +303,14 @@ public class NeuralNet extends SupervisedLearner
 		else
 			createNetwork(tInputs, tLabels, tLabels.cols());
 
+		initializeWeights();
 
 		if (layers != null)
 		{
-			Logger.println("Network input count: " + (layers[0][0].getWeights().length - 1)); // -1 for bias weight.
+			Logger.println("Network input count: " + nodeWeightCountsPerLayer[0]); // -1 for bias weight.
 			Logger.print("Layer sizes (the output layer is last): ");
-			for (int i = 0; i < layers.length; i++)
-				Logger.print(layers[i].length + " ");
+			for (int i = 0; i < nodeCountsPerLayer.length; i++)
+				Logger.print(nodeCountsPerLayer[i] + " ");
 			Logger.println();
 		}
 		
@@ -298,40 +321,37 @@ public class NeuralNet extends SupervisedLearner
 //		printWeights();
 
 		// A copy of the network layers from the time they did best on a validation set.
-		NeuralNode[][] savedLayers = (NeuralNode[][]) Helper.deepCopy(layers);
+		float[] savedLayers = (float[]) Helper.deepCopy(layers);
 		int epochOfSavedWeights = 0;
 
-		double evaluation = 0;
-		double lastEvaluation = 0;
+		float evaluation = 0;
+		float lastEvaluation = 0;
 		if (tLabels.isContinuous(0))
 		{
-			lastEvaluation = Double.MAX_VALUE;
+			lastEvaluation = Float.MAX_VALUE;
 		}
 		int count = 0;
 		int totalCount = 0;
 		int nextInstanceIndex = 0;
-		double timeBefore = System.currentTimeMillis();
+		long timeBefore = System.currentTimeMillis();
 		do
 		{
 			count++;
 			totalCount++;
-
-//			if (totalCount % EPOCH_PRINT_FREQUENCY == 0)
-//				Logger.println("Epoch number: " + totalCount);
 
 			doEpoch(tInputs, tLabels, nextInstanceIndex);
 			nextInstanceIndex = (nextInstanceIndex + epochSize) % tInputs.rows();
 			
 			if (PRINT_EPOCH_TIMES)
 			{
-				double timeAfter = System.currentTimeMillis();
+				long timeAfter = System.currentTimeMillis();
 				Logger.println("Epoch time: " + (timeAfter - timeBefore)/1000.0 + " seconds");
 				timeBefore = timeAfter;
 			}
 
 			if (vInputs.rows() > 0)
 			{
-				evaluation = Evaluator.runEvaluators(vInputs, vLabels, this, false, 
+				evaluation = (float)(double)Evaluator.runEvaluators(vInputs, vLabels, this, false, 
 						Collections.singletonList(trainEvaluator))
 						.getScores(trainEvaluator.getClass()).get(0);
 				
@@ -340,10 +360,9 @@ public class NeuralNet extends SupervisedLearner
 					Plotter.addDatumForLinePlot(trainEvaluator.getClass().getSimpleName(),
 							evaluation, "Epoch", trainEvaluator.getClass().getSimpleName());
 					
-					//Plotter.generateAllPlots(); // TODO Remove.
 				}
 							
-				double improvement = trainEvaluator.higherScoresAreBetter() ? 
+				float improvement = trainEvaluator.higherScoresAreBetter() ? 
 						evaluation - lastEvaluation : lastEvaluation - evaluation;
 				
 				if(improvement > improvementThreshold)
@@ -394,128 +413,243 @@ public class NeuralNet extends SupervisedLearner
 		Logger.unindent();
 	}
 
+	private void initializeWeights()
+	{
+		final float standardDeviation = 0.1f;
+		for (int i : new Range(layers.length))
+		{
+			layers[i] = (float)rand.nextGaussian() * standardDeviation;
+		}
+	}
+	
+	private void setWeight(int layerIndex, int nodeNumber, int weightNumber, float value)
+	{
+		int layerStart = new Range(layerIndex).stream().mapToInt(prevLayer -> nodeCountsPerLayer[prevLayer]).sum();
+		
+		layers[layerStart + nodeNumber * nodeWeightCountsPerLayer[layerIndex] + weightNumber] = value;
+	}
+
 	/**
 	 * Copies all weight values from source to dest.
 	 */
-	private void copyWeights(NeuralNode[][] dest, NeuralNode[][] source)
+	private void copyWeights(float[] dest, float[] source)
 	{
+		assert dest.length == source.length;
 		for (int i = 0; i < source.length; i++)
-			for (int j = 0; j < source[i].length; j++)
 			{
-				for (int w = 0; w < source[i][j].getWeights().length; w++)
-				dest[i][j].getWeights()[w] = source[i][j].getWeights()[w];
+				dest[i] = source[i];
 			}
 	}
 
 	protected void doEpoch(Matrix inputs, Matrix labels, int nextIndex)
-	{			
-		for (int instanceRow : new Range(nextIndex, nextIndex + epochSize))
+	{	
+//		JavaCL.createBestContext(CLPlatform.DeviceFeature.CPU);
+		JavaCL.createBestContext();
+		CLContext context = JavaCL.createBestContext();
+        CLQueue queue = context.createDefaultQueue();
+        ByteOrder byteOrder = context.getByteOrder();
+
+        // Convert the inputs to the format required for javacl.
+        float[][] inputsArray = new float[epochSize][inputs.cols()];
+   		for (int instanceRow = nextIndex; instanceRow < nextIndex + epochSize; instanceRow++)
 		{
 			instanceRow %= inputs.rows();
-
-			// Calculate the output for every node
-			double[][] outputs = calcOutputs(inputs.row(instanceRow));
-			// TODO remove
-//			Logger.printArray2D("outputs", outputs); 
-
-
-			// Calculate errors for every node
-			double[][] errors = generateNetworkSizeArray();
-			for(int i = layers.length -1; i >= 0 ; i--)
+			
+			for (int j = 0; j < inputs.cols(); j++)
 			{
-				for(int j = 0; j < layers[i].length; j++)
-				{
-					if (i == layers.length - 1)
-					{
-						// output node
-						errors[i][j] = layers[i][j].calcOutputNodeError(labels.row(instanceRow).get(j), outputs[i][j]);
-					}
-					else
-					{
-						// hidden node
-						double errorFromHigherLayer = dotProductErrorFromHigherLayer(j, layers[i + 1], errors[i + 1]);
-						errors[i][j] = layers[i][j].calcHiddenNodeError(errorFromHigherLayer, outputs[i][j]);
-					}
-				}
-				if (plotCount % freq == 0)
-				{
-					Plotter.addDatumForLinePlot("layer_" + i + "_error", errors[i], "prediction", "error");
-				}
+				inputsArray[instanceRow][j] = inputs.row(instanceRow).getFloat(j);
 			}
-			// TODO remove
-//			Logger.printArray2D("errors", errors); 
+        }
+        Pointer<Pointer<Float>> inputsPtr = Pointer.pointerToFloats(inputsArray);
 		
+        // Convert the weights to the format required for javacl.
+        // (I think) I cannot use a 2D array because C does not allow jagged arrays.
+        CLBuffer<Float> networkWeightsBuf = context.createBuffer(Usage.InputOutput, Pointer.pointerToFloats(layers));
+        
+        CLBuffer<Pointer<Float>> inputsBuf = context.createBuffer(Usage.Input, inputsPtr);
+        
+        Pointer<Integer> nodeWeightCountsPerLayerPtr = Pointer.pointerToInts(nodeWeightCountsPerLayer);
+        CLBuffer<Integer> nodeWeightCountsPerLayerBuf = context.createIntBuffer(Usage.Input, nodeWeightCountsPerLayerPtr);
+        
+        CLBuffer<Integer> nodeCountsPerLayerBuf = context.createBuffer(Usage.Input, Pointer.pointerToInts(nodeCountsPerLayer));
+        
+        // Create a buffer to store the output of every node.
+        CLBuffer<Float> outBuf = context.createBuffer(Usage.Output, Float.class, Arrays.stream(nodeCountsPerLayer).sum());
 
-			// Update all weights
-			for(int i = 0; i < layers.length; i++)
-			{
-				Vector input = i == 0 ? inputs.row(instanceRow) : Vector.create(outputs[i - 1]);
-				double instanceWeight = inputs.row(instanceRow).getWeight();
-				for(int j = 0; j < layers[i].length; j++)
-				{
-					layers[i][j].updateWeights(input, errors[i][j], learningRate * instanceWeight);
-				}
-			}
+        // Read the program sources and compile them :
+        String src;
+		try
+		{
+			src = IOUtils.readText(Paths.get("neuralnet.cl").toFile());
+		} catch (IOException e)
+		{
+			throw new RuntimeException(e);
 		}
+        CLProgram program = context.createProgram(src);
+
+        // Get the kernels.
+        CLKernel calcOutputsForLayerKernel = program.createKernel("calcOutputsForLayer");
+//        CLKernel calcOutputLayerErrorsKernel = program.createKernel("calcOutputLayerErrors");
+//        CLKernel calcHiddenLayerErrors = program.createKernel("calcHiddenLayerErrors");
+//        CLKernel updateWeights = program.createKernel("updateWeights");
+                
+   		for (int instanceRow : new Range(nextIndex, nextIndex + epochSize))
+		{
+   			CLEvent lastEvent = null;
+  			for (int layerIndex : new Range(nodeCountsPerLayer.length))
+   			{
+ 		        calcOutputsForLayerKernel.setArgs(inputsBuf, instanceRow, inputs.cols(),
+		        		layerIndex, networkWeightsBuf, nodeWeightCountsPerLayerBuf, 
+		        		nodeCountsPerLayerBuf, outBuf);
+ 		       lastEvent = calcOutputsForLayerKernel.enqueueNDRange(queue, new int[] { nodeCountsPerLayer[layerIndex] });
+
+   			}
+	        float[][] outputs = extractOutputs(outBuf.read(queue, lastEvent));
+	        //Logger.printArray2D("outputs", outputs);
+		}
+        
+        
+//        Pointer<Float> readPtr = layerWeightsBuf.read(queue, calcOutputsEvent);
+//        for (int j = 0; j < layers[i].length; j++)
+//        {
+//        	layers[i][j] = readPtr.get(j);
+//        }
+        
+
+
+//   		for (int instanceRow : new Range(nextIndex, nextIndex + epochSize))
+//		{
+//			instanceRow %= inputs.rows();
+//
+//			// Calculate the output for every node
+//			float[][] outputs = calcOutputs(inputs.row(instanceRow));
+//			Logger.printArray2D("outputs", outputs); 
+//
+//			// Calculate errors for every node
+//			float[][] errors = generateNetworkSizeArray();
+//			for(int i = layers.length -1; i >= 0 ; i--)
+//			{
+//				if (i == layers.length - 1)
+//				{
+//					// output node
+//					kernelCreator.calcOutputLayerErrors(labels.row(instanceRow).getValuesFloat(), outputs[i], errors[i]);
+//				}
+//				else
+//				{
+//					// hidden node
+//					Kernel kernel = kernelCreator.createHiddenLayerErrorKernel(layers[i + 1], errors[i + 1], outputs[i], errors[i]);
+//					kernel.execute(outputs[i].length);
+//					kernel.dispose();
+//				}
+//				
+//				if (plotCount % freq == 0)
+//				{
+//					Plotter.addDatumForLinePlot("layer_" + i + "_error", Vector.convertToDoubles(errors[i]), "prediction", "error");
+//				}
+//			}
+//			// TODO remove
+////			Logger.printArray2D("errors", errors); 
+//
+//
+//			// Update all weights
+//			for(int i = 0; i < layers.length; i++)
+//			{
+//				float[] input = i == 0 ? inputs.row(instanceRow).getValuesFloat() : outputs[i - 1];
+//				float instanceWeight = inputs.row(instanceRow).getWeightFloat();
+//				
+//				Kernel kernel = kernelCreator.createWeightUpdateKernel(input, errors[i], layers[i], learningRate * instanceWeight);
+//				kernel.execute(errors[i].length);
+//				kernel.dispose();			
+//			}
+//		}
 	}
 	
-	protected double[][] generateNetworkSizeArray()
+	private float[][] extractOutputs(Pointer<Float> outPtr)
 	{
-		double[][] result = new double[layers.length][];
-		for (int i = 0; i < layers.length; i++)
+        float[][] outputs = generateNetworkSizeArray();
+        int ptrIndex = 0;
+        for (int i = 0; i < nodeCountsPerLayer.length; i++)
+	        for (int j = 0; j < nodeCountsPerLayer[i]; j++)
+	        {
+	        	outputs[i][j] = outPtr.get(ptrIndex);
+	        	ptrIndex++;
+	        }
+	    return outputs;
+	}
+	
+	void printWeights()
+	{
+		int layerStart = 0;
+		for(int i = 0; i < layers.length; i++)
 		{
-			result[i] = new double[layers[i].length];
+			float[] curLayer = Arrays.copyOfRange(layers, layerStart, layerStart + nodeCountsPerLayer[i]);
+			Logger.println("Weights for layer " + i + ": ");
+			for(int j = 0; j < curLayer.length; j++)
+			{
+				int start = j * nodeWeightCountsPerLayer[i];
+				int end = start + nodeWeightCountsPerLayer[i];
+				float[] nodeWeights = Arrays.copyOfRange(curLayer, start, end);
+				Logger.println(Helper.printArray("node " + j, nodeWeights));
+			}
+			layerStart += nodeCountsPerLayer[i];
+		}
+		Logger.println();
+
+	}
+	
+	protected float[][] generateNetworkSizeArray()
+	{
+		float[][] result = new float[nodeCountsPerLayer.length][];
+		for (int i = 0; i < nodeCountsPerLayer.length; i++)
+		{
+			result[i] = new float[nodeCountsPerLayer[i]];
 		}
 		return result;
 	}
 
-	protected double[][] calcOutputs(Vector input)
+	protected float[][] calcOutputs(Vector input)
 	{
-		plotCount++;
 
-		double[][] outputs = generateNetworkSizeArray();
+        
+        plotCount++;
+
+		float[][] outputs = generateNetworkSizeArray();
 		for(int i = 0; i < layers.length; i++)
-		{
-			
-			Vector inputs = i == 0 ? input : Vector.create(outputs[i - 1]);
-			for(int j = 0; j < layers[i].length; j++)
-			{
-				outputs[i][j] = layers[i][j].calcOutput(inputs);
-			}
-			
+		{			
+	        
+			float[] inputs = i == 0 ? input.getValuesFloat() : outputs[i - 1];
+	        
+	        // TODO
+	        
 			if (increaseContrastOfHiddenLayerOutputs)
 			{
 				// Don't increase the contrast of the output layer outputs.
 				if (i + 1 < layers.length)
 				{
-					Bounds nodeBounds = layers[i][0].getOutputRange();
-					increaseContrast(outputs[i], nodeBounds);
+					increaseContrast(outputs[i], kernelCreator.getNodeOutputRange());
 				}
 			}
 			if (plotCount % freq == 0)
 			{
-				Plotter.addDatumForLinePlot("layer_" + i, outputs[i], "prediction", "activation");
+				Plotter.addDatumForLinePlot("layer_" + i, Vector.convertToDoubles(outputs[i]), "prediction", "activation");
 				//Plotter.addDatumForLinePlot("layer_" + i + "_weights", layers[i][0].getWeights(), "prediction", "weight");
 			}
-			
-			
-			
 		}
 		if (softmax)
 			RelativeEntropy.softmaxInPlace(outputs[outputs.length - 1]);
 		return outputs;
 	}
 	
-	private static void increaseContrast(double[] values, Bounds bounds)
+	private static void increaseContrast(float[] values, BoundsFloat bounds)
 	{
-		double minVal = Helper.min(values);
-		double maxVal = Helper.max(values);
-		double range = maxVal - minVal;
-		double change = Math.min(minVal - bounds.lower, bounds.upper - maxVal);
-		double scale = (2.0*change + range)/ range;
-		if (Double.isInfinite(scale))
+		float minVal = Helper.min(values);
+		float maxVal = Helper.max(values);
+		float range = maxVal - minVal;
+		float change = Math.min(minVal - bounds.lower, bounds.upper - maxVal);
+		float scale = (2f*change + range)/ range;
+		if (Float.isInfinite(scale))
 			return;
-		double middle = (maxVal + minVal) / 2.0;//Helper.mean(outputs[i]);
+		float middle = (maxVal + minVal) / 2f;//Helper.mean(outputs[i]);
 							
 		for(int j = 0; j < values.length; j++)
 		{
@@ -525,7 +659,7 @@ public class NeuralNet extends SupervisedLearner
 
 	public Vector innerPredict(Vector input)
 	{
-		double[][] outputs = calcOutputs(input);
+		float[][] outputs = calcOutputs(input);
 
 		return Vector.create(outputs[outputs.length - 1]);
 	}
@@ -533,8 +667,8 @@ public class NeuralNet extends SupervisedLearner
 	@Override
 	public List<double[]> innerPredictOutputWeights(Vector input)
 	{
-		double[][] outputs = calcOutputs(input);
-		double[] weights = outputs[outputs.length - 1];
+		float[][] outputs = calcOutputs(input);
+		float[] weights = outputs[outputs.length - 1];
 
 
 		if (weights.length == 1)
@@ -542,13 +676,13 @@ public class NeuralNet extends SupervisedLearner
 			// This means that the target is a binary output. For the result to be in the correct
 			// format, I need to return 2 weights, one for each nominal value.
 			
-			double w = weights[0];
+			float w = weights[0];
 			// The squashing function should bound w between 0 and 1.
 			assert w >= 0.0;
 			assert w <= 1.0;
 
-			double[] transformed = new double[2];
-			transformed[0] = 1.0 - w;
+			float[] transformed = new float[2];
+			transformed[0] = 1f - w;
 			transformed[1] = w;
 			weights = transformed;
 		}
@@ -559,43 +693,27 @@ public class NeuralNet extends SupervisedLearner
 				// Increase the lower bound of the weights to be 0. I need to do this because I cannot
 				// normalize an array with negative numbers.
 				for (int i = 0; i < weights.length; i++)
-					weights[i] -= layers[layers.length - 1][0].getOutputRange().lower;
+					weights[i] -= kernelCreator.getNodeOutputRange().lower;
 			}
 			Helper.normalize(weights);
 		}
 		
-		// For now I am returning only one double[]. This works fine fore single-dimensional classification,
+		// For now I am returning only one float[]. This works fine fore single-dimensional classification,
 		// but if I want the use this function with mutli-dimensional classification, I will need to chop
-		// up this double[] into the pieces that correspond to each dimension. 
+		// up this float[] into the pieces that correspond to each dimension. 
 		
-		return Collections.singletonList(weights);
+		return Collections.singletonList(Vector.convertToDoubles(weights));
 	}
 	
-	public double dotProductErrorFromHigherLayer(int weightIndex, NeuralNode[] higherLayer,
-			double[] higherLayerErrors)
+	public float dotProductErrorFromHigherLayer(int weightIndex, NeuralNode[] higherLayer,
+			float[] higherLayerErrors)
 	{
-		double sum = 0;
+		float sum = 0;
 		for (int i = 0; i < higherLayerErrors.length; i++)
 		{
 			sum += higherLayer[i].getWeight(weightIndex) * higherLayerErrors[i];
 		}
 		return sum;
-	}
-
-	void printWeights()
-	{
-		for(int i = 0; i < layers.length; i++)
-		{
-
-			Logger.println("Weights for layer " + i + ": ");
-			for(int j = 0; j < layers[i].length; j++)
-			{
-				double[] nodeWeights = layers[i][j].getWeights();
-				Logger.println(Helper.printArray("node " + j, nodeWeights));
-			}
-		}
-		Logger.println();
-
 	}
 	
 	/**
@@ -604,40 +722,32 @@ public class NeuralNet extends SupervisedLearner
 	 */
 	void createNetwork(Matrix inputs, int numOutputs, int[] hiddenLayerSizes)
 	{
-		layers = new NeuralNode[hiddenLayerSizes.length + 1][];
+		int layersSize = 0;
+		nodeWeightCountsPerLayer = new int[hiddenLayerSizes.length + 1];
+		nodeCountsPerLayer = new int[hiddenLayerSizes.length + 1];
 		
-		for(int i = 0; i < layers.length - 1; i++)
+		int prevLayerNodeCount;
+		
+		for(int i : new Range(hiddenLayerSizes.length))
 		{
 			if (hiddenLayerSizes[i] == 0)
 				throw new IllegalArgumentException("A hidden layer cannot have 0 nodes.");
-			layers[i] = new NeuralNode[maxHiddenLayerSize == null ?  hiddenLayerSizes[i] 
-					: Math.min(maxHiddenLayerSize, hiddenLayerSizes[i])];
 			
 			// Each node has 1 input from every node in the layer closer
 			// to the inputs, except those receiving the features as inputs.
-			int numInputs = i == 0 ? inputs.cols() : layers[i-1].length;
-
-			for(int j = 0; j < layers[i].length; j++)
-			{
-				if (hiddenLayerNodeType.equals("sigmoid"))
-					layers[i][j] = new SigmoidNode(rand, numInputs, momentum); // TODO Change back to SigmoidNode.
-				else if (hiddenLayerNodeType.equals("softsign"))
-					layers[i][j] = new SoftsignNode(rand, numInputs, momentum);
-				else
-					throw new IllegalArgumentException();
-			}
+			int numInputs = i == 0 ? inputs.cols() : nodeCountsPerLayer[i - 1];
+			
+			nodeCountsPerLayer[i] = Math.min(maxHiddenLayerSize, hiddenLayerSizes[i]);
+			nodeWeightCountsPerLayer[i] = numInputs + 1;
+			layersSize += nodeWeightCountsPerLayer[i] * nodeCountsPerLayer[i];
 		}
 		
-		// Create the output layer. It has 1 node per output.
-		layers[layers.length -1] = new NeuralNode[numOutputs];
-		for (int n = 0; n < layers[layers.length - 1].length; n++)
-		{
-			int numOutputLayerInputs = layers.length > 1 ? layers[layers.length-2].length : inputs.cols();
-			if (softmax)
-				layers[layers.length - 1][n] = new SoftmaxNode(rand, numOutputLayerInputs, momentum);
-			else
-				layers[layers.length - 1][n] = new SigmoidNode(rand, numOutputLayerInputs, momentum); 
-		}
+		// The output layer has 1 node per output.
+		int numOutputLayerInputs = hiddenLayerSizes.length > 0 ? nodeCountsPerLayer[hiddenLayerSizes.length - 1] : inputs.cols();
+		nodeWeightCountsPerLayer[nodeWeightCountsPerLayer.length - 1] = numOutputLayerInputs + 1;
+		layersSize += nodeWeightCountsPerLayer[nodeWeightCountsPerLayer.length - 1] * numOutputs;
+		nodeCountsPerLayer[nodeCountsPerLayer.length - 1] = numOutputs;
+		layers = new float[layersSize];
 	}
 	
 	/**

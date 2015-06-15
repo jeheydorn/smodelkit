@@ -47,7 +47,8 @@ import smodelkit.learner.KNN;
 import smodelkit.learner.MaxWeightEnsemble;
 import smodelkit.learner.MonolithicTransformation;
 import smodelkit.learner.NeuralNet;
-import smodelkit.learner.NeuralNetGPU;
+import smodelkit.learner.NeuralNetAparapi;
+import smodelkit.learner.NeuralNetCL;
 import smodelkit.learner.OneClassWrapper;
 import smodelkit.learner.RankedCC;
 import smodelkit.learner.SupervisedLearner;
@@ -812,9 +813,13 @@ public class MLSystemsManager
 		{
 			learnerName = NeuralNet.class.getCanonicalName();
 		}
-		else if (learnerName.equals("neuralnet_gpu"))
+		else if (learnerName.equals("neuralnet_cl"))
 		{
-			learnerName = NeuralNetGPU.class.getCanonicalName();
+			learnerName = NeuralNetCL.class.getCanonicalName();
+		}
+		else if (learnerName.equals("neuralnet_aparapi"))
+		{
+			learnerName = NeuralNetAparapi.class.getCanonicalName();
 		}
 		else if (learnerName.equals("rankedcc"))
 		{
