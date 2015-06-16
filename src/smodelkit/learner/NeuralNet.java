@@ -5,8 +5,6 @@ import java.util.List;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
-import com.amd.aparapi.Kernel;
-
 import smodelkit.Matrix;
 import smodelkit.Vector;
 import smodelkit.VectorDouble;
@@ -22,7 +20,7 @@ import smodelkit.util.Range;
 
 
 /**
- * A multi-layer perceptron that uses error backpropigation. It uses online weight updates.
+ * A multi-layer perceptron that uses error backpropegation. It uses online weight updates.
  * @author joseph
  *
  */

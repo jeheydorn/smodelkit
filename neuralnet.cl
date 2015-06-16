@@ -151,8 +151,10 @@ __kernel void calcHiddenLayerErrors(int layerIndex,
 					nodeWeightCountsPerLayer[layerIndex + 1], higherLayerWeights, layerErrors);
 }
 
-__kernel void updateWeights(int layerIndex, __global int* nodeWeightCountsPerLayer, 
-		__global int* nodeCountsPerLayer, float learningRate)
+__kernel void updateWeights(int layerIndex, __global float* networkInputs, int numInputAttributes,
+		__global float* networkWeights,
+		__global int* nodeWeightCountsPerLayer, 
+		__global int* nodeCountsPerLayer, float learningRate, __global float* errors, __global float* outputs)
 {
     int nodeIndex = get_global_id(0);
 
@@ -183,12 +185,12 @@ __kernel void updateWeights(int layerIndex, __global int* nodeWeightCountsPerLay
     for (int i = 0; i < numLayerInputs; i++)
 	{
 		layerWeights[nodeWeightCountsPerLayer[layerIndex] * nodeIndex + i] 
-				+= learningRate * layerErrors[nodeIndex] * inputs[i];
+				+= learningRate * layerErrors[nodeIndex] * nodeInputs[i];
 	}
 	
 	// bias weight
-	layerWeights[nodeWeightCountsPerLayer[layerIndex] * nodeIndex + numLayerInputs] 
-			+= learningRate * layerErrors[ ... ];
+	layerWeights[nodeWeightCountsPerLayer[layerIndex] * nodeIndex + numLayerInputs]
+			+= learningRate * layerErrors[nodeIndex];
 
 }
 

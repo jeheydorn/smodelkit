@@ -47,7 +47,6 @@ import smodelkit.learner.KNN;
 import smodelkit.learner.MaxWeightEnsemble;
 import smodelkit.learner.MonolithicTransformation;
 import smodelkit.learner.NeuralNet;
-import smodelkit.learner.NeuralNetAparapi;
 import smodelkit.learner.NeuralNetCL;
 import smodelkit.learner.OneClassWrapper;
 import smodelkit.learner.RankedCC;
@@ -816,10 +815,6 @@ public class MLSystemsManager
 		else if (learnerName.equals("neuralnet_cl"))
 		{
 			learnerName = NeuralNetCL.class.getCanonicalName();
-		}
-		else if (learnerName.equals("neuralnet_aparapi"))
-		{
-			learnerName = NeuralNetAparapi.class.getCanonicalName();
 		}
 		else if (learnerName.equals("rankedcc"))
 		{

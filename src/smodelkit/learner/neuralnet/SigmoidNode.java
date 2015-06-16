@@ -1,8 +1,6 @@
 package smodelkit.learner.neuralnet;
 import java.util.Random;
 
-import com.amd.aparapi.Kernel;
-
 import smodelkit.Vector;
 import smodelkit.util.Bounds;
 

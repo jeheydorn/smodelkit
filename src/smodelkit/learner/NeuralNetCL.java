@@ -1,8 +1,4 @@
 package smodelkit.learner;
-import static java.lang.Math.cos;
-import static java.lang.Math.sin;
-import static org.bridj.Pointer.allocateFloats;
-
 import java.io.IOException;
 import java.nio.ByteOrder;
 import java.nio.file.Paths;
@@ -14,13 +10,10 @@ import org.bridj.Pointer;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
-import com.amd.aparapi.Kernel;
 import com.nativelibs4java.opencl.CLBuffer;
 import com.nativelibs4java.opencl.CLContext;
-import com.nativelibs4java.opencl.CLDevice;
 import com.nativelibs4java.opencl.CLEvent;
 import com.nativelibs4java.opencl.CLKernel;
-import com.nativelibs4java.opencl.CLPlatform;
 import com.nativelibs4java.opencl.CLProgram;
 import com.nativelibs4java.opencl.CLQueue;
 import com.nativelibs4java.opencl.JavaCL;
@@ -33,7 +26,6 @@ import smodelkit.evaluator.Evaluator;
 import smodelkit.evaluator.MSE;
 import smodelkit.evaluator.RelativeEntropy;
 import smodelkit.learner.neuralnet.*;
-import smodelkit.learner.neuralnet.cl.SigmoidNodeKernelCreator;
 import smodelkit.util.BoundsFloat;
 import smodelkit.util.Helper;
 import smodelkit.util.Logger;
@@ -42,7 +34,7 @@ import smodelkit.util.Range;
 
 
 /**
- * A multi-layer perceptron that uses error backpropigation. It uses online weight updates.
+ * A multi-layer perceptron that uses error backpropegation. It uses online weight updates.
  * @author joseph
  *
  */
@@ -78,10 +70,15 @@ public class NeuralNetCL extends SupervisedLearner
 	private boolean normalizePredictions;
 	private boolean softmax;
 	private String hiddenLayerNodeType;
-	SigmoidNodeKernelCreator kernelCreator;
-	// TODO remove
-	int plotCount = 0;
-	long freq = Long.MAX_VALUE;
+	private Pointer<Float> networkWeightsPtr;
+	private CLBuffer<Float> networkWeightsBuf;
+	private CLBuffer<Integer> nodeWeightCountsPerLayerBuf;
+	private CLBuffer<Integer> nodeCountsPerLayerBuf;
+	private CLBuffer<Float> outputsBuf;
+	private CLBuffer<Float> errorsBuf;
+	private CLQueue queue;
+	private CLContext context;
+	private CLKernel calcOutputsForLayer;
 	
 	
 	public NeuralNetCL()
@@ -210,9 +207,7 @@ public class NeuralNetCL extends SupervisedLearner
 		}
 		
 		this.hiddenLayerNodeType = hiddenLayerNodeType;
-		
-		kernelCreator = new SigmoidNodeKernelCreator(); // TODO Make this a parameter.
-		
+				
 		setupTrainingEvaluator();
 		varifyArgs();
 	}
@@ -339,8 +334,7 @@ public class NeuralNetCL extends SupervisedLearner
 			count++;
 			totalCount++;
 
-			CLContext context = JavaCL.createBestContext();
-//			CLContext context = JavaCL.createBestContext(CLPlatform.DeviceFeature.CPU);
+			context = JavaCL.createBestContext();
 
 	        String src;
 			try
@@ -352,16 +346,35 @@ public class NeuralNetCL extends SupervisedLearner
 			}
 	        CLProgram program = context.createProgram(src);
 
-	        // Get the kernels.
-	        CLKernel calcOutputsForLayer = program.createKernel("calcOutputsForLayer");
+	        calcOutputsForLayer = program.createKernel("calcOutputsForLayer");
             CLKernel calcOutputLayerErrors = program.createKernel("calcOutputLayerErrors");
 	        CLKernel calcHiddenLayerErrors = program.createKernel("calcHiddenLayerErrors");
 	        CLKernel updateWeights = program.createKernel("updateWeights");
 
-		    CLQueue queue = context.createDefaultQueue();
+		    queue = context.createDefaultQueue();
+		    
+		    // Create buffers.
+	        ByteOrder byteOrder = context.getByteOrder();
+
+	        networkWeightsPtr = Pointer.pointerToFloats(layers).order(byteOrder);
+	        networkWeightsBuf = context.createBuffer(Usage.InputOutput, networkWeightsPtr);
+	        
+	        nodeWeightCountsPerLayerBuf = context.createIntBuffer(Usage.Input, 
+	        		Pointer.pointerToInts(nodeWeightCountsPerLayer).order(byteOrder));
+	        
+	        nodeCountsPerLayerBuf = context.createBuffer(Usage.Input, 
+	        		Pointer.pointerToInts(nodeCountsPerLayer).order(byteOrder));
+	        
+	        outputsBuf = context.createBuffer(Usage.Output, Float.class, 
+	        		Arrays.stream(nodeCountsPerLayer).sum());
+
+	        errorsBuf = context.createBuffer(Usage.Output, Float.class, 
+	        		Arrays.stream(nodeCountsPerLayer).sum());
 
 			doEpoch(tInputs, tLabels, nextInstanceIndex, calcOutputsForLayer, calcOutputLayerErrors, 
-					calcHiddenLayerErrors, updateWeights, context, queue);
+					calcHiddenLayerErrors, updateWeights, context, queue, networkWeightsBuf, 
+					nodeWeightCountsPerLayerBuf, nodeCountsPerLayerBuf, outputsBuf, errorsBuf);
+			
 			nextInstanceIndex = (nextInstanceIndex + epochSize) % tInputs.rows();
 			
 			if (PRINT_EPOCH_TIMES)
@@ -392,7 +405,7 @@ public class NeuralNetCL extends SupervisedLearner
 					count = 0;
 					lastEvaluation = evaluation;
 					Logger.println(String.format("Error improved to: %.5f on epoch: %s", evaluation, totalCount));
-	
+					
 					copyWeights(savedLayers, layers);
 					epochOfSavedWeights = totalCount;
 				}
@@ -429,12 +442,73 @@ public class NeuralNetCL extends SupervisedLearner
 		{
 			Logger.println("Restoring weights to those from epoch " + epochOfSavedWeights);
 			copyWeights(layers, savedLayers);
+			
+			// Copy the weights to the GPU. TODO
+			//CLEvent.waitFor(networkWeightsBuf.write(queue, networkWeightsPtr, false));
 		}
-		
 		
 		Logger.unindent();
 	}
 
+	protected void doEpoch(Matrix inputs, Matrix labels, int nextIndex, CLKernel calcOutputsForLayer, 
+			CLKernel calcOutputLayerErrors,  CLKernel calcHiddenLayerErrors, CLKernel updateWeights,
+			CLContext context, CLQueue queue,
+			CLBuffer<Float> networkWeightsBuf, CLBuffer<Integer> nodeWeightCountsPerLayerBuf,
+			CLBuffer<Integer> nodeCountsPerLayerBuf, CLBuffer<Float> outputsBuf, CLBuffer<Float> errorsBuf)
+	{	 		
+        ByteOrder byteOrder = context.getByteOrder();
+
+		CLEvent event = null;
+        for (int instanceRow : new Range(nextIndex, nextIndex + epochSize))
+		{
+	        CLBuffer<Float> inputsBuf  = context.createFloatBuffer(Usage.Input, 
+	        		Pointer.pointerToFloats(inputs.row(instanceRow).getValuesFloat()).order(byteOrder));
+
+	        // Calculate outputs for each node.
+  			for (int layerIndex : new Range(nodeCountsPerLayer.length))
+   			{	
+ 		        calcOutputsForLayer.setArgs(inputsBuf, inputs.cols(),
+		        		layerIndex, networkWeightsBuf, nodeWeightCountsPerLayerBuf, 
+		        		nodeCountsPerLayerBuf, outputsBuf);
+  		        if (event == null)
+  		        	event = calcOutputsForLayer.enqueueNDRange(queue, new int[] {nodeCountsPerLayer[layerIndex]});
+  		        else
+  		        	event = calcOutputsForLayer.enqueueNDRange(queue, new int[] {nodeCountsPerLayer[layerIndex]}, event);  
+   			}
+  			
+  			// Calculate errors for the output layer nodes.
+	        CLBuffer<Float> targetsBuf  = context.createFloatBuffer(Usage.Input, 
+	        		Pointer.pointerToFloats(labels.row(instanceRow).getValuesFloat()).order(byteOrder));
+ 			calcOutputLayerErrors.setArgs(nodeCountsPerLayer.length - 1, networkWeightsBuf, nodeWeightCountsPerLayerBuf,
+  					nodeCountsPerLayerBuf, outputsBuf, targetsBuf, errorsBuf);
+  			event = calcOutputLayerErrors.enqueueNDRange(queue, 
+  					new int[] {nodeCountsPerLayer[nodeCountsPerLayer.length - 1]}, event);
+  			
+  			// Calculate errors for hidden layer nodes.
+  			for (int layerIndex = nodeCountsPerLayer.length - 2; layerIndex >= 0; layerIndex--)
+   			{				
+  				calcHiddenLayerErrors.setArgs(layerIndex, networkWeightsBuf, nodeWeightCountsPerLayerBuf,
+  	  					nodeCountsPerLayerBuf, outputsBuf, errorsBuf);
+ 	        	event = calcHiddenLayerErrors.enqueueNDRange(queue, new int[] {nodeCountsPerLayer[layerIndex]}, event); 		        
+   			}
+  			
+  			// Update weights.
+  			for (int layerIndex : new Range(nodeCountsPerLayer.length))
+   			{
+ 		        updateWeights.setArgs(layerIndex, inputsBuf, inputs.cols(), networkWeightsBuf, 
+ 		        		nodeWeightCountsPerLayerBuf,
+  						nodeCountsPerLayerBuf, learningRate, errorsBuf, outputsBuf);
+ 	        	event = updateWeights.enqueueNDRange(queue, new int[] {nodeCountsPerLayer[layerIndex]}, event); 		          				
+   			}
+		}
+        
+        Pointer<Float> readPtr = networkWeightsBuf.read(queue, event);
+        for (int j = 0; j < layers.length; j++)
+        {
+        	layers[j] = readPtr.get(j);
+        }
+	}
+	
 	private void initializeWeights()
 	{
 		final float standardDeviation = 0.1f;
@@ -463,136 +537,7 @@ public class NeuralNetCL extends SupervisedLearner
 			}
 	}
 
-	protected void doEpoch(Matrix inputs, Matrix labels, int nextIndex, CLKernel calcOutputsForLayer, 
-			CLKernel calcOutputLayerErrors,  CLKernel calcHiddenLayerErrors, CLKernel updateWeights,
-			CLContext context, CLQueue queue)
-	{	 		
-        ByteOrder byteOrder = context.getByteOrder();
 
-        // Convert the weights to the format required for javacl.
-        CLBuffer<Float> networkWeightsBuf = context.createBuffer(Usage.InputOutput, 
-        		Pointer.pointerToFloats(layers).order(byteOrder));
-         
-        
-        CLBuffer<Integer> nodeWeightCountsPerLayerBuf = context.createIntBuffer(Usage.Input, 
-        		Pointer.pointerToInts(nodeWeightCountsPerLayer).order(byteOrder));
-        
-        CLBuffer<Integer> nodeCountsPerLayerBuf = context.createBuffer(Usage.Input, 
-        		Pointer.pointerToInts(nodeCountsPerLayer).order(byteOrder));
-        
-        // Create a buffer to store the output of every node.
-        CLBuffer<Float> outputsBuf = context.createBuffer(Usage.Output, Float.class, 
-        		Arrays.stream(nodeCountsPerLayer).sum());
-
-        // Create a buffer to store the output of every node.
-        CLBuffer<Float> errorsBuf = context.createBuffer(Usage.Output, Float.class, 
-        		Arrays.stream(nodeCountsPerLayer).sum());
-
-		CLEvent event = null;
-        for (int instanceRow : new Range(nextIndex, nextIndex + epochSize))
-		{
-        	// Calculate outputs for each node.
-  			for (int layerIndex : new Range(nodeCountsPerLayer.length))
-   			{
-  		        CLBuffer<Float> inputsBuf  = context.createFloatBuffer(Usage.Input, 
-  		        		Pointer.pointerToFloats(inputs.row(instanceRow).getValuesFloat()).order(byteOrder));
-				
- 		        calcOutputsForLayer.setArgs(inputsBuf, inputs.cols(),
-		        		layerIndex, networkWeightsBuf, nodeWeightCountsPerLayerBuf, 
-		        		nodeCountsPerLayerBuf, outputsBuf);
-  		        if (event == null)
-  		        	event = calcOutputsForLayer.enqueueNDRange(queue, new int[] {nodeCountsPerLayer[layerIndex]});
-  		        else
-  		        	event = calcOutputsForLayer.enqueueNDRange(queue, new int[] {nodeCountsPerLayer[layerIndex]}, event);
-  		        
-   			}
-  			
-  			// Calculate errors for the output layer nodes.
-	        CLBuffer<Float> targetsBuf  = context.createFloatBuffer(Usage.Input, 
-	        		Pointer.pointerToFloats(labels.row(instanceRow).getValuesFloat()).order(byteOrder));
- 			calcOutputLayerErrors.setArgs(nodeCountsPerLayer.length - 1, networkWeightsBuf, nodeWeightCountsPerLayerBuf,
-  					nodeCountsPerLayerBuf, outputsBuf, targetsBuf, errorsBuf);
-  			event = calcOutputLayerErrors.enqueueNDRange(queue, 
-  					new int[] {nodeCountsPerLayer[nodeCountsPerLayer.length - 1]}, event);
-  			
-  			// Calculate errors for hidden layer nodes.
-  			for (int layerIndex = nodeCountsPerLayer.length - 2; layerIndex >= 0; layerIndex--)
-   			{				
-  				calcHiddenLayerErrors.setArgs(layerIndex, networkWeightsBuf, nodeWeightCountsPerLayerBuf,
-  	  					nodeCountsPerLayerBuf, outputsBuf, errorsBuf);
-  		        if (event == null)
-  		        	event = calcHiddenLayerErrors.enqueueNDRange(queue, new int[] {nodeCountsPerLayer[layerIndex]});
-  		        else
-  		        	event = calcHiddenLayerErrors.enqueueNDRange(queue, new int[] {nodeCountsPerLayer[layerIndex]}, event);
-  		        
-   			}
-  			
-  			// TODO Update weights here.
-  			
-  			// Make sure the last event finishes.
-  			CLEvent.waitFor(event);
-
-//  			Pointer<Float> outPtr = outBuf.read(queue, event);
-//	        float[][] outputs = extractOutputs(outPtr);
-//	        outPtr.release();
-	        //Logger.printArray2D("outputs", outputs);
-		}
-        
-//        Pointer<Float> readPtr = layerWeightsBuf.read(queue, calcOutputsEvent);
-//        for (int j = 0; j < layers[i].length; j++)
-//        {
-//        	layers[i][j] = readPtr.get(j);
-//        }
-        
-
-
-//   		for (int instanceRow : new Range(nextIndex, nextIndex + epochSize))
-//		{
-//			instanceRow %= inputs.rows();
-//
-//			// Calculate the output for every node
-//			float[][] outputs = calcOutputs(inputs.row(instanceRow));
-//			Logger.printArray2D("outputs", outputs); 
-//
-//			// Calculate errors for every node
-//			float[][] errors = generateNetworkSizeArray();
-//			for(int i = layers.length -1; i >= 0 ; i--)
-//			{
-//				if (i == layers.length - 1)
-//				{
-//					// output node
-//					kernelCreator.calcOutputLayerErrors(labels.row(instanceRow).getValuesFloat(), outputs[i], errors[i]);
-//				}
-//				else
-//				{
-//					// hidden node
-//					Kernel kernel = kernelCreator.createHiddenLayerErrorKernel(layers[i + 1], errors[i + 1], outputs[i], errors[i]);
-//					kernel.execute(outputs[i].length);
-//					kernel.dispose();
-//				}
-//				
-//				if (plotCount % freq == 0)
-//				{
-//					Plotter.addDatumForLinePlot("layer_" + i + "_error", Vector.convertToDoubles(errors[i]), "prediction", "error");
-//				}
-//			}
-//			// TODO remove
-////			Logger.printArray2D("errors", errors); 
-//
-//
-//			// Update all weights
-//			for(int i = 0; i < layers.length; i++)
-//			{
-//				float[] input = i == 0 ? inputs.row(instanceRow).getValuesFloat() : outputs[i - 1];
-//				float instanceWeight = inputs.row(instanceRow).getWeightFloat();
-//				
-//				Kernel kernel = kernelCreator.createWeightUpdateKernel(input, errors[i], layers[i], learningRate * instanceWeight);
-//				kernel.execute(errors[i].length);
-//				kernel.dispose();			
-//			}
-//		}
-	}
-	
 	private float[][] extractOutputs(Pointer<Float> outPtr)
 	{
         float[][] outputs = generateNetworkSizeArray();
@@ -638,34 +583,27 @@ public class NeuralNetCL extends SupervisedLearner
 
 	protected float[][] calcOutputs(Vector input)
 	{
+        CLBuffer<Float> inputsBuf = context.createFloatBuffer(Usage.Input, 
+        		Pointer.pointerToFloats(input.getValuesFloat()).order(context.getByteOrder()));
 
-        
-        plotCount++;
-
-		float[][] outputs = generateNetworkSizeArray();
-		for(int i = 0; i < layers.length; i++)
-		{			
-	        
-			float[] inputs = i == 0 ? input.getValuesFloat() : outputs[i - 1];
-	        
-	        // TODO
-	        
-			if (increaseContrastOfHiddenLayerOutputs)
-			{
-				// Don't increase the contrast of the output layer outputs.
-				if (i + 1 < layers.length)
-				{
-					increaseContrast(outputs[i], kernelCreator.getNodeOutputRange());
-				}
-			}
-			if (plotCount % freq == 0)
-			{
-				Plotter.addDatumForLinePlot("layer_" + i, Vector.convertToDoubles(outputs[i]), "prediction", "activation");
-				//Plotter.addDatumForLinePlot("layer_" + i + "_weights", layers[i][0].getWeights(), "prediction", "weight");
-			}
+        // Calculate outputs for each node.
+        CLEvent event = null;
+		for (int layerIndex : new Range(nodeCountsPerLayer.length))
+		{
+	        calcOutputsForLayer.setArgs(inputsBuf, input.size(),
+        		layerIndex, networkWeightsBuf, nodeWeightCountsPerLayerBuf, 
+        		nodeCountsPerLayerBuf, outputsBuf);
+	        if (event == null)
+	        	event = calcOutputsForLayer.enqueueNDRange(queue, new int[] {nodeCountsPerLayer[layerIndex]});
+	        else
+	        	event = calcOutputsForLayer.enqueueNDRange(queue, new int[] {nodeCountsPerLayer[layerIndex]}, event);
 		}
-		if (softmax)
-			RelativeEntropy.softmaxInPlace(outputs[outputs.length - 1]);
+		CLEvent.waitFor(event);
+		
+		Pointer<Float> outPtr = outputsBuf.read(queue, event);
+        float[][] outputs = extractOutputs(outPtr);
+        outPtr.release();
+		
 		return outputs;
 	}
 	
@@ -721,8 +659,9 @@ public class NeuralNetCL extends SupervisedLearner
 			{
 				// Increase the lower bound of the weights to be 0. I need to do this because I cannot
 				// normalize an array with negative numbers.
-				for (int i = 0; i < weights.length; i++)
-					weights[i] -= kernelCreator.getNodeOutputRange().lower;
+				// TODO
+//				for (int i = 0; i < weights.length; i++)
+//					weights[i] -= kernelCreator.getNodeOutputRange().lower;
 			}
 			Helper.normalize(weights);
 		}

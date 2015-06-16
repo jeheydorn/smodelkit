@@ -4,7 +4,7 @@
 	"hiddenLayerSizes": null,
 	"maxHiddenLayerSize": null,
 	"includeLabelsInHiddenLayerMultiples": false,
-	"validationSetPercent": 0.0,
+	"validationSetPercent": 0.2,
 	"learningRate": 0.1,
 	"momentum": 0.0,
 
@@ -13,8 +13,8 @@
 	"increaseContrastOfHiddenLayerOutputs": false,
 	"normalizePredictions": false,
 		
-	"maxEpochs" : 10,
-	"maxEpochsWithoutImprovement": null,
+	"maxEpochs" : 500,
+	"maxEpochsWithoutImprovement": 10,
 	"improvementThreshold": 0.00000,
 	"epochSize": null,
 	"minEpochSize": null
