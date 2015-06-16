@@ -120,6 +120,7 @@ public class SigmoidNodeKernelCreator
 				}
 				
 				// bias weight
+				// FIXME: Is "numErrors - 1" correct?
 				layerWeights[numWeightsPerNode * nodeIndex + numInputs] += learningRate * errors[numErrors - 1];
 			}
 			

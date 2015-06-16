@@ -340,7 +340,7 @@ public class NeuralNetCL extends SupervisedLearner
 			totalCount++;
 
 			CLContext context = JavaCL.createBestContext();
-	        ByteOrder byteOrder = context.getByteOrder();
+//			CLContext context = JavaCL.createBestContext(CLPlatform.DeviceFeature.CPU);
 
 	        String src;
 			try
@@ -353,14 +353,15 @@ public class NeuralNetCL extends SupervisedLearner
 	        CLProgram program = context.createProgram(src);
 
 	        // Get the kernels.
-	        CLKernel calcOutputsForLayerKernel = program.createKernel("calcOutputsForLayer");
-//          CLKernel calcOutputLayerErrorsKernel = program.createKernel("calcOutputLayerErrors");
-//	        CLKernel calcHiddenLayerErrors = program.createKernel("calcHiddenLayerErrors");
-//	        CLKernel updateWeights = program.createKernel("updateWeights");
+	        CLKernel calcOutputsForLayer = program.createKernel("calcOutputsForLayer");
+            CLKernel calcOutputLayerErrors = program.createKernel("calcOutputLayerErrors");
+	        CLKernel calcHiddenLayerErrors = program.createKernel("calcHiddenLayerErrors");
+	        CLKernel updateWeights = program.createKernel("updateWeights");
 
 		    CLQueue queue = context.createDefaultQueue();
 
-			doEpoch(tInputs, tLabels, nextInstanceIndex, calcOutputsForLayerKernel, context, queue);
+			doEpoch(tInputs, tLabels, nextInstanceIndex, calcOutputsForLayer, calcOutputLayerErrors, 
+					calcHiddenLayerErrors, updateWeights, context, queue);
 			nextInstanceIndex = (nextInstanceIndex + epochSize) % tInputs.rows();
 			
 			if (PRINT_EPOCH_TIMES)
@@ -462,43 +463,75 @@ public class NeuralNetCL extends SupervisedLearner
 			}
 	}
 
-	protected void doEpoch(Matrix inputs, Matrix labels, int nextIndex, CLKernel calcOutputsForLayerKernel, 
+	protected void doEpoch(Matrix inputs, Matrix labels, int nextIndex, CLKernel calcOutputsForLayer, 
+			CLKernel calcOutputLayerErrors,  CLKernel calcHiddenLayerErrors, CLKernel updateWeights,
 			CLContext context, CLQueue queue)
-	{	
-//		JavaCL.createBestContext(CLPlatform.DeviceFeature.CPU);                
- 		
+	{	 		
+        ByteOrder byteOrder = context.getByteOrder();
+
         // Convert the weights to the format required for javacl.
         CLBuffer<Float> networkWeightsBuf = context.createBuffer(Usage.InputOutput, 
-        		Pointer.pointerToFloats(layers));
+        		Pointer.pointerToFloats(layers).order(byteOrder));
          
         
         CLBuffer<Integer> nodeWeightCountsPerLayerBuf = context.createIntBuffer(Usage.Input, 
-        		Pointer.pointerToInts(nodeWeightCountsPerLayer));
+        		Pointer.pointerToInts(nodeWeightCountsPerLayer).order(byteOrder));
         
         CLBuffer<Integer> nodeCountsPerLayerBuf = context.createBuffer(Usage.Input, 
-        		Pointer.pointerToInts(nodeCountsPerLayer));
+        		Pointer.pointerToInts(nodeCountsPerLayer).order(byteOrder));
         
         // Create a buffer to store the output of every node.
-        CLBuffer<Float> outBuf = context.createBuffer(Usage.Output, Float.class, 
+        CLBuffer<Float> outputsBuf = context.createBuffer(Usage.Output, Float.class, 
         		Arrays.stream(nodeCountsPerLayer).sum());
-                
+
+        // Create a buffer to store the output of every node.
+        CLBuffer<Float> errorsBuf = context.createBuffer(Usage.Output, Float.class, 
+        		Arrays.stream(nodeCountsPerLayer).sum());
+
 		CLEvent event = null;
         for (int instanceRow : new Range(nextIndex, nextIndex + epochSize))
 		{
+        	// Calculate outputs for each node.
   			for (int layerIndex : new Range(nodeCountsPerLayer.length))
    			{
   		        CLBuffer<Float> inputsBuf  = context.createFloatBuffer(Usage.Input, 
-  		        		Pointer.pointerToFloats(inputs.row(instanceRow).getValuesFloat()));
+  		        		Pointer.pointerToFloats(inputs.row(instanceRow).getValuesFloat()).order(byteOrder));
 				
- 		        calcOutputsForLayerKernel.setArgs(inputsBuf, inputs.cols(),
+ 		        calcOutputsForLayer.setArgs(inputsBuf, inputs.cols(),
 		        		layerIndex, networkWeightsBuf, nodeWeightCountsPerLayerBuf, 
-		        		nodeCountsPerLayerBuf, outBuf);
+		        		nodeCountsPerLayerBuf, outputsBuf);
   		        if (event == null)
-  		        	event = calcOutputsForLayerKernel.enqueueNDRange(queue, new int[] {nodeCountsPerLayer[layerIndex]});
+  		        	event = calcOutputsForLayer.enqueueNDRange(queue, new int[] {nodeCountsPerLayer[layerIndex]});
   		        else
-  		        	event = calcOutputsForLayerKernel.enqueueNDRange(queue, new int[] {nodeCountsPerLayer[layerIndex]}, event);
+  		        	event = calcOutputsForLayer.enqueueNDRange(queue, new int[] {nodeCountsPerLayer[layerIndex]}, event);
   		        
    			}
+  			
+  			// Calculate errors for the output layer nodes.
+	        CLBuffer<Float> targetsBuf  = context.createFloatBuffer(Usage.Input, 
+	        		Pointer.pointerToFloats(labels.row(instanceRow).getValuesFloat()).order(byteOrder));
+ 			calcOutputLayerErrors.setArgs(nodeCountsPerLayer.length - 1, networkWeightsBuf, nodeWeightCountsPerLayerBuf,
+  					nodeCountsPerLayerBuf, outputsBuf, targetsBuf, errorsBuf);
+  			event = calcOutputLayerErrors.enqueueNDRange(queue, 
+  					new int[] {nodeCountsPerLayer[nodeCountsPerLayer.length - 1]}, event);
+  			
+  			// Calculate errors for hidden layer nodes.
+  			for (int layerIndex = nodeCountsPerLayer.length - 2; layerIndex >= 0; layerIndex--)
+   			{				
+  				calcHiddenLayerErrors.setArgs(layerIndex, networkWeightsBuf, nodeWeightCountsPerLayerBuf,
+  	  					nodeCountsPerLayerBuf, outputsBuf, errorsBuf);
+  		        if (event == null)
+  		        	event = calcHiddenLayerErrors.enqueueNDRange(queue, new int[] {nodeCountsPerLayer[layerIndex]});
+  		        else
+  		        	event = calcHiddenLayerErrors.enqueueNDRange(queue, new int[] {nodeCountsPerLayer[layerIndex]}, event);
+  		        
+   			}
+  			
+  			// TODO Update weights here.
+  			
+  			// Make sure the last event finishes.
+  			CLEvent.waitFor(event);
+
 //  			Pointer<Float> outPtr = outBuf.read(queue, event);
 //	        float[][] outputs = extractOutputs(outPtr);
 //	        outPtr.release();
