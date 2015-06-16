@@ -18,24 +18,23 @@ float calcNet(__global float* layerWeights, __global float* inputs, int numInput
 	return total;
 }
 
-__kernel void calcOutputsForLayer(__global float* networkInputs, int instanceRow, int numInputAttributes, 
+/**
+ * @param networkInputs An array of instances. An array is passed instead of a single instance to
+ * reduce the number of TODO
+ * @param instanceRow An index into networkInputs specifying the instance to make a prediction for.
+ */
+__kernel void calcOutputsForLayer(__global float* networkInputs, int numInputAttributes, 
 		int layerIndex, __global float* networkWeights, __global int* nodeWeightCountsPerLayer, 
 		__global int* nodeCountsPerLayer, __global float* outputs) 
 {
-//    printf("nodeInputs: \n");
-//    for (int i = 0; i < numInputs; i++)
-//    {
-//    	printf("%d: %f", i, nodeInputs[i]);
-//    }
-//    printf("\n");
- 
+
     int nodeIndex = get_global_id(0);
     
     __global float* nodeInputs;
     int numLayerInputs;
     if (layerIndex == 0)
     {
-    	nodeInputs = networkInputs + (numInputAttributes * instanceRow);
+    	nodeInputs = networkInputs;// + (numInputAttributes * instanceRow);
     	numLayerInputs = numInputAttributes;
     }
     else
@@ -68,10 +67,10 @@ __kernel void calcOutputsForLayer(__global float* networkInputs, int instanceRow
 
 }
 
-//__kernel void calcOutputLayerErrors(__global const int* nodeCountsPerLayer)
-//{
-//}
-//
+__kernel void calcOutputLayerErrors(__global int* nodeCountsPerLayer, __global float* errors)
+{
+}
+
 //__kernel void calcHiddenLayerErrors(__global const int* nodeCountsPerLayer, int layerIndex)
 //{
 //}

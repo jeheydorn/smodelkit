@@ -339,13 +339,34 @@ public class NeuralNetCL extends SupervisedLearner
 			count++;
 			totalCount++;
 
-			doEpoch(tInputs, tLabels, nextInstanceIndex);
+			CLContext context = JavaCL.createBestContext();
+	        ByteOrder byteOrder = context.getByteOrder();
+
+	        String src;
+			try
+			{
+				src = IOUtils.readText(Paths.get("neuralnet.cl").toFile());
+			} catch (IOException e)
+			{
+				throw new RuntimeException(e);
+			}
+	        CLProgram program = context.createProgram(src);
+
+	        // Get the kernels.
+	        CLKernel calcOutputsForLayerKernel = program.createKernel("calcOutputsForLayer");
+//          CLKernel calcOutputLayerErrorsKernel = program.createKernel("calcOutputLayerErrors");
+//	        CLKernel calcHiddenLayerErrors = program.createKernel("calcHiddenLayerErrors");
+//	        CLKernel updateWeights = program.createKernel("updateWeights");
+
+		    CLQueue queue = context.createDefaultQueue();
+
+			doEpoch(tInputs, tLabels, nextInstanceIndex, calcOutputsForLayerKernel, context, queue);
 			nextInstanceIndex = (nextInstanceIndex + epochSize) % tInputs.rows();
 			
 			if (PRINT_EPOCH_TIMES)
 			{
 				long timeAfter = System.currentTimeMillis();
-				Logger.println("Epoch time: " + (timeAfter - timeBefore)/1000.0 + " seconds");
+				Logger.println("Epoch " + (totalCount) + " time: " + (timeAfter - timeBefore)/1000.0 + " seconds");
 				timeBefore = timeAfter;
 			}
 
@@ -441,73 +462,48 @@ public class NeuralNetCL extends SupervisedLearner
 			}
 	}
 
-	protected void doEpoch(Matrix inputs, Matrix labels, int nextIndex)
+	protected void doEpoch(Matrix inputs, Matrix labels, int nextIndex, CLKernel calcOutputsForLayerKernel, 
+			CLContext context, CLQueue queue)
 	{	
-//		JavaCL.createBestContext(CLPlatform.DeviceFeature.CPU);
-		JavaCL.createBestContext();
-		CLContext context = JavaCL.createBestContext();
-        CLQueue queue = context.createDefaultQueue();
-        ByteOrder byteOrder = context.getByteOrder();
-
-        // Convert the inputs to the format required for javacl.
-        float[][] inputsArray = new float[epochSize][inputs.cols()];
-   		for (int instanceRow = nextIndex; instanceRow < nextIndex + epochSize; instanceRow++)
-		{
-			instanceRow %= inputs.rows();
-			
-			for (int j = 0; j < inputs.cols(); j++)
-			{
-				inputsArray[instanceRow][j] = inputs.row(instanceRow).getFloat(j);
-			}
-        }
-        Pointer<Pointer<Float>> inputsPtr = Pointer.pointerToFloats(inputsArray);
-		
+//		JavaCL.createBestContext(CLPlatform.DeviceFeature.CPU);                
+ 		
         // Convert the weights to the format required for javacl.
-        // (I think) I cannot use a 2D array because C does not allow jagged arrays.
-        CLBuffer<Float> networkWeightsBuf = context.createBuffer(Usage.InputOutput, Pointer.pointerToFloats(layers));
+        CLBuffer<Float> networkWeightsBuf = context.createBuffer(Usage.InputOutput, 
+        		Pointer.pointerToFloats(layers));
+         
         
-        CLBuffer<Pointer<Float>> inputsBuf = context.createBuffer(Usage.Input, inputsPtr);
+        CLBuffer<Integer> nodeWeightCountsPerLayerBuf = context.createIntBuffer(Usage.Input, 
+        		Pointer.pointerToInts(nodeWeightCountsPerLayer));
         
-        Pointer<Integer> nodeWeightCountsPerLayerPtr = Pointer.pointerToInts(nodeWeightCountsPerLayer);
-        CLBuffer<Integer> nodeWeightCountsPerLayerBuf = context.createIntBuffer(Usage.Input, nodeWeightCountsPerLayerPtr);
-        
-        CLBuffer<Integer> nodeCountsPerLayerBuf = context.createBuffer(Usage.Input, Pointer.pointerToInts(nodeCountsPerLayer));
+        CLBuffer<Integer> nodeCountsPerLayerBuf = context.createBuffer(Usage.Input, 
+        		Pointer.pointerToInts(nodeCountsPerLayer));
         
         // Create a buffer to store the output of every node.
-        CLBuffer<Float> outBuf = context.createBuffer(Usage.Output, Float.class, Arrays.stream(nodeCountsPerLayer).sum());
-
-        // Read the program sources and compile them :
-        String src;
-		try
-		{
-			src = IOUtils.readText(Paths.get("neuralnet.cl").toFile());
-		} catch (IOException e)
-		{
-			throw new RuntimeException(e);
-		}
-        CLProgram program = context.createProgram(src);
-
-        // Get the kernels.
-        CLKernel calcOutputsForLayerKernel = program.createKernel("calcOutputsForLayer");
-//        CLKernel calcOutputLayerErrorsKernel = program.createKernel("calcOutputLayerErrors");
-//        CLKernel calcHiddenLayerErrors = program.createKernel("calcHiddenLayerErrors");
-//        CLKernel updateWeights = program.createKernel("updateWeights");
+        CLBuffer<Float> outBuf = context.createBuffer(Usage.Output, Float.class, 
+        		Arrays.stream(nodeCountsPerLayer).sum());
                 
-   		for (int instanceRow : new Range(nextIndex, nextIndex + epochSize))
+		CLEvent event = null;
+        for (int instanceRow : new Range(nextIndex, nextIndex + epochSize))
 		{
-   			CLEvent lastEvent = null;
   			for (int layerIndex : new Range(nodeCountsPerLayer.length))
    			{
- 		        calcOutputsForLayerKernel.setArgs(inputsBuf, instanceRow, inputs.cols(),
+  		        CLBuffer<Float> inputsBuf  = context.createFloatBuffer(Usage.Input, 
+  		        		Pointer.pointerToFloats(inputs.row(instanceRow).getValuesFloat()));
+				
+ 		        calcOutputsForLayerKernel.setArgs(inputsBuf, inputs.cols(),
 		        		layerIndex, networkWeightsBuf, nodeWeightCountsPerLayerBuf, 
 		        		nodeCountsPerLayerBuf, outBuf);
- 		       lastEvent = calcOutputsForLayerKernel.enqueueNDRange(queue, new int[] { nodeCountsPerLayer[layerIndex] });
-
+  		        if (event == null)
+  		        	event = calcOutputsForLayerKernel.enqueueNDRange(queue, new int[] {nodeCountsPerLayer[layerIndex]});
+  		        else
+  		        	event = calcOutputsForLayerKernel.enqueueNDRange(queue, new int[] {nodeCountsPerLayer[layerIndex]}, event);
+  		        
    			}
-	        float[][] outputs = extractOutputs(outBuf.read(queue, lastEvent));
+//  			Pointer<Float> outPtr = outBuf.read(queue, event);
+//	        float[][] outputs = extractOutputs(outPtr);
+//	        outPtr.release();
 	        //Logger.printArray2D("outputs", outputs);
 		}
-        
         
 //        Pointer<Float> readPtr = layerWeightsBuf.read(queue, calcOutputsEvent);
 //        for (int j = 0; j < layers[i].length; j++)

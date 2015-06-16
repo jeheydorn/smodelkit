@@ -1,7 +1,7 @@
 {
 	"filters": ["normalize", "mean_mode_unknown_filler", "nom_to_categorical"],
 	"hiddenLayerMultiples": null,
-	"hiddenLayerSizes": [1000],
+	"hiddenLayerSizes": [1000, 1000, 1000, 1000, 1000],
 	"maxHiddenLayerSize": null,
 	"includeLabelsInHiddenLayerMultiples": false,
 	"validationSetPercent": 0.0,
@@ -16,6 +16,6 @@
 	"maxEpochs" : 50,
 	"maxEpochsWithoutImprovement": null,
 	"improvementThreshold": 0.00000,
-	"epochSize": 10,
+	"epochSize": 1000,
 	"minEpochSize": null
 }
