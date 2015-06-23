@@ -14,6 +14,7 @@ import com.nativelibs4java.opencl.CLBuffer;
 import com.nativelibs4java.opencl.CLContext;
 import com.nativelibs4java.opencl.CLEvent;
 import com.nativelibs4java.opencl.CLKernel;
+import com.nativelibs4java.opencl.CLPlatform.DeviceFeature;
 import com.nativelibs4java.opencl.CLProgram;
 import com.nativelibs4java.opencl.CLQueue;
 import com.nativelibs4java.opencl.JavaCL;
@@ -328,48 +329,49 @@ public class NeuralNetCL extends SupervisedLearner
 		int count = 0;
 		int totalCount = 0;
 		int nextInstanceIndex = 0;
+		
+		context = JavaCL.createBestContext();
+
+        String src;
+		try
+		{
+			src = IOUtils.readText(Paths.get("neuralnet.cl").toFile());
+		} catch (IOException e)
+		{
+			throw new RuntimeException(e);
+		}
+        CLProgram program = context.createProgram(src);
+
+        calcOutputsForLayer = program.createKernel("calcOutputsForLayer");
+        CLKernel calcOutputLayerErrors = program.createKernel("calcOutputLayerErrors");
+        CLKernel calcHiddenLayerErrors = program.createKernel("calcHiddenLayerErrors");
+        CLKernel updateWeights = program.createKernel("updateWeights");
+
+	    queue = context.createDefaultQueue();
+	    
+	    // Create buffers.
+        ByteOrder byteOrder = context.getByteOrder();
+
+        networkWeightsPtr = Pointer.pointerToFloats(layers).order(byteOrder);
+        networkWeightsBuf = context.createBuffer(Usage.InputOutput, networkWeightsPtr);
+        
+        nodeWeightCountsPerLayerBuf = context.createIntBuffer(Usage.Input, 
+        		Pointer.pointerToInts(nodeWeightCountsPerLayer).order(byteOrder));
+        
+        nodeCountsPerLayerBuf = context.createBuffer(Usage.Input, 
+        		Pointer.pointerToInts(nodeCountsPerLayer).order(byteOrder));
+        
+        outputsBuf = context.createBuffer(Usage.Output, Float.class, 
+        		Arrays.stream(nodeCountsPerLayer).sum());
+
+        errorsBuf = context.createBuffer(Usage.Output, Float.class, 
+        		Arrays.stream(nodeCountsPerLayer).sum());
+
 		long timeBefore = System.currentTimeMillis();
 		do
 		{
 			count++;
 			totalCount++;
-
-			context = JavaCL.createBestContext();
-
-	        String src;
-			try
-			{
-				src = IOUtils.readText(Paths.get("neuralnet.cl").toFile());
-			} catch (IOException e)
-			{
-				throw new RuntimeException(e);
-			}
-	        CLProgram program = context.createProgram(src);
-
-	        calcOutputsForLayer = program.createKernel("calcOutputsForLayer");
-            CLKernel calcOutputLayerErrors = program.createKernel("calcOutputLayerErrors");
-	        CLKernel calcHiddenLayerErrors = program.createKernel("calcHiddenLayerErrors");
-	        CLKernel updateWeights = program.createKernel("updateWeights");
-
-		    queue = context.createDefaultQueue();
-		    
-		    // Create buffers.
-	        ByteOrder byteOrder = context.getByteOrder();
-
-	        networkWeightsPtr = Pointer.pointerToFloats(layers).order(byteOrder);
-	        networkWeightsBuf = context.createBuffer(Usage.InputOutput, networkWeightsPtr);
-	        
-	        nodeWeightCountsPerLayerBuf = context.createIntBuffer(Usage.Input, 
-	        		Pointer.pointerToInts(nodeWeightCountsPerLayer).order(byteOrder));
-	        
-	        nodeCountsPerLayerBuf = context.createBuffer(Usage.Input, 
-	        		Pointer.pointerToInts(nodeCountsPerLayer).order(byteOrder));
-	        
-	        outputsBuf = context.createBuffer(Usage.Output, Float.class, 
-	        		Arrays.stream(nodeCountsPerLayer).sum());
-
-	        errorsBuf = context.createBuffer(Usage.Output, Float.class, 
-	        		Arrays.stream(nodeCountsPerLayer).sum());
 
 			doEpoch(tInputs, tLabels, nextInstanceIndex, calcOutputsForLayer, calcOutputLayerErrors, 
 					calcHiddenLayerErrors, updateWeights, context, queue, networkWeightsBuf, 
